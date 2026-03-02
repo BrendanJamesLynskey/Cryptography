@@ -2,7 +2,7 @@
 
 Interactive slide decks covering modern cryptographic systems end-to-end — from the underlying mathematics through NIST standards to SystemVerilog RTL and Python implementations.
 
-## ▶ [Open the Series Landing Page](https://brendanjameslynskey.github.io/Cryptography/))
+## ▶ [Open the Series Landing Page](https://brendanjameslynskey.github.io/Cryptography/)
 
 > **Setup:** Enable GitHub Pages (Settings → Pages → Deploy from `main` branch, `/ (root)` directory), then replace `OWNER` and `REPO` in the link above with your GitHub username and repository name.
 >
@@ -19,7 +19,7 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 | 03 | AES — Design & Implementation | — | Planned |
 | 04 | Hash Functions & MACs | — | Planned |
 | 05 | Public Key Cryptography (RSA, DH) | — | Planned |
-| 06 | Digital Signatures (ECDSA, EdDSA) | — | Planned |
+| 06 | Digital Signatures (ECDSA, EdDSA, Schnorr) | 25 | ✅ Complete |
 | 07 | Post-Quantum Cryptography | 21 | ✅ Complete |
 | 08 | Key Exchange Protocols | — | Planned |
 | 09 | Side-Channel Attacks & Countermeasures | — | Planned |
@@ -40,6 +40,30 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 **Code** — Complete SystemVerilog GF(2⁸) multiplier, parameterized modular add/subtract modules, Python GF(2⁸) and GF(p) classes with Fermat inverse.
 
 **Performance** — Throughput comparison from 3.2 Gbps (OpenSSL) to 53 Gbps (45nm ASIC), with area/speed/side-channel trade-off analysis.
+
+---
+
+## Presentation 06: Digital Signatures
+
+25 interactive slides covering:
+
+**Theory** — Hash-then-sign paradigm, authentication/integrity/non-repudiation properties. The ElGamal → DSA → ECDSA → Schnorr → EdDSA family tree. Full mathematical walkthroughs of ECDSA signing/verification with correctness proofs.
+
+**Schemes** — ECDSA deep dive (key generation, signing, verification, deterministic RFC 6979 variant). Schnorr signatures with linearity and batch verification. EdDSA/Ed25519 with deterministic nonces and twisted Edwards curve parameters. Side-by-side comparison table across all three schemes.
+
+**Advanced Protocols** — MuSig2 (n-of-n) and FROST (t-of-n) threshold signatures. Blind and ring signatures overview.
+
+**Standards** — FIPS 186-5 (2023), RFC 8032 (Ed25519/Ed448), RFC 6979 (deterministic ECDSA), BIP 340 (Schnorr for Bitcoin Taproot), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA). Real-world deployment map: TLS 1.3, blockchain, SSH, mobile/IoT, code signing, PKI.
+
+**Hardware** — ECDSA/EdDSA FPGA accelerator block diagrams and synthesis results (Virtex-5, Alveo U250). ASIC 45nm implementation data (0.257 mm², 532 MHz). Side-channel attack taxonomy (SPA, DPA, EM, fault injection) and countermeasures (Montgomery ladder, scalar blinding, coordinate randomization).
+
+**Post-Quantum** — ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+) parameter sets, size comparisons, hardware accelerator results. Hybrid transition strategies.
+
+**Code** — Python Ed25519 and ECDSA P-256 implementations. SystemVerilog modular inverse module (Fermat's little theorem via Montgomery exponentiation). ECDSA sign top-level RTL with FSM controller.
+
+**Interactive** — Live ECDSA signing simulator on a toy elliptic curve with sign, verify, and tamper-detection demonstrations.
+
+**Attacks** — Sony PS3 nonce-reuse (2010), Android Bitcoin wallet RNG failure (2013), ROCA TPM vulnerability (2017), Minerva timing side-channel (2019).
 
 ---
 
@@ -76,6 +100,8 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 ├── README.md                          ← This file
 ├── 01-finite-field-arithmetic/
 │   └── index.html                     ← Reveal.js interactive slide deck
+├── 06-digital-signatures/
+│   └── index.html                     ← Reveal.js interactive slide deck
 └── 07-post-quantum-cryptography/
     └── index.html                     ← Reveal.js interactive slide deck
 ```
@@ -98,6 +124,8 @@ Each presentation is a single self-contained `index.html`. No build step, no npm
 ## References
 
 **Presentation 01:** FIPS 197 (AES) · NIST SP 800-186 (ECC Curves) · RFC 7748 (Curve25519/448) · FIPS 186-5 (DSS) · Canright, "A Very Compact Rijndael S-box" (2005) · Kleppmann, "Implementing Curve25519/X25519" (2020) · Koç et al., "Finite Field Arithmetic for Cryptography," IEEE (2010)
+
+**Presentation 06:** FIPS 186-5 (DSS) · FIPS 204 (ML-DSA) · FIPS 205 (SLH-DSA) · NIST SP 800-186 (ECC Curves) · RFC 6979 (Deterministic ECDSA) · RFC 8032 (EdDSA) · BIP 340 (Schnorr) · Johnson, Menezes, Vanstone, "The ECDSA" (2001) · Bernstein et al., "High-speed high-security signatures" (2011)
 
 **Presentation 07:** FIPS 203 (ML-KEM) · FIPS 204 (ML-DSA) · FIPS 205 (SLH-DSA) · NIST IR 8547 (PQC Transition) · SP 800-208 (LMS/XMSS) · Shor, "Polynomial-Time Algorithms for Prime Factorization" (1994) · Regev, "On Lattices, Learning with Errors" (2005) · Lyubashevsky, Peikert, Regev, "On Ideal Lattices and RLWE" (2010) · Bos et al., "CRYSTALS-Kyber" (2018) · Ducas et al., "CRYSTALS-Dilithium" (2018) · Bernstein et al., "The SPHINCS+ Signature Framework" (2019)
 
