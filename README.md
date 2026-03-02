@@ -2,7 +2,7 @@
 
 Interactive slide decks covering modern cryptographic systems end-to-end — from the underlying mathematics through NIST standards to SystemVerilog RTL and Python implementations.
 
-## ▶ [Open the Series Landing Page](https://brendanjameslynskey.github.io/Cryptography/)
+## ▶ [Open the Series Landing Page](https://brendanjameslynskey.github.io/Cryptography/))
 
 > **Setup:** Enable GitHub Pages (Settings → Pages → Deploy from `main` branch, `/ (root)` directory), then replace `OWNER` and `REPO` in the link above with your GitHub username and repository name.
 >
