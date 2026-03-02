@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finite Field Arithmetic for Cryptography — Modern Cryptography Series</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0D1B2A;
+  --slate: #1B2838;
+  --teal: #00B4D8;
+  --mint: #48CAE4;
+  --gold: #FFB703;
+  --cream: #E0E1DD;
+  --dim: #8D99AE;
+  --card: #162230;
+  --code-bg: #0A1018;
+  --red: #E63946;
+  --green: #06D6A0;
+}
+.reveal-viewport { background: var(--navy); }
+.reveal { font-family: 'DM Sans', sans-serif; color: var(--cream); font-size: 22px; }
+.reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; color: #fff; text-transform: none; letter-spacing: -0.01em; }
+.reveal h1 { font-size: 2.4em; font-weight: 900; }
+.reveal h2 { font-size: 1.7em; font-weight: 700; margin-bottom: 0.6em; }
+.reveal h3 { font-size: 1.2em; font-weight: 700; color: var(--teal); }
+.reveal code, .reveal pre code { font-family: 'JetBrains Mono', monospace; }
+.reveal pre { box-shadow: none; width: 100%; }
+.reveal pre code { padding: 1em; border-radius: 8px; font-size: 0.58em; line-height: 1.5; background: var(--code-bg); border: 1px solid rgba(0,180,216,0.15); }
+.reveal .slide-number { font-family: 'JetBrains Mono', monospace; font-size: 0.7em; color: var(--dim); }
+.reveal section { text-align: left; }
+.reveal .slides > section { padding: 0.5em; }
+.reveal .progress { color: var(--teal); height: 3px; }
+.reveal .controls { color: var(--teal); }
+
+/* ── Accent bar at top of each slide ── */
+.reveal section::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--gold));
+}
+
+/* ── Custom classes ── */
+.accent { color: var(--teal); }
+.gold { color: var(--gold); }
+.green { color: var(--green); }
+.red { color: var(--red); }
+.dim { color: var(--dim); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.small { font-size: 0.65em; }
+.smaller { font-size: 0.55em; }
+.tiny { font-size: 0.48em; }
+
+/* ── Cards ── */
+.card {
+  background: var(--card);
+  border-radius: 8px;
+  padding: 1em 1.2em;
+  margin: 0.4em 0;
+  border-left: 3px solid var(--teal);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.card.gold-border { border-left-color: var(--gold); }
+.card.green-border { border-left-color: var(--green); }
+.card.red-border { border-left-color: var(--red); }
+.card.no-border { border-left: none; }
+.card h3 { margin: 0 0 0.4em 0; font-size: 1em; }
+.card p, .card ul { margin: 0; font-size: 0.8em; color: var(--cream); }
+.card ul { padding-left: 1.2em; }
+.card ul li { margin-bottom: 0.25em; }
+
+/* ── Grid layouts ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8em; align-items: start; }
+.grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 1em; align-items: start; }
+.grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 1em; align-items: start; }
+
+/* ── Definition box ── */
+.defbox {
+  background: var(--slate);
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  text-align: center;
+  margin: 0.5em 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  color: var(--gold);
+}
+.defbox .note { font-family: 'DM Sans', sans-serif; font-size: 0.8em; color: var(--dim); margin-top: 0.3em; }
+
+/* ── Table styling ── */
+.reveal table { border-collapse: collapse; width: 100%; font-size: 0.65em; margin: 0.5em 0; }
+.reveal table th { background: var(--teal); color: var(--navy); padding: 0.5em 0.7em; text-align: left; font-weight: 700; }
+.reveal table td { background: var(--card); padding: 0.5em 0.7em; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+.reveal table td:first-child { color: var(--gold); font-weight: 600; }
+
+/* ── Algebraic structure ladder ── */
+.structure-ladder .step {
+  display: flex; align-items: flex-start; gap: 1em;
+  padding: 0.5em 0.8em; margin: 0.3em 0;
+  background: var(--card); border-radius: 6px;
+  border-left: 3px solid var(--dim);
+  transition: border-color 0.3s;
+}
+.structure-ladder .step:nth-child(1) { border-left-color: var(--dim); }
+.structure-ladder .step:nth-child(2) { border-left-color: var(--mint); }
+.structure-ladder .step:nth-child(3) { border-left-color: var(--teal); }
+.structure-ladder .step:nth-child(4) { border-left-color: var(--gold); }
+.structure-ladder .step-name { font-weight: 700; min-width: 5em; font-size: 0.9em; }
+.structure-ladder .step-sym { font-family: 'JetBrains Mono', monospace; color: var(--cream); font-size: 0.8em; min-width: 5em; }
+.structure-ladder .step-desc { font-size: 0.7em; color: var(--dim); }
+
+/* ── GF(7) table ── */
+.gf-table { font-size: 0.58em; }
+.gf-table th, .gf-table td { text-align: center; padding: 0.3em 0.5em; font-family: 'JetBrains Mono', monospace; }
+.gf-table th { background: var(--teal); color: var(--navy); }
+.gf-table td { background: var(--card); }
+.gf-table td.header-cell { background: var(--teal); color: var(--navy); font-weight: 700; }
+
+/* ── Checklist items ── */
+.check-item { display: flex; gap: 0.5em; align-items: flex-start; margin: 0.35em 0; font-size: 0.75em; }
+.check-item::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 0.05em; }
+
+/* ── Pill / tag ── */
+.pill {
+  display: inline-block;
+  padding: 0.15em 0.6em;
+  border-radius: 20px;
+  font-size: 0.6em;
+  font-weight: 600;
+}
+.pill.teal { background: rgba(0,180,216,0.15); color: var(--teal); }
+.pill.gold { background: rgba(255,183,3,0.15); color: var(--gold); }
+.pill.green { background: rgba(6,214,160,0.15); color: var(--green); }
+.pill.red { background: rgba(230,57,70,0.15); color: var(--red); }
+
+/* ── Stat callout ── */
+.stat { font-size: 2.2em; font-weight: 900; font-family: 'Playfair Display', serif; }
+.stat-label { font-size: 0.6em; color: var(--dim); }
+
+/* ── Architecture cards ── */
+.arch-card {
+  background: var(--slate);
+  border-radius: 6px;
+  padding: 0.6em 0.8em;
+  margin: 0.3em 0;
+  border-left: 3px solid var(--teal);
+}
+.arch-card h4 { margin: 0 0 0.2em 0; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.85em; }
+.arch-card p { margin: 0; font-size: 0.68em; color: var(--dim); }
+
+/* ── Series list ── */
+.series-item {
+  display: flex; align-items: center; gap: 0.6em;
+  padding: 0.3em 0;
+}
+.series-num {
+  width: 1.8em; height: 1.8em;
+  border-radius: 50%;
+  background: var(--slate);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em; font-weight: 700;
+  flex-shrink: 0;
+}
+.series-num.active { background: var(--gold); color: var(--navy); }
+.series-title { font-size: 0.75em; }
+.series-title.active { color: var(--gold); font-weight: 700; }
+.series-status { font-size: 0.55em; color: var(--dim); font-style: italic; }
+
+/* ── Slide-specific ── */
+.title-slide { text-align: center; }
+.title-slide h1 { line-height: 1.15; margin-bottom: 0.2em; }
+.title-slide .subtitle { font-size: 0.8em; color: var(--mint); margin-bottom: 1em; }
+.title-slide .series-tag {
+  display: inline-block;
+  background: var(--slate);
+  padding: 0.3em 1.2em;
+  border-radius: 4px;
+  font-size: 0.6em;
+  color: var(--dim);
+}
+
+/* ── Animated diagram: field operations ── */
+.op-demo {
+  display: flex; align-items: center; gap: 0.5em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75em;
+  padding: 0.4em 0;
+}
+.op-demo .operand { color: var(--cream); }
+.op-demo .operator { color: var(--teal); font-weight: 700; }
+.op-demo .result { color: var(--gold); font-weight: 700; }
+.op-demo .annotation { color: var(--dim); font-family: 'DM Sans', sans-serif; font-size: 0.85em; }
+
+/* ── Trade-off chart bars ── */
+.bar-chart { margin: 0.5em 0; }
+.bar-row { display: flex; align-items: center; gap: 0.5em; margin: 0.25em 0; font-size: 0.65em; }
+.bar-label { width: 6em; text-align: right; color: var(--dim); flex-shrink: 0; }
+.bar-track { flex: 1; height: 1.4em; background: var(--slate); border-radius: 3px; position: relative; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.5em; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.85em; color: var(--navy); transition: width 1s ease-out; }
+.bar-fill.teal { background: linear-gradient(90deg, var(--teal), var(--mint)); }
+.bar-fill.gold { background: linear-gradient(90deg, var(--gold), #FFC94D); }
+
+/* ── Key insight banner ── */
+.insight-banner {
+  background: var(--slate);
+  border-radius: 6px;
+  padding: 0.6em 1em;
+  display: flex; align-items: center; gap: 0.7em;
+  margin-top: 0.6em;
+  font-size: 0.7em;
+}
+.insight-banner .icon { font-size: 1.5em; }
+
+/* ── Print / PDF tweaks ── */
+@media print {
+  .reveal section::before { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 1: TITLE                              -->
+<!-- ════════════════════════════════════════════ -->
+<section class="title-slide">
+  <div style="font-size:3em; margin-bottom:0.2em;">🔐</div>
+  <h1>Finite Field Arithmetic<br>for Cryptography</h1>
+  <div class="subtitle">Theory, Standards, and Hardware/Software Implementation</div>
+  <div class="series-tag">Modern Cryptography Series · Presentation 1 of 10</div>
+  <p class="dim small" style="margin-top:1.5em; text-align:center;">Navigate: arrow keys or swipe · Press <kbd style="background:var(--slate);padding:0.1em 0.4em;border-radius:3px;">ESC</kbd> for overview</p>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 2: AGENDA                             -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Agenda</h2>
+  <div class="grid-2">
+    <div>
+      <div class="card" style="border-left-color:var(--teal);"><h3><span class="accent">01</span> What is a Finite Field?</h3><p>Algebraic foundations — groups, rings, fields</p></div>
+      <div class="card" style="border-left-color:var(--teal);"><h3><span class="accent">02</span> GF(p) — Prime Fields</h3><p>Modular arithmetic, properties, and crypto primes</p></div>
+      <div class="card" style="border-left-color:var(--teal);"><h3><span class="accent">03</span> GF(2<sup>n</sup>) — Binary Extension Fields</h3><p>Polynomial basis, irreducible polynomials, XOR arithmetic</p></div>
+      <div class="card" style="border-left-color:var(--teal);"><h3><span class="accent">04</span> Fields in Cryptographic Standards</h3><p>AES, ECC curves, and why each field was chosen</p></div>
+    </div>
+    <div>
+      <div class="card gold-border"><h3><span class="gold">05</span> Hardware Implementation</h3><p>SoC, FPGA, software — Montgomery multiplication</p></div>
+      <div class="card gold-border"><h3><span class="gold">06</span> SystemVerilog Examples</h3><p>GF(2<sup>8</sup>) multiplier, modular arithmetic RTL</p></div>
+      <div class="card gold-border"><h3><span class="gold">07</span> Python Examples</h3><p>Galois field classes, ECC field arithmetic</p></div>
+      <div class="card gold-border"><h3><span class="gold">08</span> Performance & Trade-offs</h3><p>LUT vs. combinational vs. pipelined comparison</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 3: WHAT IS A FINITE FIELD?            -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>What is a Finite Field?</h2>
+  <div class="grid-2">
+    <div>
+      <div class="structure-ladder">
+        <div class="step fragment" data-fragment-index="1">
+          <div class="step-name dim">Group</div>
+          <div class="step-sym">(G, +)</div>
+          <div class="step-desc">Closure, associativity, identity, inverses</div>
+        </div>
+        <div class="step fragment" data-fragment-index="2">
+          <div class="step-name" style="color:var(--mint);">Ring</div>
+          <div class="step-sym">(R, +, ×)</div>
+          <div class="step-desc">Group under +; closure & associativity under ×; distributive law</div>
+        </div>
+        <div class="step fragment" data-fragment-index="3">
+          <div class="step-name accent">Field</div>
+          <div class="step-sym">(F, +, ×)</div>
+          <div class="step-desc">Ring where every non-zero element has a multiplicative inverse</div>
+        </div>
+        <div class="step fragment" data-fragment-index="4">
+          <div class="step-name gold">Finite Field</div>
+          <div class="step-sym">GF(p<sup>n</sup>)</div>
+          <div class="step-desc">A field with a finite number of elements. Exists iff |F| = p<sup>n</sup> (p&nbsp;prime)</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card no-border" style="background:var(--slate);">
+        <h3 class="gold">Key Properties</h3>
+        <div class="check-item">Exists uniquely for every prime power p<sup>n</sup></div>
+        <div class="check-item">Characteristic p: adding 1 to itself p times gives 0</div>
+        <div class="check-item"><strong>GF(p)</strong>: prime field — integers mod p</div>
+        <div class="check-item"><strong>GF(p<sup>n</sup>)</strong>: extension field — polynomials mod irreducible poly</div>
+        <div class="check-item">All arithmetic stays within the field (closure)</div>
+        <div class="check-item">Every non-zero element has a multiplicative inverse</div>
+        <div class="check-item">Named after Évariste Galois (1811–1832)</div>
+        <div class="check-item">Foundation of AES, ECC, error-correcting codes, and more</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 4: GF(p) PRIME FIELDS                 -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>GF(p) — Prime Fields</h2>
+  <div class="defbox">
+    GF(p) = { 0, 1, 2, …, p−1 } &nbsp;where p is prime
+    <div class="note">All operations performed modulo p. Addition, subtraction, multiplication, and division (via modular inverse) produce results within the field.</div>
+  </div>
+  <div class="grid-2" style="margin-top:0.5em;">
+    <div>
+      <h3 style="font-size:0.85em;">Example: GF(7) Addition Table</h3>
+      <table class="gf-table">
+        <tr><th>+</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+        <script>/* filled statically below */</script>
+        <tr><td class="header-cell">0</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr>
+        <tr><td class="header-cell">1</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>0</td></tr>
+        <tr><td class="header-cell">2</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>0</td><td>1</td></tr>
+        <tr><td class="header-cell">3</td><td>3</td><td>4</td><td>5</td><td>6</td><td>0</td><td>1</td><td>2</td></tr>
+        <tr><td class="header-cell">4</td><td>4</td><td>5</td><td>6</td><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+        <tr><td class="header-cell">5</td><td>5</td><td>6</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+        <tr><td class="header-cell">6</td><td>6</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+      </table>
+      <p class="dim tiny" style="text-align:center;">Notice the wrap-around — results never exceed 6</p>
+    </div>
+    <div>
+      <h3 style="font-size:0.85em;">Prime Fields in Cryptography</h3>
+      <div class="card" style="padding:0.6em 0.8em; font-size:0.75em;">
+        <div style="margin-bottom:0.5em;"><strong class="accent">P-256</strong> <span class="pill teal">128-bit security</span><br><span class="mono smaller">p = 2<sup>256</sup> − 2<sup>224</sup> + 2<sup>192</sup> + 2<sup>96</sup> − 1</span><br><span class="dim">TLS, ECDSA, ECDH, FIDO2</span></div>
+        <div style="margin-bottom:0.5em;"><strong class="accent">Curve25519</strong> <span class="pill gold">~128-bit security</span><br><span class="mono smaller">p = 2<sup>255</sup> − 19</span><br><span class="dim">Signal, WireGuard, SSH, TLS 1.3</span></div>
+        <div style="margin-bottom:0.5em;"><strong class="accent">P-384</strong> <span class="pill teal">192-bit security</span><br><span class="mono smaller">p = 2<sup>384</sup> − 2<sup>128</sup> − 2<sup>96</sup> + 2<sup>32</sup> − 1</span><br><span class="dim">Suite B, high-security TLS</span></div>
+        <div style="margin-bottom:0.5em;"><strong class="accent">P-521</strong> <span class="pill teal">~260-bit security</span><br><span class="mono smaller">p = 2<sup>521</sup> − 1</span> <span class="dim">(Mersenne prime)</span></div>
+        <div><strong class="accent">Curve448</strong> <span class="pill gold">224-bit security</span><br><span class="mono smaller">p = 2<sup>448</sup> − 2<sup>224</sup> − 1</span> <span class="dim">(Goldilocks prime)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 5: GF(2^n) BINARY EXTENSION FIELDS    -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>GF(2<sup>n</sup>) — Binary Extension Fields</h2>
+  <div class="defbox">
+    Elements are polynomials over GF(2) with binary coefficients {0, 1}<br>
+    <span class="note">Arithmetic mod an irreducible polynomial of degree n. &nbsp;Addition = XOR, &nbsp;Multiplication = polynomial multiply + reduce.</span>
+  </div>
+  <div class="grid-2" style="margin-top:0.4em;">
+    <div>
+      <div class="card">
+        <h3>🔒 GF(2<sup>8</sup>) — The AES Field</h3>
+        <p class="dim" style="margin-bottom:0.3em;">Irreducible polynomial (AES standard):</p>
+        <p class="gold mono" style="font-size:0.9em;">m(x) = x<sup>8</sup> + x<sup>4</sup> + x<sup>3</sup> + x + 1 &nbsp;<span class="dim">(0x11B)</span></p>
+        <p style="margin-top:0.5em;">256 elements — each is a byte (8 bits)</p>
+        <div style="margin-top:0.5em;">
+          <div class="op-demo"><span class="annotation">Add:</span> <span class="operand">0x57</span> <span class="operator">⊕</span> <span class="operand">0x83</span> <span class="operator">=</span> <span class="result">0xD4</span></div>
+          <div class="op-demo tiny dim" style="margin-left:2.8em;">01010111 XOR 10000011 = 11010100</div>
+          <div class="op-demo" style="margin-top:0.3em;"><span class="annotation">Mul:</span> <span class="operand">0x57</span> <span class="operator">×</span> <span class="operand">0x83</span> <span class="operator">=</span> <span class="result">0xC1</span> <span class="annotation">(mod m(x))</span></div>
+          <div class="tiny dim" style="margin-left:2.8em;">Polynomial multiply, then reduce mod x<sup>8</sup>+x<sup>4</sup>+x<sup>3</sup>+x+1</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card gold-border">
+        <h3 class="gold">Why Binary Extension Fields?</h3>
+        <div class="check-item"><strong>Addition = XOR</strong> → no carry propagation, single gate per bit</div>
+        <div class="check-item">Maps naturally to digital hardware (bits = coefficients)</div>
+        <div class="check-item">Constant-time operations → side-channel resistant</div>
+        <div class="check-item">Efficient in HW (LUT, shift-XOR) and SW (bitwise ops)</div>
+        <div class="check-item">Used in AES, GCM, CRC, Reed-Solomon, McEliece</div>
+        <div style="margin-top:0.6em; padding:0.5em; background:var(--slate); border-radius:4px;">
+          <p class="smaller dim" style="margin:0;">The <code>xtime</code> operation (multiply by <em>x</em>) is a left-shift with conditional XOR — the fundamental building block of GF(2<sup>n</sup>) hardware.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 6: FIELDS IN STANDARDS                -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Finite Fields in Cryptographic Standards</h2>
+  <table>
+    <thead>
+      <tr><th>Standard</th><th>Field</th><th>Why This Field?</th><th>Used For</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>AES (Rijndael)</td><td class="mono">GF(2<sup>8</sup>)<br>m(x)=x<sup>8</sup>+x<sup>4</sup>+x<sup>3</sup>+x+1</td><td>Byte-oriented; XOR = no carry chain; efficient S-box via multiplicative inverse</td><td>Symmetric encryption (TLS, disk, VPN)</td></tr>
+      <tr><td>AES-GCM</td><td class="mono">GF(2<sup>128</sup>)<br>m(x)=x<sup>128</sup>+x<sup>7</sup>+x<sup>2</sup>+x+1</td><td>GHASH authentication tag; 128-bit block matches AES; carry-less multiply (PCLMULQDQ)</td><td>Authenticated encryption (HTTPS, IPsec)</td></tr>
+      <tr><td>NIST P-256</td><td class="mono">GF(p), p=2<sup>256</sup>−2<sup>224</sup>+2<sup>192</sup>+2<sup>96</sup>−1</td><td>Pseudo-Mersenne prime → fast reduction via shift/add; 128-bit security</td><td>TLS certificates, code signing, FIDO2</td></tr>
+      <tr><td>Curve25519</td><td class="mono">GF(p), p=2<sup>255</sup>−19</td><td>Near-Mersenne prime → single-word reduction; constant-time ladder; cofactor 8</td><td>Signal, WireGuard, SSH, TLS 1.3</td></tr>
+      <tr><td>Curve448</td><td class="mono">GF(p), p=2<sup>448</sup>−2<sup>224</sup>−1</td><td>Goldilocks prime: efficient Karatsuba; 224-bit security</td><td>High-security TLS, NIST SP 800-186</td></tr>
+      <tr><td>SM2</td><td class="mono">GF(p), 256-bit</td><td>National standard prime; similar structure to P-256</td><td>Chinese gov encryption/signatures</td></tr>
+    </tbody>
+  </table>
+  <div class="insight-banner fragment">
+    <div class="icon">💡</div>
+    <div>Pseudo-Mersenne and Mersenne primes are preferred because <strong>reduction mod p</strong> becomes a series of additions and shifts — no general-purpose division needed.</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 7: WHY THESE FIELDS                   -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Why Were These Fields Chosen?</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>🔒 AES: Why GF(2<sup>8</sup>)?</h3>
+      <p><strong class="accent">Byte-oriented design</strong><br>Each byte = one element of GF(2<sup>8</sup>). Maps perfectly to 8-bit processors and memory widths.</p>
+      <p style="margin-top:0.4em;"><strong class="accent">S-Box = Multiplicative Inverse</strong><br>Computes multiplicative inverse in GF(2<sup>8</sup>) followed by affine transform. Provides optimal non-linearity against differential/linear cryptanalysis.</p>
+      <p style="margin-top:0.4em;"><strong class="accent">MixColumns = Matrix over GF(2<sup>8</sup>)</strong><br>Column polynomial multiplied by fixed polynomial c(x) mod x<sup>4</sup>+1. Provides diffusion.</p>
+      <p style="margin-top:0.4em;"><strong class="accent">No carry propagation</strong><br>Addition is XOR — constant-time, no carries, no branching.</p>
+    </div>
+    <div class="card gold-border">
+      <h3 class="gold">🔑 ECC: Why Pseudo-Mersenne Primes?</h3>
+      <p><strong class="gold">Fast modular reduction</strong><br>For p = 2<sup>255</sup>−19, reducing mod p needs only multiply by 19 and add — no division. For P-256, reduction uses shifts and additions.</p>
+      <p style="margin-top:0.4em;"><strong class="gold">Constant-time implementation</strong><br>Curve25519 uses a Montgomery ladder: every scalar bit executes identical operations. The prime allows this with efficient limb arithmetic.</p>
+      <p style="margin-top:0.4em;"><strong class="gold">Security margin</strong><br>P-256 → 128-bit; P-384 → 192-bit; P-521 → ~260-bit. Curve25519 achieves ~128-bit with superior performance.</p>
+      <p style="margin-top:0.4em;"><strong class="gold">Rigidity / Verifiability</strong><br>Curve25519: smallest p ≡ 5 (mod 8) near 2<sup>256</sup>. Transparent, auditable parameter choices.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 8: HARDWARE IMPLEMENTATION            -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Hardware Implementation of FF Arithmetic</h2>
+  <div class="grid-3">
+    <div class="card" style="border-left-color:var(--teal);">
+      <h3 class="accent">⚙ SoC / ASIC</h3>
+      <ul class="smaller">
+        <li>Dedicated crypto accelerator blocks (AES-NI in x86)</li>
+        <li>Composite field: GF(2<sup>8</sup>) → GF(((2<sup>2</sup>)<sup>2</sup>)<sup>2</sup>) reduces gates ~20%</li>
+        <li>Montgomery multipliers with systolic arrays for ECC</li>
+        <li>Side-channel: masking, dual-rail logic</li>
+        <li>Intel 45nm: 53 Gbps native GF((2<sup>4</sup>)<sup>2</sup>) AES</li>
+      </ul>
+    </div>
+    <div class="card gold-border">
+      <h3 class="gold">🔧 FPGA</h3>
+      <ul class="smaller">
+        <li>LUT-based S-box: ~32 LUTs per byte on Xilinx 7-series</li>
+        <li>Composite field S-box: Canright's method for compact design</li>
+        <li>Pipelined: 7+ Gbps on Virtex-E</li>
+        <li>Block RAM for precomputed tables (256×8 AES S-box)</li>
+        <li>DSP slices for large-field Montgomery multiply</li>
+      </ul>
+    </div>
+    <div class="card green-border">
+      <h3 class="green">💻 Software</h3>
+      <ul class="smaller">
+        <li>Table-driven: 256-entry lookup for GF(2<sup>8</sup>) <span class="red">(cache-timing risk)</span></li>
+        <li>Bitsliced: 64 blocks in parallel via 64-bit registers</li>
+        <li>SIMD: AVX2/NEON for parallel field ops</li>
+        <li>PCLMULQDQ for GF(2<sup>128</sup>) in AES-GCM</li>
+        <li>Limb arithmetic: 5×51-bit for Curve25519</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 9: MONTGOMERY MULTIPLICATION          -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Montgomery Multiplication for Hardware</h2>
+  <div class="grid-2">
+    <div>
+      <div class="card no-border" style="background:var(--code-bg); font-size:0.85em;">
+        <h3 class="gold" style="font-size:1em;">Core Idea</h3>
+        <p class="smaller">Replace division by N with division by R (a power of 2)</p>
+        <pre style="margin-top:0.5em;"><code class="language-plaintext" style="font-size:0.85em;">MonPro(ã, b̃, N):
+  R  = 2ⁿ    (n = bit-width of N)
+  N' = -N⁻¹ mod R
+
+  t = ã × b̃
+  m = t × N' mod R      ← just mask lower n bits
+  u = (t + m × N) / R   ← just right-shift n bits
+  if u ≥ N: u = u − N
+  return u               (= a·b·R mod N)</code></pre>
+        <div style="margin-top:0.5em;">
+          <div class="check-item"><code>mod R</code> = mask lower n bits</div>
+          <div class="check-item"><code>÷ R</code> = right-shift by n bits</div>
+          <div class="check-item"><strong class="green">No expensive modular division!</strong></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-size:0.9em;">Hardware Architectures</h3>
+      <div class="arch-card" style="border-left-color:var(--mint);">
+        <h4 class="mint">Bit-Serial</h4>
+        <p>1 bit/cycle. Minimal area, n+1 cycles. IoT SoCs.</p>
+      </div>
+      <div class="arch-card" style="border-left-color:var(--gold);">
+        <h4 class="gold">Word-Serial (CIOS)</h4>
+        <p>w-bit words, w×w multiplier + CSA. Best FPGA ECC trade-off.</p>
+      </div>
+      <div class="arch-card" style="border-left-color:var(--teal);">
+        <h4 class="accent">Systolic Array</h4>
+        <p>Pipelined PEs, regular data flow. High throughput. Ideal for ASIC.</p>
+      </div>
+      <div class="arch-card" style="border-left-color:var(--red);">
+        <h4 class="red">Full-Parallel</h4>
+        <p>1-cycle multiply. Enormous area, maximum throughput. AES-NI.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 10: SYSTEMVERILOG GF(2^8)             -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>SystemVerilog: GF(2<sup>8</sup>) Multiplier</h2>
+  <div class="grid-2-1">
+    <div>
+      <pre><code class="language-verilog">module gf2_8_mult (
+  input  logic [7:0] a, b,
+  output logic [7:0] p
+);
+  // AES irreducible polynomial: x^8 + x^4 + x^3 + x + 1
+  localparam [8:0] POLY = 9'h11B;
+  logic [7:0] partial [8];
+
+  // Bit-serial "Russian peasant" multiply
+  always_comb begin
+    partial[0] = a;
+    for (int i = 0; i < 8; i++) begin
+      if (i == 0)
+        p = b[0] ? a : 8'h00;
+      else
+        p = p ^ (b[i] ? partial[i] : 8'h00);
+
+      // xtime: shift left, reduce if MSB was set
+      if (i < 7)
+        partial[i+1] = {partial[i][6:0], 1'b0}
+                      ^ (partial[i][7] ? POLY[7:0] : 8'h00);
+    end
+  end
+endmodule</code></pre>
+    </div>
+    <div>
+      <div class="card" style="font-size:0.85em;">
+        <h3 class="gold">How It Works</h3>
+        <p><strong class="accent">Russian Peasant Algorithm</strong><br>Shift-and-add adapted for GF(2<sup>n</sup>). Process one bit per iteration.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">xtime Operation</strong><br>Left-shift by 1. If MSB was 1, XOR with reduction polynomial.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Irreducible Poly</strong><br>0x11B ensures 256 unique elements in the field.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Synthesis</strong><br>Fully combinational. ~100–150 gates. Can be pipelined.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Usage</strong><br>AES MixColumns (×02, ×03) and S-box (inverse via Itoh-Tsujii).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 11: SYSTEMVERILOG MOD ARITH           -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>SystemVerilog: Modular Arithmetic for GF(p)</h2>
+  <div class="grid-2-1">
+    <div>
+      <pre><code class="language-verilog">module mod_add #(parameter WIDTH = 256)(
+  input  logic [WIDTH-1:0] a, b, p,
+  output logic [WIDTH-1:0] sum
+);
+  logic [WIDTH:0] temp;  // 1 extra bit for overflow
+  always_comb begin
+    temp = a + b;
+    sum  = (temp >= {1'b0, p}) ? temp - p
+                               : temp[WIDTH-1:0];
+  end
+endmodule
+
+module mod_sub #(parameter WIDTH = 256)(
+  input  logic [WIDTH-1:0] a, b, p,
+  output logic [WIDTH-1:0] diff
+);
+  always_comb begin
+    if (a >= b)
+      diff = a - b;
+    else
+      diff = p - (b - a);  // wrap around via p
+  end
+endmodule</code></pre>
+    </div>
+    <div>
+      <div class="card" style="font-size:0.8em;">
+        <h3 class="gold">Design Notes</h3>
+        <p><strong class="accent">Parameterized</strong><br>Same module for 255-bit (Curve25519), 256-bit (P-256), 384-bit (P-384).</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Conditional Reduction</strong><br>a+b &lt; 2p, so one subtraction suffices.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Carry Bit</strong><br>Extra bit catches overflow when a+b &gt; 2<sup>WIDTH</sup>.</p>
+        <p style="margin-top:0.4em;"><strong class="red">⚠ Side-Channel Warning</strong><br>Conditional subtract creates data-dependent timing. Production crypto must use constant-time MUX selection.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 12: PYTHON GF(2^8)                    -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Python: GF(2<sup>8</sup>) for AES</h2>
+  <div class="grid-2-1">
+    <div>
+      <pre><code class="language-python">class GF2_8:
+    """Galois Field GF(2^8) with AES polynomial."""
+    POLY = 0x11B  # x^8 + x^4 + x^3 + x + 1
+
+    def __init__(self, val):
+        self.val = val & 0xFF
+
+    def __add__(self, other):        # Addition = XOR
+        return GF2_8(self.val ^ other.val)
+
+    def __mul__(self, other):        # Russian peasant multiply
+        a, b, p = self.val, other.val, 0
+        for _ in range(8):
+            if b & 1:  p ^= a
+            hi = a & 0x80
+            a = (a << 1) & 0xFF
+            if hi:     a ^= self.POLY & 0xFF
+            b >>= 1
+        return GF2_8(p)
+
+    def inverse(self):               # Fermat: a^(2^8 - 2) = a^254
+        r = GF2_8(1)
+        base = GF2_8(self.val)
+        for bit in bin(254)[2:]:
+            r = r * r
+            if bit == '1':  r = r * base
+        return r
+
+# ── Usage ──
+a, b = GF2_8(0x57), GF2_8(0x83)
+print(f"0x57 * 0x83 = 0x{(a * b).val:02X}")       # 0xC1
+print(f"inv(0x57)   = 0x{a.inverse().val:02X}")     # 0xFE
+print(f"0x57 * inv  = 0x{(a * a.inverse()).val:02X}") # 0x01 ✓</code></pre>
+    </div>
+    <div>
+      <div class="card" style="font-size:0.8em;">
+        <h3 class="gold">Key Points</h3>
+        <p><strong class="accent">XOR Addition</strong><br>No carry chain — just bitwise XOR. Subtraction is identical.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Shift-and-XOR Multiply</strong><br>Mirrors the hardware: shift left, conditionally XOR with polynomial.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Fermat Inverse</strong><br>a<sup>−1</sup> = a<sup>p<sup>n</sup>−2</sup> by Fermat's little theorem. For GF(2<sup>8</sup>): a<sup>254</sup>.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">No Dependencies</strong><br>Pure Python — no external libraries needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 13: PYTHON GF(p)                      -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Python: GF(p) for Elliptic Curves</h2>
+  <div class="grid-2-1">
+    <div>
+      <pre><code class="language-python">class GFp:
+    """Prime field GF(p) arithmetic."""
+    def __init__(self, val, p):
+        self.val = val % p
+        self.p = p
+
+    def __add__(self, o):  return GFp(self.val + o.val, self.p)
+    def __sub__(self, o):  return GFp(self.val - o.val, self.p)
+    def __mul__(self, o):  return GFp(self.val * o.val, self.p)
+    def __truediv__(self, o): return self * o.inverse()
+    def __eq__(self, o):   return self.val == o.val
+    def __repr__(self):    return f"GFp({self.val})"
+
+    def inverse(self):     # Fermat's little theorem
+        return GFp(pow(self.val, self.p - 2, self.p), self.p)
+
+# ── Curve25519 prime field ──
+p25519 = 2**255 - 19
+a = GFp(42, p25519)
+b = GFp(17, p25519)
+assert a * b / a == b          # field division works ✓
+assert a * a.inverse() == GFp(1, p25519)  # inverse ✓
+
+# ── P-256 prime field ──
+p256 = 2**256 - 2**224 + 2**192 + 2**96 - 1
+x = GFp(123456789, p256)
+assert x * x.inverse() == GFp(1, p256)    # ✓</code></pre>
+    </div>
+    <div>
+      <div class="card" style="font-size:0.8em;">
+        <h3 class="gold">Key Points</h3>
+        <p><strong class="accent">Modular Arithmetic</strong><br>Python's <code>%</code> operator handles the reduction. <code>pow(a, p-2, p)</code> uses fast modular exponentiation.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Division = Multiply by Inverse</strong><br>a / b = a × b<sup>−1</sup>, where b<sup>−1</sup> = b<sup>p−2</sup> mod p.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Big Integer Support</strong><br>Python natively handles 256-bit and 521-bit integers with arbitrary precision.</p>
+        <p style="margin-top:0.4em;"><strong class="red">⚠ Not constant-time</strong><br>Python's bigint operations are variable-time. Use libraries like <code>pynacl</code> or <code>cryptography</code> for production.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 14: PERFORMANCE                       -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Performance & Trade-offs</h2>
+  <div class="grid-2">
+    <div>
+      <h3 style="font-size:0.85em;">AES-128 Throughput by Implementation</h3>
+      <div class="bar-chart">
+        <div class="bar-row"><div class="bar-label">SW (OpenSSL)</div><div class="bar-track"><div class="bar-fill teal" style="width:6%;">3.2</div></div></div>
+        <div class="bar-row"><div class="bar-label">FPGA LUT</div><div class="bar-track"><div class="bar-fill teal" style="width:10%;">5.5</div></div></div>
+        <div class="bar-row"><div class="bar-label">FPGA Composite</div><div class="bar-track"><div class="bar-fill teal" style="width:13%;">7.0</div></div></div>
+        <div class="bar-row"><div class="bar-label">FPGA Pipelined</div><div class="bar-track"><div class="bar-fill gold" style="width:41%;">21.5</div></div></div>
+        <div class="bar-row"><div class="bar-label">ASIC (45nm)</div><div class="bar-track"><div class="bar-fill gold" style="width:100%;">53.0</div></div></div>
+      </div>
+      <p class="tiny dim" style="text-align:center;">Gbps · Sources: Canright (2005), McCanny (2003), Mathew/Intel (2011)</p>
+    </div>
+    <div>
+      <h3 style="font-size:0.85em;">Implementation Trade-offs</h3>
+      <table style="font-size:0.9em;">
+        <tr><th>Approach</th><th>Area</th><th>Speed</th><th>Side-Ch.</th></tr>
+        <tr><td>LUT / Table</td><td>High (RAM)</td><td>Moderate</td><td><span class="red">Risk</span></td></tr>
+        <tr><td>Composite Field</td><td>Low (~80 gates)</td><td>Moderate</td><td><span class="green">Good</span></td></tr>
+        <tr><td>Pipelined</td><td>Medium</td><td>Very High</td><td><span class="green">Good</span></td></tr>
+        <tr><td>Bit-sliced (SW)</td><td>N/A</td><td>High</td><td><span class="green">Excellent</span></td></tr>
+        <tr><td>Full-parallel</td><td>Very High</td><td>Maximum</td><td><span class="green">Excellent</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="insight-banner fragment">
+    <div class="icon">⚖️</div>
+    <div>The fundamental trade-off: <strong>area vs. throughput vs. side-channel resistance</strong>. Composite-field decomposition wins on area; pipelining maximizes throughput; bit-slicing and constant-time algorithms provide side-channel resistance. Production systems must balance all three.</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 15: KEY TAKEAWAYS                     -->
+<!-- ════════════════════════════════════════════ -->
+<section>
+  <h2>Key Takeaways</h2>
+  <div class="card fragment" style="border-left-color:var(--teal); margin:0.3em 0;">
+    <p><strong class="accent" style="font-size:1.2em;">1</strong> &nbsp;Finite fields are the algebraic foundation of nearly all modern cryptography — from AES to ECC to post-quantum schemes.</p>
+  </div>
+  <div class="card fragment" style="border-left-color:var(--gold); margin:0.3em 0;">
+    <p><strong class="gold" style="font-size:1.2em;">2</strong> &nbsp;Two families dominate: <strong>GF(2<sup>n</sup>)</strong> for symmetric ciphers and <strong>GF(p)</strong> for public-key / elliptic curve cryptography.</p>
+  </div>
+  <div class="card fragment" style="border-left-color:var(--teal); margin:0.3em 0;">
+    <p><strong class="accent" style="font-size:1.2em;">3</strong> &nbsp;Field parameters are chosen for both <strong>security and efficiency</strong> — Mersenne primes, carry-free XOR, structured reduction.</p>
+  </div>
+  <div class="card fragment" style="border-left-color:var(--gold); margin:0.3em 0;">
+    <p><strong class="gold" style="font-size:1.2em;">4</strong> &nbsp;Hardware ranges from minimal bit-serial designs (IoT) to <strong>53+ Gbps ASIC accelerators</strong> (data centers).</p>
+  </div>
+  <div class="card fragment" style="border-left-color:var(--green); margin:0.3em 0;">
+    <p><strong class="green" style="font-size:1.2em;">5</strong> &nbsp;Side-channel resistance is as important as raw performance — <strong>constant-time code is essential</strong>.</p>
+  </div>
+  <p class="dim smaller" style="margin-top:0.5em;">References: FIPS 197 (AES) · NIST SP 800-186 (ECC) · RFC 7748 (Curve25519/448) · Canright, "A Very Compact Rijndael S-box"</p>
+</section>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- SLIDE 16: SERIES OVERVIEW                   -->
+<!-- ════════════════════════════════════════════ -->
+<section class="title-slide">
+  <h2 style="margin-bottom:0.5em;">Modern Cryptography Series</h2>
+  <div class="grid-2" style="text-align:left; max-width:800px; margin:0 auto;">
+    <div>
+      <div class="series-item"><div class="series-num active">01</div><div><div class="series-title active">Finite Field Arithmetic</div><div class="series-status" style="color:var(--gold);">This presentation</div></div></div>
+      <div class="series-item"><div class="series-num">02</div><div><div class="series-title">Elliptic Curve Cryptography</div><div class="series-status">Coming next</div></div></div>
+      <div class="series-item"><div class="series-num">03</div><div><div class="series-title">AES — Design & Implementation</div><div class="series-status">Planned</div></div></div>
+      <div class="series-item"><div class="series-num">04</div><div><div class="series-title">Hash Functions & MACs</div><div class="series-status">Planned</div></div></div>
+      <div class="series-item"><div class="series-num">05</div><div><div class="series-title">Public Key Cryptography</div><div class="series-status">Planned</div></div></div>
+    </div>
+    <div>
+      <div class="series-item"><div class="series-num">06</div><div><div class="series-title">Digital Signatures (ECDSA, EdDSA)</div><div class="series-status">Planned</div></div></div>
+      <div class="series-item"><div class="series-num">07</div><div><div class="series-title">Post-Quantum Cryptography</div><div class="series-status">Planned</div></div></div>
+      <div class="series-item"><div class="series-num">08</div><div><div class="series-title">Key Exchange Protocols</div><div class="series-status">Planned</div></div></div>
+      <div class="series-item"><div class="series-num">09</div><div><div class="series-title">Side-Channel Attacks</div><div class="series-status">Planned</div></div></div>
+      <div class="series-item"><div class="series-num">10</div><div><div class="series-title">Crypto HW Accelerator Design</div><div class="series-status">Planned</div></div></div>
+    </div>
+  </div>
+  <p class="dim small" style="margin-top:1em;">github.com/modern-cryptography &nbsp;|&nbsp; Contributions welcome!</p>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  width: 1280,
+  height: 720,
+  margin: 0.06,
+  transition: 'slide',
+  transitionSpeed: 'default',
+  plugins: [ RevealHighlight ],
+  highlight: { highlightOnLoad: true }
+});
+</script>
+</body>
+</html>
