@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Cryptography Series</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #0D1B2A;
+  --slate: #1B2838;
+  --teal: #00B4D8;
+  --mint: #48CAE4;
+  --gold: #FFB703;
+  --cream: #E0E1DD;
+  --dim: #8D99AE;
+  --card: #162230;
+  --green: #06D6A0;
+}
+
+body {
+  background: var(--navy);
+  color: var(--cream);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── Top accent ── */
+body::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--gold));
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+/* ── Header ── */
+.hero { text-align: center; margin-bottom: 3rem; }
+.hero-icon { font-size: 3.5rem; margin-bottom: 0.5rem; }
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.hero .subtitle {
+  color: var(--mint);
+  font-size: 1.05rem;
+  margin-top: 0.5rem;
+}
+.hero .desc {
+  color: var(--dim);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Presentation list ── */
+.pres-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.pres-card {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem;
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.pres-card:hover {
+  border-color: rgba(0,180,216,0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+.pres-card.available { cursor: default; }
+
+/* Number badge */
+.pres-num {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: var(--slate);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--dim);
+  flex-shrink: 0;
+}
+.pres-card.available .pres-num {
+  background: var(--teal);
+  color: var(--navy);
+}
+
+/* Content */
+.pres-content { min-width: 0; }
+.pres-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+  line-height: 1.3;
+}
+.pres-card:not(.available) .pres-title { color: var(--dim); }
+.pres-topics {
+  color: var(--dim);
+  font-size: 0.78rem;
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Action */
+.pres-action { flex-shrink: 0; }
+
+.btn-launch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.2rem;
+  background: var(--teal);
+  color: var(--navy);
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.btn-launch:hover {
+  background: var(--mint);
+  transform: translateY(-1px);
+}
+.btn-launch .arrow { font-size: 1.1em; }
+
+.badge-planned {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: rgba(141,153,174,0.1);
+  color: var(--dim);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: var(--dim);
+  font-size: 0.8rem;
+}
+.footer a { color: var(--teal); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .pres-card { grid-template-columns: 2.4rem 1fr; gap: 0.8rem; }
+  .pres-num { width: 2.4rem; height: 2.4rem; font-size: 0.75rem; }
+  .pres-action { grid-column: 1 / -1; }
+  .btn-launch { width: 100%; justify-content: center; }
+  .pres-topics { white-space: normal; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-icon">🔐</div>
+    <h1>Modern Cryptography<br>Presentation Series</h1>
+    <div class="subtitle">Theory · Standards · Hardware &amp; Software Implementation</div>
+    <div class="desc">
+      Interactive slide decks covering cryptographic systems end-to-end — from the underlying mathematics through NIST standards to SystemVerilog RTL and Python implementations. Click any presentation below to launch it.
+    </div>
+  </div>
+
+  <div class="pres-list">
+
+    <div class="pres-card available">
+      <div class="pres-num">01</div>
+      <div class="pres-content">
+        <div class="pres-title">Finite Field Arithmetic for Cryptography</div>
+        <div class="pres-topics">GF(p) &amp; GF(2ⁿ) · AES · ECC primes · Montgomery multiplication · SystemVerilog · Python</div>
+      </div>
+      <div class="pres-action">
+        <a href="01-finite-field-arithmetic/" class="btn-launch"><span class="arrow">▶</span> Launch</a>
+      </div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">02</div>
+      <div class="pres-content">
+        <div class="pres-title">Elliptic Curve Cryptography (ECC)</div>
+        <div class="pres-topics">Curve geometry · Point addition · ECDH · ECDSA · Curve25519</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Coming next</span></div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">03</div>
+      <div class="pres-content">
+        <div class="pres-title">AES — Design &amp; Implementation</div>
+        <div class="pres-topics">Rijndael · S-box · MixColumns · Key schedule · Modes of operation</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Planned</span></div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">04</div>
+      <div class="pres-content">
+        <div class="pres-title">Hash Functions &amp; MACs</div>
+        <div class="pres-topics">SHA-2 · SHA-3 · HMAC · Merkle-Damgård · Sponge construction</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Planned</span></div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">05</div>
+      <div class="pres-content">
+        <div class="pres-title">Public Key Cryptography (RSA, DH)</div>
+        <div class="pres-topics">RSA · Diffie-Hellman · Key exchange · Number theory</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Planned</span></div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">06</div>
+      <div class="pres-content">
+        <div class="pres-title">Digital Signatures (ECDSA, EdDSA)</div>
+        <div class="pres-topics">Signature schemes · Ed25519 · Schnorr · Threshold signatures</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Planned</span></div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">07</div>
+      <div class="pres-content">
+        <div class="pres-title">Post-Quantum Cryptography</div>
+        <div class="pres-topics">Lattices · ML-KEM · ML-DSA · SPHINCS+ · NIST PQC standards</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Planned</span></div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">08</div>
+      <div class="pres-content">
+        <div class="pres-title">Key Exchange Protocols</div>
+        <div class="pres-topics">TLS 1.3 · X25519 · Signal protocol · Noise framework</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Planned</span></div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">09</div>
+      <div class="pres-content">
+        <div class="pres-title">Side-Channel Attacks &amp; Countermeasures</div>
+        <div class="pres-topics">Timing · Power analysis · Masking · Constant-time code</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Planned</span></div>
+    </div>
+
+    <div class="pres-card">
+      <div class="pres-num">10</div>
+      <div class="pres-content">
+        <div class="pres-title">Crypto Hardware Accelerator Design</div>
+        <div class="pres-topics">AES-NI · ECC co-processors · FPGA crypto cores · SoC integration</div>
+      </div>
+      <div class="pres-action"><span class="badge-planned">Planned</span></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>Built with <a href="https://revealjs.com">Reveal.js</a> · Navigate presentations with arrow keys or swipe</p>
+    <p style="margin-top:0.3rem;">Contributions, corrections, and suggestions welcome via issues and pull requests.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
