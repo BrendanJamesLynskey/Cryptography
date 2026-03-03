@@ -14,13 +14,13 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 
 | # | Topic | Slides | Status |
 | --- | --- | --- | --- |
-| 1 | Finite Field Arithmetic for Cryptography | 16 | ✅ Complete |
-| 2 | Elliptic Curve Cryptography (ECC) | 38 | ✅ Complete |
-| 3 | AES — Design & Implementation | 28 | ✅ Complete |
-| 4 | Digital Signatures (ECDSA, EdDSA, Schnorr) | 25 | ✅ Complete |
-| 5 | Post-Quantum Cryptography | 21 | ✅ Complete |
-| 6 | Side-Channel Attacks & Countermeasures | 22 | ✅ Complete |
-| 7 | Crypto Hardware Accelerator Design | 38 | ✅ Complete |
+| 01 | Finite Field Arithmetic for Cryptography | 16 | ✅ Complete |
+| 02 | Elliptic Curve Cryptography (ECC) | 38 | ✅ Complete |
+| 03 | AES — Design & Implementation | 28 | ✅ Complete |
+| 06 | Digital Signatures (ECDSA, EdDSA, Schnorr) | 25 | ✅ Complete |
+| 07 | Post-Quantum Cryptography | 21 | ✅ Complete |
+| 09 | Side-Channel Attacks & Countermeasures | 22 | ✅ Complete |
+| 10 | Crypto Hardware Accelerator Design | 38 | ✅ Complete |
 
 
 
