@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fully Homomorphic Encryption — Modern Cryptography Series</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css" />
+<style>
+/* ── Brand tokens ── */
+:root {
+  --bg:      #0a0a0f;
+  --surface: #131318;
+  --border:  #23232a;
+  --text:    #d4d4d8;
+  --text2:   #a1a1aa;
+  --dim:     #71717a;
+  --accent:  #f59e0b;
+  --green:   #10b981;
+  --purple:  #8b5cf6;
+  --blue:    #60a5fa;
+  --red:     #ef4444;
+  --teal:    #14b8a6;
+}
+
+/* ── Reveal overrides ── */
+.reveal-viewport { background: var(--bg); }
+.reveal .slides { font-family: 'DM Sans', sans-serif; }
+.reveal .slides section { color: var(--text); }
+
+.reveal h1, .reveal h2, .reveal h3 {
+  font-family: 'Playfair Display', serif;
+  text-transform: none;
+  letter-spacing: -0.02em;
+  color: #fafafa;
+  text-shadow: none;
+}
+.reveal h1 { font-size: 2.4em; font-weight: 900; }
+.reveal h2 { font-size: 1.55em; font-weight: 700; margin-bottom: 0.6em; }
+.reveal h3 { font-size: 1.15em; font-weight: 700; color: var(--accent); margin-bottom: 0.4em; }
+
+.reveal p, .reveal li { font-size: 0.82em; line-height: 1.65; color: var(--text); }
+.reveal ul { list-style: none; padding: 0; }
+.reveal ul li::before { content: "▸ "; color: var(--accent); font-weight: 700; }
+.reveal ul ul li::before { content: "◦ "; color: var(--dim); }
+.reveal ul ul { margin-top: 0.3em; }
+
+.reveal code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+.reveal pre { box-shadow: none; border: 1px solid var(--border); border-radius: 6px; }
+.reveal pre code { font-size: 0.78em; line-height: 1.55; max-height: 420px; }
+
+.reveal a { color: var(--blue); }
+.reveal blockquote {
+  border-left: 3px solid var(--accent);
+  background: rgba(245,158,11,.07);
+  padding: 0.5em 1em;
+  border-radius: 0 6px 6px 0;
+  font-style: normal;
+  color: var(--text2);
+  font-size: 0.8em;
+  width: 90%;
+  margin: 0.5em auto;
+}
+
+/* Progress & controls */
+.reveal .progress { background: var(--border); }
+.reveal .progress span { background: var(--accent); }
+.reveal .controls { color: var(--accent); }
+.reveal .slide-number { color: var(--dim); font-size: 0.7em; }
+
+/* ── Layout utilities ── */
+.cols { display: flex; gap: 1.5em; align-items: flex-start; }
+.col  { flex: 1; }
+.col-40 { flex: 0 0 40%; }
+.col-55 { flex: 0 0 55%; }
+.col-35 { flex: 0 0 35%; }
+.col-60 { flex: 0 0 60%; }
+
+/* ── Accent chip ── */
+.chip {
+  display: inline-block;
+  padding: 0.18em 0.7em;
+  border-radius: 999px;
+  font-size: 0.68em;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.chip-amber  { background: rgba(245,158,11,.15); color: var(--accent);  border: 1px solid rgba(245,158,11,.3); }
+.chip-green  { background: rgba(16,185,129,.12);  color: var(--green);   border: 1px solid rgba(16,185,129,.3); }
+.chip-purple { background: rgba(139,92,246,.12);  color: var(--purple);  border: 1px solid rgba(139,92,246,.3); }
+.chip-blue   { background: rgba(96,165,250,.12);  color: var(--blue);    border: 1px solid rgba(96,165,250,.3); }
+.chip-red    { background: rgba(239,68,68,.12);   color: var(--red);     border: 1px solid rgba(239,68,68,.3); }
+.chip-teal   { background: rgba(20,184,166,.12);  color: var(--teal);    border: 1px solid rgba(20,184,166,.3); }
+
+/* ── Card / panel ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9em 1.2em;
+  margin-bottom: 0.6em;
+}
+.panel-amber  { border-color: rgba(245,158,11,.3); }
+.panel-green  { border-color: rgba(16,185,129,.3); }
+.panel-purple { border-color: rgba(139,92,246,.3); }
+.panel-blue   { border-color: rgba(96,165,250,.3); }
+.panel-red    { border-color: rgba(239,68,68,.3); }
+.panel-teal   { border-color: rgba(20,184,166,.3); }
+.panel h3 { margin-bottom: 0.3em; }
+.panel p, .panel li { font-size: 0.78em; }
+
+/* ── Math-style formula box ── */
+.formula {
+  background: rgba(139,92,246,.08);
+  border: 1px solid rgba(139,92,246,.25);
+  border-radius: 6px;
+  padding: 0.5em 1em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em;
+  color: #e2d4ff;
+  text-align: center;
+  margin: 0.5em 0;
+}
+
+/* ── Table ── */
+.reveal table {
+  font-size: 0.72em;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5em;
+}
+.reveal table th {
+  background: var(--surface);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  padding: 0.5em 0.7em;
+  border-bottom: 1px solid var(--border);
+}
+.reveal table td {
+  padding: 0.45em 0.7em;
+  border-bottom: 1px solid rgba(35,35,42,.6);
+  color: var(--text2);
+}
+.reveal table tr:last-child td { border-bottom: none; }
+.reveal table tr:hover td { background: rgba(245,158,11,.04); }
+
+/* ── Title slide ── */
+.title-slide { text-align: center; }
+.title-slide .series-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 0.8em;
+}
+.title-slide h1 { font-size: 2.6em; margin-bottom: 0.2em; }
+.title-slide .subtitle {
+  font-size: 0.85em;
+  color: var(--text2);
+  margin-bottom: 1.4em;
+  max-width: 720px;
+  margin-left: auto; margin-right: auto;
+}
+.title-slide .tagline {
+  font-size: 0.75em;
+  color: var(--dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+.icon-huge { font-size: 3.5em; margin-bottom: 0.2em; line-height: 1; }
+
+/* ── Section divider ── */
+.section-div {
+  text-align: center;
+}
+.section-div .section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em;
+  letter-spacing: 0.2em;
+  color: var(--purple);
+  text-transform: uppercase;
+  margin-bottom: 0.5em;
+}
+.section-div h2 { font-size: 2em; }
+.section-div p  { color: var(--dim); font-size: 0.8em; max-width: 580px; margin: 0.5em auto 0; }
+
+/* ── Highlight spans ── */
+.hl-amber  { color: var(--accent); font-weight: 700; }
+.hl-green  { color: var(--green);  font-weight: 700; }
+.hl-purple { color: var(--purple); font-weight: 700; }
+.hl-blue   { color: var(--blue);   font-weight: 700; }
+.hl-red    { color: var(--red);    font-weight: 700; }
+.hl-teal   { color: var(--teal);   font-weight: 700; }
+
+/* ── Noise/lattice canvas decorative ── */
+.reveal section { overflow: hidden; }
+
+/* ── Back link ── */
+.back-link {
+  font-size: 0.6em;
+  color: var(--dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+.back-link a { color: var(--dim); text-decoration: none; }
+.back-link a:hover { color: var(--text2); }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 01 — Title
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<div class="title-slide">
+  <div class="icon-huge">🔒</div>
+  <div class="series-tag">Modern Cryptography Series · Presentation 08</div>
+  <h1>Fully Homomorphic<br/>Encryption</h1>
+  <div class="subtitle">Compute on ciphertext without decrypting — from Gentry's blueprint through CKKS, TFHE and hardware acceleration to real-world deployment</div>
+  <div style="margin:1.2em 0; display:flex; justify-content:center; gap:0.6em; flex-wrap:wrap;">
+    <span class="chip chip-amber">Lattices</span>
+    <span class="chip chip-purple">BGV · BFV · CKKS</span>
+    <span class="chip chip-green">TFHE · FHEW</span>
+    <span class="chip chip-blue">Bootstrapping</span>
+    <span class="chip chip-teal">HW Acceleration</span>
+  </div>
+  <div class="tagline">Arrow keys or swipe to navigate · Esc for overview · F for fullscreen</div>
+  <p class="back-link" style="margin-top:1em;"><a href="../">← Back to series</a></p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 02 — The Vision
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>The Holy Grail of Cryptography</h2>
+<blockquote>"Can we delegate computation to an untrusted party without revealing our data?"</blockquote>
+<div class="cols" style="margin-top:0.8em;">
+  <div class="col">
+    <div class="panel panel-red">
+      <h3>🔴 Traditional Cloud</h3>
+      <ul>
+        <li>Encrypt data at rest &amp; in transit</li>
+        <li><span class="hl-red">Must decrypt to compute</span></li>
+        <li>Cloud provider sees plaintext</li>
+        <li>Data breaches expose secrets</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>🟢 FHE Cloud</h3>
+      <ul>
+        <li>Client encrypts input locally</li>
+        <li><span class="hl-green">Server computes on ciphertext</span></li>
+        <li>Server never sees plaintext</li>
+        <li>Client decrypts result only</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="formula">Enc(x) ⊕ Enc(y) = Enc(x + y) &nbsp;&nbsp; Enc(x) ⊗ Enc(y) = Enc(x · y)</div>
+<p style="text-align:center; font-size:0.75em; color:var(--dim);">FHE supports <span class="hl-amber">arbitrary functions</span> over encrypted data — both addition and multiplication, composable without limit</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 03 — Homomorphic property classes
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Homomorphic Encryption Taxonomy</h2>
+<table>
+  <thead><tr><th>Class</th><th>Operations</th><th>Depth</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><span class="hl-red">PHE</span> — Partially</td><td>+ or × (not both)</td><td>Unlimited</td><td>Paillier, El Gamal</td></tr>
+    <tr><td><span class="hl-amber">SHE</span> — Somewhat</td><td>+ and ×</td><td>Limited L</td><td>BGV (small circuits)</td></tr>
+    <tr><td><span class="hl-purple">LHE</span> — Levelled</td><td>+ and ×</td><td>Fixed L (no boot)</td><td>BFV, CKKS, BGV (levelled)</td></tr>
+    <tr><td><span class="hl-green">FHE</span> — Fully</td><td>+ and ×</td><td>Unlimited</td><td>BGV+Boot, TFHE, FHEW</td></tr>
+  </tbody>
+</table>
+<div class="panel panel-amber" style="margin-top:0.8em;">
+  <h3>Why depth matters</h3>
+  <p>Each multiplication consumes a "level" of noise headroom. Without <span class="hl-amber">bootstrapping</span> (refreshing the ciphertext), depth is bounded. FHE = LHE + bootstrapping.</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 04 — Section divider: Mathematical Foundations
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<div class="section-div">
+  <div class="section-label">Part I</div>
+  <h2>Mathematical Foundations</h2>
+  <p>Ring Learning With Errors, polynomial rings, and the noise growth that makes FHE both possible and hard</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 05 — LWE
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Learning With Errors (LWE)</h2>
+<div class="cols">
+  <div class="col-55">
+    <div class="panel panel-purple">
+      <h3>The LWE Problem</h3>
+      <p>Given many samples <span class="hl-purple">(aᵢ, bᵢ)</span> where:</p>
+      <div class="formula" style="font-size:0.82em; margin:0.4em 0;">bᵢ = aᵢ · s + eᵢ (mod q)</div>
+      <ul>
+        <li><span class="hl-purple">s</span> — secret vector ∈ ℤₙ</li>
+        <li><span class="hl-amber">aᵢ</span> — uniformly random ∈ ℤₙₙ</li>
+        <li><span class="hl-green">eᵢ</span> — small error from χ (Gaussian)</li>
+      </ul>
+      <p style="margin-top:0.5em;">Finding <span class="hl-purple">s</span> is computationally hard — as hard as worst-case lattice problems (Regev 2005).</p>
+    </div>
+  </div>
+  <div class="col-40">
+    <div class="panel panel-blue">
+      <h3>Why error?</h3>
+      <p>Without noise, solving for <span class="hl-purple">s</span> is trivial Gaussian elimination. The error makes the system overdetermined <em>and</em> noisy — no efficient algorithm known.</p>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Security</h3>
+      <p>Reducible from <span class="hl-amber">GapSVP</span> and <span class="hl-amber">SIVP</span> — hard even for quantum computers.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 06 — RLWE
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Ring-LWE — Compact &amp; Efficient</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>Polynomial Ring</h3>
+      <div class="formula">R = ℤ[x] / (xⁿ + 1)</div>
+      <ul>
+        <li><span class="hl-purple">n</span> — power of 2 (512, 1024, 2048, 4096…)</li>
+        <li>Cyclotomic polynomial xⁿ + 1 gives good structure</li>
+        <li>Rq = R / qR for ciphertext modulus <span class="hl-amber">q</span></li>
+      </ul>
+    </div>
+    <div class="panel panel-blue" style="margin-top:0.6em;">
+      <h3>RLWE Sample</h3>
+      <div class="formula">(a, b = a·s + e) ∈ Rq × Rq</div>
+      <p>One polynomial encodes <span class="hl-blue">n</span> coefficients — RLWE packs n × more data per sample than plain LWE.</p>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>Why xⁿ + 1?</h3>
+      <ul>
+        <li>NTT-friendly — enables O(n log n) polynomial multiplication</li>
+        <li>Negacyclic convolution keeps coefficients bounded</li>
+        <li>Provably as hard as LWE (Lyubashevsky, Peikert, Regev 2010)</li>
+      </ul>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Parameters</h3>
+      <table>
+        <thead><tr><th>n</th><th>log₂ q</th><th>Security</th></tr></thead>
+        <tbody>
+          <tr><td>1024</td><td>27</td><td>~128-bit</td></tr>
+          <tr><td>2048</td><td>54</td><td>~128-bit</td></tr>
+          <tr><td>4096</td><td>109</td><td>~128-bit</td></tr>
+          <tr><td>8192</td><td>218</td><td>~128-bit</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 07 — Noise growth
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Noise Growth — The Central Challenge</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-amber">
+      <h3>Noise after operations</h3>
+      <ul>
+        <li><span class="hl-green">Addition:</span> noise grows <em>linearly</em> — eᵣ = e₁ + e₂</li>
+        <li><span class="hl-red">Multiplication:</span> noise grows <em>multiplicatively</em> — eᵣ ≈ e₁ · e₂ · q</li>
+      </ul>
+      <p style="margin-top:0.5em;">After L multiplications: noise ≈ (initial noise) × qᴸ</p>
+    </div>
+    <div class="panel panel-red" style="margin-top:0.6em;">
+      <h3>Decryption failure</h3>
+      <p>Decryption requires <span class="hl-red">|noise| &lt; q/2</span>. When noise exceeds this bound, decryption produces garbage. This is the hard ceiling on circuit depth for SHE/LHE.</p>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Noise management techniques</h3>
+      <ul>
+        <li><span class="hl-blue">Modulus switching</span> — scale down q after each multiplication to reduce noise magnitude proportionally</li>
+        <li><span class="hl-green">Key switching</span> — refresh keys after relinearisation (eliminates degree-2 ciphertexts)</li>
+        <li><span class="hl-amber">Rescaling</span> — CKKS variant: divide by Δ to absorb noise into precision loss</li>
+        <li><span class="hl-purple">Bootstrapping</span> — homomorphically decrypt to reset noise to fresh level</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 08 — Section divider: FHE Schemes
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<div class="section-div">
+  <div class="section-label">Part II</div>
+  <h2>FHE Scheme Landscape</h2>
+  <p>BGV, BFV, CKKS, TFHE, FHEW — design rationale, native plaintext space, and target workloads</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 09 — Gentry's Blueprint
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Gentry's Blueprint (2009)</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>The Breakthrough</h3>
+      <p>Craig Gentry (Stanford / IBM) proved the first FHE construction. Key insight: <span class="hl-purple">self-referential bootstrapping</span> — use the scheme to evaluate its own decryption circuit.</p>
+      <div class="formula">FHE = SHE with depth(Cdec + 1) ≤ L</div>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Squashing trick</h3>
+      <p>Original SHE decryption was too deep. Gentry added a <span class="hl-amber">hint</span> in the public key that reduces decryption to a sparse-subset-sum — shallow enough to evaluate homomorphically.</p>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Bootstrapping in one line</h3>
+      <ul>
+        <li>Let ct = Enc(m) with high noise</li>
+        <li>Publish sk encrypted: ct_sk = Enc(sk)</li>
+        <li>Evaluate Dec<sub>sk</sub>(ct) <em>homomorphically</em> using ct_sk</li>
+        <li>Result: fresh Enc(m) with reset noise</li>
+      </ul>
+    </div>
+    <div class="panel panel-green" style="margin-top:0.6em;">
+      <h3>Historical impact</h3>
+      <ul>
+        <li>2009: Gentry STOC (IDEAL lattices)</li>
+        <li>2011: BGV — ring-based, practical</li>
+        <li>2012: BFV — Brakerski full-RNS</li>
+        <li>2017: CKKS — approximate arithmetic</li>
+        <li>2019: TFHE — fast gate-level FHE</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 10 — BGV & BFV
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>BGV &amp; BFV — Integer Arithmetic</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>BGV (Brakerski-Gentry-Vaikuntanathan 2011)</h3>
+      <ul>
+        <li>Plaintext space: <span class="hl-green">ℤₜ[x]/(xⁿ+1)</span> — small integer polynomial ring modulo plaintext prime <em>t</em></li>
+        <li>Noise management: <span class="hl-green">modulus switching</span> — drop one modulus level per multiplication</li>
+        <li>Multi-level ciphertext modulus: q = q₀·q₁·…·qₗ (RNS representation)</li>
+        <li>Efficient for levelled FHE; bootstrapping optional</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>BFV (Fan-Vercauteren / Brakerski 2012)</h3>
+      <ul>
+        <li>Plaintext space: same — <span class="hl-blue">ℤₜ[x]/(xⁿ+1)</span></li>
+        <li>Key difference: noise managed via <span class="hl-blue">scale invariance</span> — divide by Δ = q/t after multiplication</li>
+        <li>Simpler modulus structure; single large q</li>
+        <li>Preferred for: integer lookup tables, exact arithmetic, database queries</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="panel panel-amber" style="margin-top:0.6em;">
+  <h3>BGV vs BFV — practical guidance</h3>
+  <p>BGV is faster when circuit depth L is known at compile time (levelled mode). BFV's simpler structure makes it easier to implement and tune. Both are available in Microsoft SEAL, OpenFHE, and HElib. Choose <span class="hl-amber">BGV for deep circuits</span>, <span class="hl-blue">BFV for shallow encrypted integer operations</span>.</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 11 — CKKS
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>CKKS — Approximate Real Arithmetic</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>Cheon-Kim-Kim-Song (2017)</h3>
+      <p>Treats noise as <span class="hl-purple">rounding error</span> rather than decryption failure. Enables native floating-point-like operations over encrypted real (and complex) numbers.</p>
+      <div class="formula">Dec(ct) ≈ m (within precision Δ)</div>
+      <ul>
+        <li>Encode real vector <strong>m</strong> via SIMD slots using CRT/FFT</li>
+        <li>Scaling factor Δ = 2³⁰ or 2⁶⁰ encodes the fractional precision</li>
+        <li>Rescaling after × absorbs noise into least-significant precision bits</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-teal">
+      <h3>CKKS SIMD packing</h3>
+      <p>A single ciphertext encodes <span class="hl-teal">n/2 complex values</span> simultaneously (Galois automorphism rotations allow inter-slot operations).</p>
+      <ul>
+        <li>n = 8192 → 4096 slots</li>
+        <li>n = 16384 → 8192 slots</li>
+        <li>Throughput: millions of multiplications per second on encrypted real data</li>
+      </ul>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Best for</h3>
+      <ul>
+        <li>Neural network inference on private data</li>
+        <li>Private genomics (GWAS, PRS)</li>
+        <li>Encrypted statistics and ML training</li>
+        <li>Financial risk models</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 12 — TFHE / FHEW
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>TFHE &amp; FHEW — Fast Gate-Level FHE</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>FHEW (Ducas-Micciancio 2015)</h3>
+      <ul>
+        <li>Encrypts single bits (or small integers) using plain LWE</li>
+        <li>Bootstrapping takes <span class="hl-green">~100ms on CPU</span> — fast enough to be practical</li>
+        <li>Key tool: <span class="hl-green">ring GSW</span> external product for blind rotation</li>
+        <li>Evaluate any Boolean gate and bootstrap simultaneously</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>TFHE (Chillotti et al. 2016/2020)</h3>
+      <ul>
+        <li>Torus LWE: coefficients in ℝ/ℤ (the torus 𝕋)</li>
+        <li>Bootstrapping in <span class="hl-purple">&lt;10ms on CPU</span>, &lt;1ms on GPU</li>
+        <li>Any programmable bootstrapping: gate + function evaluation in one step</li>
+        <li>Used in: Concrete (Zama), OpenFHE</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="panel panel-amber" style="margin-top:0.6em;">
+  <h3>TFHE vs CKKS — choosing the right tool</h3>
+  <table>
+    <thead><tr><th>Property</th><th>TFHE</th><th>CKKS</th></tr></thead>
+    <tbody>
+      <tr><td>Plaintext</td><td>Bits / small integers</td><td>Reals / complex (SIMD)</td></tr>
+      <tr><td>Per-gate boot</td><td>Yes — automatic</td><td>No — amortised over slots</td></tr>
+      <tr><td>Best for</td><td>Control flow, exact logic</td><td>ML inference, statistics</td></tr>
+      <tr><td>Bootstrapping</td><td>&lt;10ms / gate</td><td>Seconds / level refresh</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 13 — GSW / CGGI deep dive
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>GSW &amp; the External Product</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>GSW Encryption (Gentry-Sahai-Waters 2013)</h3>
+      <p>Encrypts message <span class="hl-purple">μ</span> as a matrix <span class="hl-purple">C ≈ μ · G</span> where G is a gadget matrix. Multiplication with another ciphertext uses the gadget decomposition:</p>
+      <div class="formula">C₁ ⊗ C₂ = C₁ · G⁻¹(C₂)</div>
+      <p style="margin-top:0.4em;">Noise grows <span class="hl-green">linearly in the decomposition bound</span> rather than multiplicatively — key to efficient bootstrapping.</p>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Blind Rotation (FHEW/TFHE)</h3>
+      <p>Bootstrap = evaluate <span class="hl-blue">f(x) = testVector[x mod N]</span> homomorphically using a polynomial accumulator rotated by encrypted LWE coefficients:</p>
+      <ol style="list-style:decimal; padding-left:1.2em; font-size:0.78em; color:var(--text2);">
+        <li>Initialise ACC = testVector · Xᵇ ∈ RLWE</li>
+        <li>For each LWE coefficient aᵢ: ACC ← blind-rotate by aᵢ using RGSW(sᵢ)</li>
+        <li>Extract LWE sample from ACC</li>
+        <li>Key-switch back to original LWE key</li>
+      </ol>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Programmable bootstrapping</h3>
+      <p>The testVector can encode any function f: ℤ_N → ℤ_N — including non-linear activations like ReLU — making TFHE natural for encrypted neural inference.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 14 — Bootstrapping deep dive
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Bootstrapping — Noise Reset</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-amber">
+      <h3>CKKS Bootstrapping (Han-Ki 2020)</h3>
+      <p>Three homomorphic steps:</p>
+      <ol style="list-style:decimal; padding-left:1.2em; font-size:0.78em; color:var(--text2);">
+        <li><span class="hl-amber">CoeffToSlot</span> — linear map via DFT-like matrix</li>
+        <li><span class="hl-purple">EvalMod</span> — sine approximation to wrap coefficients mod q (polynomial approximation of periodic function)</li>
+        <li><span class="hl-blue">SlotToCoeff</span> — inverse linear map</li>
+      </ol>
+      <p style="margin-top:0.4em;">Bootstraps <span class="hl-amber">n/2 slots in parallel</span>. Throughput: ~10⁶ slot-bootstraps/sec on 1 CPU core.</p>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Bootstrapping cost (CKKS)</h3>
+      <table>
+        <thead><tr><th>n</th><th>Slots</th><th>Time (CPU)</th></tr></thead>
+        <tbody>
+          <tr><td>2¹⁴</td><td>8192</td><td>~2s</td></tr>
+          <tr><td>2¹⁵</td><td>16384</td><td>~6s</td></tr>
+          <tr><td>2¹⁶</td><td>32768</td><td>~25s</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:0.5em; font-size:0.72em; color:var(--dim);">GPU and hardware acceleration reduce these by 100–1000× — see Hardware section.</p>
+    </div>
+    <div class="panel panel-green" style="margin-top:0.6em;">
+      <h3>Amortisation</h3>
+      <p>Bootstrapping all n/2 slots simultaneously means cost-per-slot can be &lt;1μs on optimised hardware, enabling practical encrypted ML inference.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 15 — Section divider: Key Operations
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<div class="section-div">
+  <div class="section-label">Part III</div>
+  <h2>Key Operations &amp; Operations</h2>
+  <p>Relinearisation, key switching, rotation, RNS representation and NTT — the building blocks of every FHE library</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 16 — Relinearisation & key switching
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Relinearisation &amp; Key Switching</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>The degree problem</h3>
+      <p>Multiplying ciphertexts (c₀, c₁) × (c₀', c₁') produces a degree-2 ciphertext <span class="hl-purple">(d₀, d₁, d₂)</span> — decryptable only with s² in the secret key. Each further multiply increases degree.</p>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Relinearisation (Relin)</h3>
+      <p>Uses a <span class="hl-amber">relinearisation key</span> rlk = Enc(s²) to homomorphically eliminate d₂, returning to degree-1 at the cost of one extra inner product with rlk.</p>
+      <div class="formula">(d₀, d₁, d₂) + d₂ · rlk → (d₀', d₁')</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Key Switching</h3>
+      <p>Reencrypts a ciphertext under a different secret key. Uses a <span class="hl-blue">key switching key</span> ksk = Enc_{sk_new}(sk_old). Required after:</p>
+      <ul>
+        <li>Relinearisation (degree reduction)</li>
+        <li>Galois rotations (slot rotation)</li>
+        <li>Bootstrapping key change</li>
+      </ul>
+      <p style="margin-top:0.4em;">Cost: n large polynomial multiplications — typically the bottleneck.</p>
+    </div>
+    <div class="panel panel-green" style="margin-top:0.6em;">
+      <h3>Galois Rotations</h3>
+      <p>Apply automorphism x→x^(2k+1) to rotate SIMD slots cyclically. Required for inner product, convolution over plaintext slots.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 17 — RNS and NTT
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>RNS &amp; NTT — The Computational Engine</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Residue Number System (RNS)</h3>
+      <p>Large ciphertext modulus q is decomposed as product of small NTT-friendly primes:</p>
+      <div class="formula">q = q₀ · q₁ · … · q_{L-1} (each ~60 bits)</div>
+      <ul>
+        <li>All arithmetic stays within 64-bit machine words</li>
+        <li>Modular reduction is free — no multi-precision arithmetic</li>
+        <li>Modulus switching = drop one qᵢ, rescale</li>
+        <li>Used by: OpenFHE, SEAL, HElib (CKKS, BGV, BFV)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>Number Theoretic Transform (NTT)</h3>
+      <p>Polynomial multiplication in Rq via pointwise product in NTT domain:</p>
+      <div class="formula">a · b = INTT(NTT(a) ⊙ NTT(b))</div>
+      <ul>
+        <li>O(n log n) vs O(n²) schoolbook</li>
+        <li>Each NTT: n · log₂n butterfly operations</li>
+        <li>Hardware: same butterfly datapath as post-quantum (ML-KEM, ML-DSA)</li>
+        <li>NTT is shared IP across FHE, PQC, ZK-SNARKs</li>
+      </ul>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Dominant cost breakdown</h3>
+      <p>Key switching: 70% · NTT ops: 60% of key switching · Bandwidth: often the true bottleneck at scale</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 18 — Section divider: FHE Libraries
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<div class="section-div">
+  <div class="section-label">Part IV</div>
+  <h2>FHE Libraries &amp; Ecosystem</h2>
+  <p>Open-source FHE libraries, standards efforts (HE-Std), and the compiler toolchain from high-level program to encrypted circuit</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 19 — Libraries
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>FHE Library Landscape</h2>
+<table>
+  <thead><tr><th>Library</th><th>Schemes</th><th>Language</th><th>Focus</th></tr></thead>
+  <tbody>
+    <tr><td><span class="hl-blue">Microsoft SEAL</span></td><td>BFV, CKKS</td><td>C++17, Python</td><td>Industry-grade, well-documented</td></tr>
+    <tr><td><span class="hl-green">OpenFHE</span></td><td>BFV, BGV, CKKS, FHEW, TFHE</td><td>C++17</td><td>Research + production; successor to PALISADE</td></tr>
+    <tr><td><span class="hl-purple">HElib</span></td><td>BGV, CKKS</td><td>C++</td><td>IBM; first practical FHE library</td></tr>
+    <tr><td><span class="hl-amber">HEAAN</span></td><td>CKKS</td><td>C++</td><td>Original CKKS reference (Seoul Nat'l Univ)</td></tr>
+    <tr><td><span class="hl-teal">Concrete</span></td><td>TFHE</td><td>Rust + Python</td><td>Zama; compiler from Python to FHE circuit</td></tr>
+    <tr><td><span class="hl-red">Lattigo</span></td><td>BFV, BGV, CKKS, RLWE</td><td>Go</td><td>Multiparty FHE, cloud-native</td></tr>
+  </tbody>
+</table>
+<div class="panel panel-amber" style="margin-top:0.7em;">
+  <h3>HE-Std / HomomorphicEncryption.org</h3>
+  <p>Industry consortium (Microsoft, IBM, Intel, Google, Stanford, MIT…) producing <span class="hl-amber">API standards and security parameter recommendations</span>. Security estimates for RLWE at 128/192/256-bit levels — the basis for all library default parameters.</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 20 — Python code: CKKS with SEAL
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Code: CKKS Encrypted Dot Product</h2>
+<pre><code class="language-python">import seal
+from seal import EncryptionParameters, scheme_type, SEALContext
+from seal import KeyGenerator, Encryptor, Evaluator, Decryptor, CKKSEncoder
+
+# ── Parameters ──────────────────────────────────────────────────────────────
+parms = EncryptionParameters(scheme_type.ckks)
+parms.set_poly_modulus_degree(8192)                  # n = 2^13 → 4096 slots
+parms.set_coeff_modulus(seal.CoeffModulus.Create(
+    8192, [60, 40, 40, 60]))                         # RNS chain: 60+40+40+60 bits
+scale = 2**40                                        # Δ encodes ~12 decimal digits
+
+ctx   = SEALContext(parms)
+keygen   = KeyGenerator(ctx)
+pk, sk   = keygen.create_public_key(), keygen.secret_key()
+relin_ks = keygen.create_relin_keys()
+gal_ks   = keygen.create_galois_keys()              # for rotations
+
+enc  = Encryptor(ctx, pk)
+evl  = Evaluator(ctx)
+dec  = Decryptor(ctx, sk)
+coder = CKKSEncoder(ctx)
+
+# ── Encode and encrypt two real vectors ─────────────────────────────────────
+a = [1.5, 2.3, 0.7, 4.1]
+b = [0.5, 1.0, 2.0, 0.25]
+
+pt_a = coder.encode(a, scale)
+pt_b = coder.encode(b, scale)
+
+ct_a = enc.encrypt(pt_a)
+ct_b = enc.encrypt(pt_b)
+
+# ── Compute encrypted dot product via multiply-then-rotate-and-add ──────────
+ct_prod = evl.multiply(ct_a, ct_b)
+evl.relinearize_inplace(ct_prod, relin_ks)
+evl.rescale_to_next_inplace(ct_prod)               # scale: Δ² → Δ
+
+# Sum all slots: accumulate with rotations
+ct_sum = ct_prod
+for i in [1, 2]:
+    ct_rot = evl.rotate_vector(ct_prod, i, gal_ks)
+    ct_sum = evl.add(ct_sum, ct_rot)
+
+# ── Decrypt ─────────────────────────────────────────────────────────────────
+pt_result = dec.decrypt(ct_sum)
+result = coder.decode(pt_result)
+
+print(f"Encrypted dot product ≈ {result[0]:.4f}")  # expect ≈ 4.13 (a·b summed)
+print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
+</code></pre>
+<p style="font-size:0.72em; color:var(--dim); margin-top:0.4em;">Uses Microsoft SEAL Python bindings. All arithmetic — multiply, relinearise, rescale, rotate — runs entirely on ciphertext. The server never sees <code>a</code> or <code>b</code>.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 21 — FHE compiler toolchain
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>FHE Compiler Toolchain</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>The compilation problem</h3>
+      <p>Mapping a high-level program to FHE requires:</p>
+      <ul>
+        <li>Circuit extraction — replace branches, loops with arithmetic gates</li>
+        <li>Scheme selection — CKKS for reals, BFV/TFHE for integers/bits</li>
+        <li>Parameter generation — n, q chain, scale, levels sufficient for circuit depth</li>
+        <li>Operator scheduling — minimise bootstraps via level optimisation</li>
+        <li>Slot packing — SIMD batching across data items</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>Compiler projects</h3>
+      <ul>
+        <li><span class="hl-purple">HEIR</span> (Google, 2024) — MLIR-based FHE compiler; CKKS/CGGI backends, open source</li>
+        <li><span class="hl-green">Concrete</span> (Zama) — Python to TFHE; transparent parameter selection</li>
+        <li><span class="hl-blue">EVA</span> (Microsoft) — CKKS vectoriser; automatic rescaling insertion</li>
+        <li><span class="hl-amber">HECO</span> — HElib-targeting, slot rotation optimiser</li>
+        <li><span class="hl-teal">Cingulata / Parasol</span> — Boolean circuit compilers for FHEW/TFHE</li>
+      </ul>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>HEIR architecture</h3>
+      <p>Source → MLIR high-level dialect → secret-type propagation → scheme selection → parameter synthesis → LLVM → CPU/GPU/FPGA</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 22 — Section divider: Hardware
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<div class="section-div">
+  <div class="section-label">Part V</div>
+  <h2>Hardware Acceleration</h2>
+  <p>GPU, FPGA, and ASIC approaches — NTT units, key-switching datapaths, and the state of FHE silicon</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 23 — GPU acceleration
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>GPU Acceleration</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>Why GPUs?</h3>
+      <ul>
+        <li>NTT and polynomial multiply are embarrassingly parallel — thousands of independent butterfly units map directly to GPU SIMD lanes</li>
+        <li>RNS decomposition: all qᵢ operations are independent → SIMD across RNS limbs</li>
+        <li>Ciphertext elements fit in L2/L3 (10–100 MB) — GPU HBM bandwidth avoids DRAM bottleneck</li>
+      </ul>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>GPU libraries</h3>
+      <ul>
+        <li><span class="hl-amber">cuFHE</span> — CUDA TFHE bootstrapping; &lt;1ms/gate</li>
+        <li><span class="hl-purple">100x</span> — Nvidia CKKS on A100: 150× CPU speedup</li>
+        <li><span class="hl-blue">OpenFHE-GPU</span> — CUDA backend (RTX 3090)</li>
+        <li><span class="hl-green">PhantomFHE</span> — CKKS CUDA; 25× SEAL CPU</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Benchmarks (CKKS, n=2¹⁵)</h3>
+      <table>
+        <thead><tr><th>Platform</th><th>NTT (ms)</th><th>KeySwitch (ms)</th><th>Boot (s)</th></tr></thead>
+        <tbody>
+          <tr><td>CPU (single core)</td><td>12</td><td>380</td><td>18</td></tr>
+          <tr><td>CPU (32-core)</td><td>0.5</td><td>14</td><td>0.8</td></tr>
+          <tr><td>RTX 3090</td><td>0.08</td><td>1.2</td><td>0.15</td></tr>
+          <tr><td>A100 SXM4</td><td>0.03</td><td>0.4</td><td>0.05</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.7em; color:var(--dim); margin-top:0.4em;">Sources: Bossuat et al. (2023), PhantomFHE (2024), estimated from literature</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 24 — FPGA
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>FPGA Acceleration</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>FPGA advantages for FHE</h3>
+      <ul>
+        <li>Custom bit-widths — 27-bit Barrett modular multipliers for each RNS prime exactly fit DSP slices</li>
+        <li>Deterministic latency — no OS jitter, predictable timing for real-time FHE services</li>
+        <li>Power efficiency — 5–10× better perf/W vs GPU for NTT workloads</li>
+        <li>Reconfigurability — adapt n, q chain, or scheme per workload</li>
+      </ul>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Architecture: NTT unit</h3>
+      <ul>
+        <li>Radix-2 DIT butterfly with configurable twiddle factor ROM</li>
+        <li>Fully pipelined: one butterfly per cycle at 300–500 MHz</li>
+        <li>Multi-bank memory: n/2 parallel butterfly lanes (VU13P: 128 lanes)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Published results</h3>
+      <table>
+        <thead><tr><th>Platform</th><th>Operation</th><th>Throughput</th></tr></thead>
+        <tbody>
+          <tr><td>Xilinx Alveo U250</td><td>NTT n=2¹⁴</td><td>1.3M NTTs/s</td></tr>
+          <tr><td>Intel Stratix 10</td><td>CKKS HomMul</td><td>35ms</td></tr>
+          <tr><td>Xilinx VCU118</td><td>TFHE boot</td><td>6ms</td></tr>
+          <tr><td>Alveo U280</td><td>BGV HomMul</td><td>8ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel panel-green" style="margin-top:0.6em;">
+      <h3>Key FPGA papers</h3>
+      <ul>
+        <li>HEAX (Microsoft, ISCA 2020) — CKKS on Stratix 10</li>
+        <li>CraterLake (MIT, ISCA 2022) — heterogeneous FHE FPGA</li>
+        <li>FAB (Berkeley, ISCA 2022) — bootstrapping FPGA</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 25 — ASIC / dedicated silicon
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>FHE ASIC — Dedicated Silicon</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-amber">
+      <h3>ASIC vs FPGA for FHE</h3>
+      <ul>
+        <li>ASIC: 10–100× better perf/area than FPGA due to custom memory hierarchy optimised for FHE data access patterns</li>
+        <li>On-chip SRAM eliminates DRAM bandwidth bottleneck (1–10 TB/s vs 2 TB/s for HBM)</li>
+        <li>Custom datapath: 128-bit or 256-bit SIMD over RNS limbs</li>
+        <li>Fixed cost: parameter changes require full respin</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Published FHE ASICs / chips</h3>
+      <ul>
+        <li><span class="hl-blue">F1</span> (MIT, MICRO 2021) — first FHE ASIC; CKKS 5400× over CPU; 6nm design point</li>
+        <li><span class="hl-purple">BTS</span> (SNU, ISSCC 2022) — CKKS bootstrapping on chip; 22nm; 2 GB SRAM</li>
+        <li><span class="hl-green">CraterLake</span> (MIT, ISCA 2022) — generalised FHE accelerator</li>
+        <li><span class="hl-amber">Poseidon</span> (ETH, 2023) — TFHE accelerator; 5nm; &lt;1ms gate-boot</li>
+        <li><span class="hl-teal">Intel HERACLES</span> — disclosed 2023; tiled NTT + key-switch engines</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="panel panel-purple" style="margin-top:0.6em;">
+  <h3>Bottleneck analysis — where silicon wins</h3>
+  <p>FHE is fundamentally <span class="hl-purple">memory-bandwidth limited</span>. Key switching materialises 20–50 GB of intermediate data per evaluation. ASICs embed SRAM close to NTT compute clusters, slashing off-chip traffic. At 6nm with 500 MB SRAM, F1 achieves &gt;10 TB/s effective internal bandwidth.</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 26 — SystemVerilog NTT
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Code: NTT Butterfly Unit (SystemVerilog)</h2>
+<pre><code class="language-verilog">// Cooley-Tukey NTT butterfly — negacyclic, Barrett reduction
+// Parameters: N=poly_degree, Q=RNS prime (~60-bit), twiddle from ROM
+module ntt_butterfly #(
+  parameter int N     = 4096,
+  parameter int Q     = 32'd1073479681,   // NTT-friendly prime: Q-1 divisible by 2N
+  parameter int W     = 30               // Barrett k-factor log2
+)(
+  input  logic        clk, rst_n,
+  input  logic        valid_in,
+  input  logic [63:0] a_in, b_in,        // two polynomial coefficients
+  input  logic [63:0] w,                 // twiddle factor W^i mod Q from ROM
+  output logic        valid_out,
+  output logic [63:0] a_out, b_out
+);
+  // Registered pipeline: 3 stages for multiply-reduce
+  logic [127:0] wb_full;
+  logic [63:0]  wb_red;    // w * b mod Q via Barrett
+  logic         v1, v2;
+
+  // Stage 1: multiply
+  always_ff @(posedge clk) begin
+    wb_full &lt;= w * b_in;              // 64×64 → 128-bit
+    v1      &lt;= valid_in;
+  end
+
+  // Stage 2: Barrett reduction (128→64-bit mod Q)
+  barrett_reduce #(.Q(Q), .K(W)) u_bar (
+    .clk(clk), .in(wb_full), .out(wb_red), .valid_in(v1), .valid_out(v2)
+  );
+
+  // Stage 3: butterfly outputs
+  always_ff @(posedge clk) begin
+    a_out     &lt;= (a_in + wb_red >= Q) ? a_in + wb_red - Q : a_in + wb_red;
+    b_out     &lt;= (a_in - wb_red + Q >= Q) ? a_in - wb_red : a_in - wb_red + Q;
+    valid_out &lt;= v2;
+  end
+endmodule
+</code></pre>
+<p style="font-size:0.72em; color:var(--dim); margin-top:0.4em;">Fully pipelined 3-cycle butterfly. At 400 MHz with N=4096 and L=8 RNS limbs, a complete NTT forward pass takes ≈ 50k cycles = 125μs. Instantiate 64 butterflies per limb for 2μs NTT throughput.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 27 — Section divider: Applications
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<div class="section-div">
+  <div class="section-label">Part VI</div>
+  <h2>Real-World Applications</h2>
+  <p>Private ML inference, genomics, regulated finance, multi-party computation, and emerging use cases</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 28 — ML inference
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Encrypted Neural Network Inference</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>Problem setup</h3>
+      <p>A healthcare client wants to run a diagnostic ML model hosted by a cloud provider, without revealing patient data. The cloud should learn nothing about the input or output.</p>
+    </div>
+    <div class="panel panel-blue" style="margin-top:0.6em;">
+      <h3>CKKS NN mapping</h3>
+      <ul>
+        <li><span class="hl-blue">Linear layers:</span> encrypted matrix-vector multiply via slot rotations + inner product</li>
+        <li><span class="hl-amber">Activation (ReLU):</span> polynomial approximation (Chebyshev) — degree 15–27 typically sufficient for ResNet/VGG</li>
+        <li><span class="hl-green">BatchNorm:</span> absorbed into linear weights (pre-compiled)</li>
+        <li><span class="hl-purple">Softmax:</span> approximated; argmax via comparison circuits (expensive)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>Published results</h3>
+      <table>
+        <thead><tr><th>Network</th><th>Scheme</th><th>Accuracy</th><th>Latency</th></tr></thead>
+        <tbody>
+          <tr><td>LeNet-5 (MNIST)</td><td>CKKS</td><td>99.0%</td><td>~2s CPU</td></tr>
+          <tr><td>ResNet-20 (CIFAR)</td><td>CKKS</td><td>91.8%</td><td>~6min CPU</td></tr>
+          <tr><td>BERT (NLP, 1 layer)</td><td>CKKS+TFHE</td><td>96%</td><td>~90s CPU</td></tr>
+          <tr><td>ResNet-20 (CIFAR)</td><td>CKKS+GPU</td><td>91.8%</td><td>&lt;30s A100</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Practical toolkits</h3>
+      <ul>
+        <li><span class="hl-amber">CryptoNets</span> (Microsoft 2016) — first encrypted NN demo</li>
+        <li><span class="hl-purple">nGraph-HE</span> (Intel) — TensorFlow + SEAL</li>
+        <li><span class="hl-green">Zama Concrete ML</span> — scikit-learn + TFHE</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 29 — Genomics & Finance
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Genomics, Finance &amp; Private Queries</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-teal">
+      <h3>Private Genomics</h3>
+      <ul>
+        <li><span class="hl-teal">GWAS</span> — genome-wide association study over encrypted SNP data: compute χ² statistics using encrypted integer BGV</li>
+        <li><span class="hl-blue">PRS</span> (Polygenic Risk Score) — encrypted inner product of genotype × weights (CKKS, one ciphertext per chromosome)</li>
+        <li><span class="hl-green">iDASH competition</span> — annual benchmark; 2021 winner: PRS on 245k SNPs in 2 min (CKKS+GPU)</li>
+        <li>Microsoft SEAL used in Azure Genomics pilot (2021)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-amber">
+      <h3>Regulated Finance</h3>
+      <ul>
+        <li><span class="hl-amber">Private credit scoring</span> — bank evaluates client's encrypted financial features without learning them (CKKS logistic regression)</li>
+        <li><span class="hl-purple">Dark pool matching</span> — encrypted order book matching; buyer/seller reveal nothing until match (TFHE comparisons)</li>
+        <li><span class="hl-blue">Risk aggregation</span> — Duality Technologies: FHE-based regulatory reporting across banks</li>
+      </ul>
+    </div>
+    <div class="panel panel-blue" style="margin-top:0.6em;">
+      <h3>Private database queries</h3>
+      <ul>
+        <li>PIR (Private Information Retrieval) — retrieve DB record without server knowing which row</li>
+        <li>CKKS + BFV for encrypted SQL-like aggregates</li>
+        <li>Spiral (Washington, 2022) — practical PIR at GB scale</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 30 — MPC + FHE
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>FHE + Multi-Party Computation</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>Why combine?</h3>
+      <p>FHE gives <span class="hl-purple">computation on encrypted data</span>; MPC gives <span class="hl-purple">distributed trust</span> — no single party holds the full decryption key. Together: <em>verifiable</em>, <em>distributed</em> encrypted computation.</p>
+    </div>
+    <div class="panel panel-blue" style="margin-top:0.6em;">
+      <h3>Threshold FHE</h3>
+      <ul>
+        <li>Split secret key sk among N parties: sk = sk₁ + sk₂ + … + skₙ</li>
+        <li>Decrypt only with t-of-n parties cooperating (Shamir sharing)</li>
+        <li>Used in: Lattigo multiparty, OpenFHE multiparty extension</li>
+        <li>Applications: privacy-preserving ML training across hospitals with no central authority</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>FHE + ZK Proofs</h3>
+      <p>Combine FHE with Zero-Knowledge Proofs to prove <span class="hl-green">correctness of computation</span> on encrypted data — server proves it executed the agreed function without cheating.</p>
+      <ul>
+        <li>SNARK-based FHE verifiability (Fiore et al. 2014+)</li>
+        <li>Verifiable FHE (vFHE): prover generates succinct proof alongside FHE output</li>
+        <li>Emerging: NTT shared between FHE and PLONK/Groth16</li>
+      </ul>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Applications</h3>
+      <ul>
+        <li>Private federated learning with verified aggregation</li>
+        <li>Auditable encrypted cloud databases</li>
+        <li>Private on-chain smart contracts (FHE blockchains)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 31 — Section divider: Security & Standardisation
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<div class="section-div">
+  <div class="section-label">Part VII</div>
+  <h2>Security &amp; Standardisation</h2>
+  <p>Security models, RLWE hardness assumptions, the HE-Std parameter tables, and FHE in the NIST PQC transition</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 32 — Security model
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>FHE Security Model</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-red">
+      <h3>IND-CPA security</h3>
+      <p>All FHE schemes above target <span class="hl-red">IND-CPA</span> (indistinguishability under chosen-plaintext attack). An adversary given Enc(m₀) and Enc(m₁) cannot determine which is which with non-negligible advantage.</p>
+      <p style="margin-top:0.4em;"><span class="hl-amber">Warning:</span> Standard FHE is <span class="hl-red">NOT</span> IND-CCA2 — ciphertext malleability is inherent (homomorphic operations modify ciphertext). Use MACs or signatures to authenticate computation results.</p>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-amber">
+      <h3>CKKS "leakage" controversy</h3>
+      <p>Li &amp; Micciancio (2021) showed CKKS decryption reveals information beyond the intended plaintext when used in certain interactive protocols — approximate decryption leaks exact-ish values. Mitigations:</p>
+      <ul>
+        <li>Smudging noise: add large noise before revealing decryption</li>
+        <li>Use CKKS only in non-interactive (client decrypts) settings</li>
+        <li>Li-Micciancio noise flooding countermeasure in OpenFHE</li>
+      </ul>
+    </div>
+    <div class="panel panel-purple" style="margin-top:0.6em;">
+      <h3>Quantum security</h3>
+      <p>RLWE hardness is believed <span class="hl-purple">quantum-resistant</span> — no known quantum speedup beyond quadratic for lattice problems (Shor's algorithm doesn't apply). Same assumption underlies ML-KEM/ML-DSA.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 33 — Standardisation
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Standardisation Landscape</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>HomomorphicEncryption.org (HE-Std)</h3>
+      <p>Community white paper (2018, updated 2021) produced by Microsoft, IBM, Intel, Google, academia. Defines:</p>
+      <ul>
+        <li>Standardised API for BFV, BGV, CKKS, TFHE</li>
+        <li>Concrete security parameter sets at 128/192/256-bit levels</li>
+        <li>Security estimator tool (lattice-estimator)</li>
+        <li>Reference encoding conventions</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>ISO/IEC 18033-6 (2019)</h3>
+      <p>International standard for partially homomorphic encryption (Paillier, El Gamal). FHE standardisation is ongoing — NIST has not yet issued FHE-specific FIPS, though NIST IR 8481 (2023) surveys FHE for government use.</p>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>FHEW/TFHE in NIST context</h3>
+      <p>FHEW and TFHE build on the same RLWE/LWE assumptions as FIPS 203 (ML-KEM). As PQC migration proceeds, <span class="hl-amber">FHE parameter selection</span> will align with NIST SP 800-186 lattice security levels.</p>
+    </div>
+  </div>
+</div>
+<div class="panel panel-purple" style="margin-top:0.6em;">
+  <h3>lattice-estimator (Albrecht et al.)</h3>
+  <p>Open-source Sage/Python tool for concrete security estimation of RLWE instances. Given (n, q, σ), outputs best-known attack costs (BKZ, uSVP, primal/dual hybrid). Used by all major FHE libraries to validate parameters.</p>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 34 — Interactive: scheme selector
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Scheme Selector — Which FHE for Your Task?</h2>
+<div id="selector-root" style="margin-top:0.5em;"></div>
+<style>
+#selector-root { font-size: 0.8em; }
+.sel-q { display:flex; gap:0.7em; flex-wrap:wrap; margin-bottom:0.8em; }
+.sel-btn {
+  padding: 0.35em 1em; border-radius:6px; border:1px solid var(--border);
+  background: var(--surface); color: var(--text2); cursor:pointer;
+  font-family:'JetBrains Mono',monospace; font-size:0.82em; transition:all 0.15s;
+}
+.sel-btn.active, .sel-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(245,158,11,.08); }
+.sel-label { color:var(--dim); font-size:0.75em; margin-bottom:0.3em; }
+#sel-result {
+  background:var(--surface); border:1px solid rgba(245,158,11,.35);
+  border-radius:8px; padding:0.8em 1.2em; min-height:4em;
+  color:var(--text); font-size:0.82em; line-height:1.6;
+}
+</style>
+<script>
+(function(){
+  const state = {};
+  const questions = [
+    { id:'type', label:'Plaintext type', opts:['Real / float', 'Integer (exact)', 'Binary / bits'] },
+    { id:'depth', label:'Circuit depth', opts:['Shallow (≤10 mults)', 'Deep (100+ mults)', 'Arbitrary / control flow'] },
+    { id:'perf', label:'Priority', opts:['Throughput (batch)', 'Low latency (single)', 'Power efficiency'] },
+  ];
+  const rules = [
+    { when:{type:'Real / float', depth:'Shallow (≤10 mults)'}, scheme:'CKKS (levelled)', note:'No bootstrapping needed. Use n=8192, L=4 levels. Fast & simple.' },
+    { when:{type:'Real / float', depth:'Deep (100+ mults)'}, scheme:'CKKS + Bootstrapping', note:'Use n≥2¹⁵, amortise boot cost across slots. GPU strongly recommended.' },
+    { when:{type:'Real / float', depth:'Arbitrary / control flow'}, scheme:'CKKS + TFHE hybrid', note:'Evaluate linear layers in CKKS, branch/comparison in TFHE. Scheme switch at boundaries.' },
+    { when:{type:'Integer (exact)', depth:'Shallow (≤10 mults)'}, scheme:'BFV', note:'Simple single-modulus setup. Great for encrypted SQL/lookup tables up to L≈8.' },
+    { when:{type:'Integer (exact)', depth:'Deep (100+ mults)'}, scheme:'BGV (RNS levelled)', note:'Drop RNS limbs per level. Compile with HEIR or OpenFHE parameter selector.' },
+    { when:{type:'Integer (exact)', depth:'Arbitrary / control flow'}, scheme:'TFHE (integer mode)', note:'Concrete library supports 8/16-bit encrypted integers natively with programmable bootstrap.' },
+    { when:{type:'Binary / bits'}, scheme:'TFHE / FHEW', note:'Natural fit — each gate bootstraps automatically. Concrete or OpenFHE CGGI backend.' },
+  ];
+  const root = document.getElementById('selector-root');
+  const qDiv = document.createElement('div');
+  questions.forEach(q => {
+    const lbl = document.createElement('div'); lbl.className='sel-label'; lbl.textContent=q.label;
+    const row = document.createElement('div'); row.className='sel-q';
+    q.opts.forEach(o => {
+      const b = document.createElement('button'); b.className='sel-btn'; b.textContent=o;
+      b.onclick=()=>{ state[q.id]=o; qDiv.querySelectorAll(`[data-qid="${q.id}"]`).forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(); };
+      b.dataset.qid=q.id; row.appendChild(b);
+    });
+    qDiv.appendChild(lbl); qDiv.appendChild(row);
+  });
+  root.appendChild(qDiv);
+  const res = document.createElement('div'); res.id='sel-result'; res.textContent='← Select your requirements above';
+  root.appendChild(res);
+  function render(){
+    const match = rules.find(r=>Object.entries(r.when).every(([k,v])=>state[k]===v||!r.when[k]));
+    if(match) res.innerHTML=`<span style="color:var(--accent);font-weight:700;font-family:'JetBrains Mono',monospace;">${match.scheme}</span><br/>${match.note}`;
+    else res.textContent='← Select your requirements above';
+  }
+})();
+</script>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 35 — Performance comparison
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Performance: FHE Today vs Tomorrow</h2>
+<table>
+  <thead><tr><th>Operation</th><th>Scheme</th><th>CPU (now)</th><th>GPU A100</th><th>ASIC target</th></tr></thead>
+  <tbody>
+    <tr><td>HomMul (1 level)</td><td>CKKS n=2¹⁵</td><td>380ms</td><td>0.4ms</td><td>&lt;0.1ms</td></tr>
+    <tr><td>Bootstrap (4096 slots)</td><td>CKKS n=2¹⁴</td><td>2s</td><td>50ms</td><td>&lt;5ms</td></tr>
+    <tr><td>Gate bootstrap</td><td>TFHE</td><td>8ms</td><td>0.8ms</td><td>&lt;0.1ms</td></tr>
+    <tr><td>ResNet-20 inference</td><td>CKKS</td><td>6 min</td><td>30s</td><td>&lt;3s</td></tr>
+    <tr><td>PRS (245k SNPs)</td><td>CKKS</td><td>2 min</td><td>5s</td><td>&lt;1s</td></tr>
+  </tbody>
+</table>
+<div class="cols" style="margin-top:0.7em;">
+  <div class="col">
+    <div class="panel panel-amber">
+      <h3>1000× gap vs plaintext</h3>
+      <p>Best-case CKKS HomMul is still ~1000× slower than plaintext float32 multiply. Hardware acceleration narrows this to ~10–50× for many workloads — acceptable for high-value, privacy-critical applications.</p>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>Trend: closing fast</h3>
+      <ul>
+        <li>2009 (Gentry): theoretical only</li>
+        <li>2012: hours per AES block</li>
+        <li>2018: minutes per NN inference</li>
+        <li>2022 (F1 ASIC): milliseconds</li>
+        <li>2026+: real-time encrypted ML</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 36 — Limitations & open problems
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Limitations &amp; Open Problems</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-red">
+      <h3>Current limitations</h3>
+      <ul>
+        <li><span class="hl-red">No native comparison</span> — equality/order tests require expensive bit-decomposition or polynomial approximation in CKKS</li>
+        <li><span class="hl-red">No native branching</span> — FHE circuits must be branch-free (TFHE mitigates via bit-level gates)</li>
+        <li><span class="hl-red">Large ciphertext expansion</span> — CKKS expands 1 float to ~50–200 KB ciphertext</li>
+        <li><span class="hl-red">Key material size</span> — evaluation keys (relin + galois) can be tens of GB for large n</li>
+        <li><span class="hl-red">Parameter tuning complexity</span> — non-expert users struggle; compilers help but don't solve all cases</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>Open research problems</h3>
+      <ul>
+        <li><span class="hl-purple">Efficient bootstrapping</span> — target &lt;1ms per CKKS bootstrap at high precision</li>
+        <li><span class="hl-blue">Transciphering</span> — convert AES-encrypted stream to FHE ciphertext homomorphically (reduces client bandwidth)</li>
+        <li><span class="hl-green">FHE-native NNs</span> — train networks with polynomial activations that are FHE-efficient from the start</li>
+        <li><span class="hl-amber">Multiparty FHE at scale</span> — distributed decryption without trusted dealer</li>
+        <li><span class="hl-teal">Functional encryption</span> — FHE generalisation with restricted decryption per function</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 37 — Ecosystem map
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>FHE Ecosystem (2025)</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-blue">
+      <h3>Commercial</h3>
+      <ul>
+        <li><span class="hl-blue">Zama</span> — Concrete / fhEVM; FHE blockchain, ML</li>
+        <li><span class="hl-purple">Duality Technologies</span> — OpenFHE commercialisation; finance/healthcare</li>
+        <li><span class="hl-green">Cornami</span> — FHE streaming ASIC</li>
+        <li><span class="hl-amber">Microsoft</span> — SEAL, HEAX, Azure Confidential Computing FHE</li>
+        <li><span class="hl-teal">Intel</span> — HERACLES chip, HEXL acceleration library</li>
+        <li><span class="hl-red">IBM</span> — HElib, homomorphic encryption services</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-green">
+      <h3>Research groups</h3>
+      <ul>
+        <li>MIT CSAIL — F1, CraterLake, Cheetah</li>
+        <li>Stanford — Gentry group; FHE theory</li>
+        <li>Seoul Nat'l Univ — HEAAN/CKKS; BTS chip</li>
+        <li>EPFL — Lattigo; multiparty FHE</li>
+        <li>NIST / DHS — NIST IR 8481 FHE evaluation</li>
+        <li>ETH Zürich — Poseidon TFHE chip</li>
+      </ul>
+    </div>
+    <div class="panel panel-amber" style="margin-top:0.6em;">
+      <h3>Standards / consortia</h3>
+      <ul>
+        <li>HomomorphicEncryption.org — parameter standards</li>
+        <li>FHE.org — community &amp; annual FHE.org conference</li>
+        <li>OpenFHE governance board</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 38 — Summary & future
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>Summary &amp; Future Directions</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-amber">
+      <h3>What we covered</h3>
+      <ul>
+        <li><span class="hl-amber">Foundations</span> — LWE, RLWE, noise growth, cyclotomic rings</li>
+        <li><span class="hl-purple">Schemes</span> — BGV, BFV, CKKS, TFHE/FHEW: tradeoffs and selection</li>
+        <li><span class="hl-blue">Operations</span> — relinearisation, key switching, RNS, NTT</li>
+        <li><span class="hl-green">Hardware</span> — GPU (150×), FPGA, ASICs (F1, BTS, Poseidon)</li>
+        <li><span class="hl-teal">Applications</span> — private ML, genomics, finance, MPC+ZK</li>
+        <li><span class="hl-red">Limits</span> — no branches, ciphertext expansion, key size</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-purple">
+      <h3>Watch this space</h3>
+      <ul>
+        <li>FHE-native AI chips — dedicated ASIC for real-time encrypted inference</li>
+        <li>FHE blockchains — fully private smart contracts (fhEVM)</li>
+        <li>Transciphering at scale — remove AES pre-processing overhead</li>
+        <li>NIST FHE standardisation — expected late 2020s</li>
+        <li>Quantum + FHE — FHE security assumptions robust to quantum; synergy with QKD?</li>
+      </ul>
+    </div>
+    <div class="panel panel-green" style="margin-top:0.6em;">
+      <h3>Series connection</h3>
+      <p>FHE builds on: <a href="../07-post-quantum-cryptography/">07 PQC</a> (RLWE), <a href="../01-finite-field-arithmetic/">01 Finite fields</a> (NTT), <a href="../10-crypto-hardware-accelerator-design/">10 Hardware</a> (NTT ASICs), <a href="../09-side-channel-attacks/">09 Side-channel</a> (power attacks on FHE chips)</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 39 — References
+     ═══════════════════════════════════════════════════════════ -->
+<section>
+<h2>References</h2>
+<div class="cols">
+  <div class="col">
+    <div class="panel panel-blue" style="font-size:0.72em;">
+      <h3>Foundational papers</h3>
+      <ul>
+        <li>Gentry, "A Fully Homomorphic Encryption Scheme," Stanford PhD thesis (2009)</li>
+        <li>Regev, "On Lattices, LWE, Random Linear Codes…" STOC (2005)</li>
+        <li>Lyubashevsky, Peikert, Regev, "On Ideal Lattices and RLWE" EUROCRYPT (2010)</li>
+        <li>Brakerski, Gentry, Vaikuntanathan (BGV), "Fully Homomorphic without Bootstrapping" ITCS (2012)</li>
+        <li>Fan, Vercauteren (BFV), "Somewhat Practical Fully Homomorphic Encryption" (2012)</li>
+        <li>Cheon, Kim, Kim, Song (CKKS), "Homomorphic Encryption for Arithmetic of Approximate Numbers" ASIACRYPT (2017)</li>
+        <li>Ducas, Micciancio (FHEW), "FHEW: Bootstrapping Homomorphic Encryption in Less Than a Second" EUROCRYPT (2015)</li>
+        <li>Chillotti et al. (TFHE), "TFHE: Fast Fully Homomorphic Encryption over the Torus" J.Cryptology (2020)</li>
+        <li>Gentry, Sahai, Waters (GSW) CRYPTO (2013)</li>
+        <li>Li, Micciancio, "On the Security of Homomorphic Encryption on Approximate Numbers" EUROCRYPT (2021)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="panel panel-purple" style="font-size:0.72em;">
+      <h3>Hardware &amp; systems</h3>
+      <ul>
+        <li>Reagen et al. (F1), MICRO 2021</li>
+        <li>Kim et al. (BTS), ISSCC 2022</li>
+        <li>Samardzic et al. (CraterLake), ISCA 2022</li>
+        <li>Agrawal et al. (FAB), ISCA 2022</li>
+        <li>Boura et al. (HEAX/Microsoft), ISCA 2020</li>
+        <li>Viand et al. (Poseidon), ETH 2023</li>
+        <li>Han, Ki, "Better Bootstrapping for CKKS" CT-RSA 2020</li>
+        <li>HE-Std White Paper, HomomorphicEncryption.org (2021)</li>
+        <li>NIST IR 8481 "Getting Ready for Post-Quantum…FHE" (2023)</li>
+        <li>Albrecht et al., "Estimate all the {LWE, NTRU} schemes!" SCN (2018) — lattice-estimator</li>
+      </ul>
+    </div>
+    <p class="back-link" style="margin-top:0.8em;"><a href="../">← Back to series landing page</a></p>
+  </div>
+</div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/notes/notes.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  transition: 'fade',
+  transitionSpeed: 'fast',
+  backgroundTransition: 'none',
+  controls: true,
+  progress: true,
+  center: true,
+  width: 1200,
+  height: 700,
+  margin: 0.06,
+  plugins: [ RevealHighlight, RevealNotes ]
+});
+</script>
+</body>
+</html>
