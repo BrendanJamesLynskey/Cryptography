@@ -19,6 +19,7 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 | 03 | AES — Design & Implementation | 28 | ✅ Complete |
 | 06 | Digital Signatures (ECDSA, EdDSA, Schnorr) | 25 | ✅ Complete |
 | 07 | Post-Quantum Cryptography | 21 | ✅ Complete |
+| 08 | Fully Homomorphic Encryption (FHE) | 39 | ✅ Complete |
 | 09 | Side-Channel Attacks & Countermeasures | 22 | ✅ Complete |
 | 10 | Crypto Hardware Accelerator Design | 38 | ✅ Complete |
 
@@ -80,13 +81,17 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 
 **Standards** — Historical context from DES through the AES competition to FIPS 197. Key schedule for all three variants (128/192/256-bit) with RotWord, SubWord, and Rcon. Round structure pseudocode. Decryption via equivalent inverse cipher.
 
-**Implementation** — T-table optimisation fusing SubBytes + ShiftRows + MixColumns into four 256-entry 32-bit tables. AES-NI hardware instruction set (AESENC, AESDEC, AESKEYGENASSIST). Python AES-128 reference implementation. SystemVerilog AES round module with 16 parallel S-box instances.
+**Hardware Architectures** — Four AES round implementations compared: iterative (2,645 GE, 1 round/clock), loop-unrolled (3× speed), fully pipelined (1 block/clock), and multi-core parallel (742 Gbps on FPGA). T-box optimization for software. AES-NI x86 instruction set and ARM AES extensions. FPGA-specific techniques: BRAM S-box, distributed LUT S-box, DSP-free round function.
 
-**Hardware** — Three architecture tiers: basic iterative (3–5 kGE), inner-round pipelined (8–15 kGE), fully unrolled + pipelined (50–170 kGE). Composite-field S-box via GF((2⁴)²) tower decomposition (Canright's 92 GE design). FPGA vs ASIC comparison. Performance from 80 Mbps (8-bit serial) to 53 Gbps (45nm ASIC).
+**Modes of Operation** — ECB, CBC, CTR, GCM, CCM, XTS with security properties and IV handling. AES-GCM authenticated encryption: GHASH over GF(2¹²⁸), hardware GHASH unit architectures (4-way Karatsuba), NIST SP 800-38D requirements.
 
-**Security** — Side-channel attack taxonomy: timing (Bernstein 2005), DPA/CPA (Kocher 1999), differential fault analysis. Countermeasures: Boolean masking (d+1 shares), shuffling, bitslicing, dual-rail logic, threshold implementations, TMR. Cryptanalysis status: biclique (2¹²⁶·¹), related-key, Square attacks. Post-quantum: Grover's algorithm and CNSA 2.0 AES-256 mandate.
+**Side-Channel Countermeasures** — Power analysis classification (SPA, DPA, CPA), cache-timing attacks (Bernstein 2005, OpenSSL vulnerability), Boolean masking theory and hardware masking, threshold implementation (TI) for first-order resistance, random delay insertion, dual-rail logic.
 
-**Deployment** — Modes of operation (ECB, CBC, CTR, GCM, XTS, CCM, SIV). Real-world usage: TLS 1.3, IPsec, BitLocker, FileVault, WPA3, Intel AES-NI, ARM Crypto Extensions, RISC-V Zkn.
+**Key Schedule Security** — Related-key attacks on AES-256 (Biryukov-Khovratovich 2009), biclique attack (Bogdanov et al. 2011) bringing 2¹²⁶·² complexity — best known attack, still impractical.
+
+**Code** — Complete SystemVerilog AES-128 round with 16 parallel composite-field S-boxes (Canright tower-field decomposition). Python AES-ECB implementation from primitives. AES-GCM Python with GHASH.
+
+**Performance** — Throughput from OpenSSL software (3.2 Gbps) to AES-NI (25–53 Gbps on modern CPUs) to custom ASIC (53 Gbps, Mathew et al. JSSC 2011).
 
 ---
 
@@ -94,23 +99,15 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 
 25 interactive slides covering:
 
-**Theory** — Hash-then-sign paradigm, authentication/integrity/non-repudiation properties. The ElGamal → DSA → ECDSA → Schnorr → EdDSA family tree. Full mathematical walkthroughs of ECDSA signing/verification with correctness proofs.
+**ECDSA** — Signature generation and verification with full mathematical walkthrough. Nonce (k) criticality: reuse → full key recovery (Sony PS3 2010, Android Bitcoin 2013). RFC 6979 deterministic nonce derivation from HMAC-DRBG.
 
-**Schemes** — ECDSA deep dive (key generation, signing, verification, deterministic RFC 6979 variant). Schnorr signatures with linearity and batch verification. EdDSA/Ed25519 with deterministic nonces and twisted Edwards curve parameters. Side-by-side comparison table across all three schemes.
+**EdDSA / Ed25519** — Twisted Edwards curve (-x² + y² = 1 - (121665/121666)x²y²) over 𝔽_(2²⁵⁵-19). Deterministic signing via SHA-512(sk). Cofactor handling. Comparison vs ECDSA across 8 engineering properties. Batch verification speedup.
 
-**Advanced Protocols** — MuSig2 (n-of-n) and FROST (t-of-n) threshold signatures. Blind and ring signatures overview.
+**Schnorr Signatures** — Linear structure enabling provable security (random oracle model), natural multi-signature support. BIP 340 (Taproot). Comparison with ECDSA.
 
-**Standards** — FIPS 186-5 (2023), RFC 8032 (Ed25519/Ed448), RFC 6979 (deterministic ECDSA), BIP 340 (Schnorr for Bitcoin Taproot), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA). Real-world deployment map: TLS 1.3, blockchain, SSH, mobile/IoT, code signing, PKI.
+**Threshold & Multi-Signature** — MuSig2: 2-round multi-signature for Bitcoin Taproot. FROST: flexible round-optimal Schnorr threshold signatures for t-of-n. Comparison of interactivity, communication rounds, and security models.
 
-**Hardware** — ECDSA/EdDSA FPGA accelerator block diagrams and synthesis results (Virtex-5, Alveo U250). ASIC 45nm implementation data (0.257 mm², 532 MHz). Side-channel attack taxonomy (SPA, DPA, EM, fault injection) and countermeasures (Montgomery ladder, scalar blinding, coordinate randomization).
-
-**Post-Quantum** — ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+) parameter sets, size comparisons, hardware accelerator results. Hybrid transition strategies.
-
-**Code** — Python Ed25519 and ECDSA P-256 implementations. SystemVerilog modular inverse module (Fermat's little theorem via Montgomery exponentiation). ECDSA sign top-level RTL with FSM controller.
-
-**Interactive** — Live ECDSA signing simulator on a toy elliptic curve with sign, verify, and tamper-detection demonstrations.
-
-**Attacks** — Sony PS3 nonce-reuse (2010), Android Bitcoin wallet RNG failure (2013), ROCA TPM vulnerability (2017), Minerva timing side-channel (2019).
+**Post-Quantum** — ML-DSA (FIPS 204, Dilithium): lattice-based signature with NTT polynomial operations. SLH-DSA (FIPS 205, SPHINCS+): hash-based stateless signatures with FORS + HT construction. Size comparison: Ed25519 (64B sig) vs ML-DSA-65 (3293B) vs SLH-DSA-128s (7856B).
 
 ---
 
@@ -118,23 +115,63 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 
 21 interactive slides covering:
 
-**The Quantum Threat** — Shor's algorithm breaking RSA/ECC/DH in polynomial time. Grover's quadratic speedup against symmetric ciphers. The "Harvest Now, Decrypt Later" attack model. CRQC timeline estimates and CNSA 2.0 mandates.
+**Quantum threat** — Shor's algorithm factoring and discrete log in polynomial time. Grover's algorithm halving symmetric key lengths. NIST PQC timeline (2016–2024) and CNSA 2.0 migration schedule.
 
-**Lattice Mathematics** — Interactive 2D lattice visualisation with Closest Vector Problem demo. SVP, CVP, SIVP, GapSVP hard problems. Learning With Errors (LWE): search vs. decision variants, worst-case to average-case reductions (Regev 2005). Ring-LWE and Module-LWE structured variants. Interactive noise parameter demo showing why error makes LWE hard.
+**Lattice foundations** — Shortest Vector Problem (SVP), Learning With Errors (LWE), Ring-LWE. Why lattice problems resist quantum algorithms.
 
-**NIST PQC Standards (Aug 2024)** — FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA). Upcoming: FIPS 206 (FN-DSA/FALCON), HQC (code-based KEM backup). NIST IR 8547 deprecation timeline (2035).
+**ML-KEM (FIPS 203)** — Kyber KEM: key generation, encapsulation, decapsulation. NTT polynomial multiplication in ℤq[x]/(x²⁵⁶+1), q=3329. Module structure (k=2/3/4 for ML-KEM-512/768/1024). IND-CCA2 security via Fujisaki-Okamoto transform.
 
-**ML-KEM Deep Dive** — Module-LWE construction: K-PKE → Fujisaki-Okamoto transform → IND-CCA2. Full protocol flow diagram (Alice/Bob key exchange). NTT butterfly architecture and ℤ₃₃₂₉ arithmetic. Parameter sets: ML-KEM-512/-768/-1024 with key/ciphertext sizes.
+**ML-DSA (FIPS 204)** — Dilithium signature: commitment, challenge, response. Rejection sampling for security. Module lattice structure. Parameter sets.
 
-**ML-DSA Deep Dive** — Fiat-Shamir with Aborts paradigm (Lyubashevsky). Module-LWE + Module-SIS security basis. Parameter sets and abort loop mechanics.
+**SPHINCS+ / SLH-DSA (FIPS 205)** — Hash-based signatures with no lattice assumptions. FORS few-time signatures + hypertree structure. Stateless, conservative security.
 
-**SLH-DSA (SPHINCS+)** — Hypertree architecture: WOTS+ → XMSS → FORS layers. 12 parameter sets across SHA-2/SHAKE, small/fast modes. Conservative hash-only security assumptions.
+**NTT deep dive** — Cooley-Tukey butterfly in negacyclic ring. SystemVerilog NTT core for ML-KEM. Hardware sharing with AES-SHA-3.
 
-**Interactive Comparisons** — Switchable bar charts comparing public key, secret key, and ciphertext/signature sizes across all PQC and classical algorithms. Performance benchmarks: ML-KEM vs. X25519 vs. RSA-2048; ML-DSA vs. Ed25519.
+**Hybrid schemes** — X25519+ML-KEM-768, ECDSA+ML-DSA in TLS 1.3 and SSH. NIST IR 8547 transition guidance.
 
-**Hardware** — NTT butterfly architectures for ML-KEM/ML-DSA: iterative, pipelined, mixed-radix. Keccak/SHA-3 core integration. FPGA and ASIC implementation results with area-time product comparisons. PQC + RISC-V integration strategies.
+---
 
-**Migration** — Hybrid key exchange (X25519 + ML-KEM-768 in TLS 1.3). Certificate chain impacts. CNSA 2.0 timeline and backward compatibility challenges.
+## Presentation 08: Fully Homomorphic Encryption
+
+39 interactive slides covering:
+
+**Vision** — The "holy grail" of cryptography: compute on encrypted data without decrypting. FHE vs traditional cloud (plaintext exposure) and the homomorphic property Enc(x) ⊕ Enc(y) = Enc(x+y), Enc(x) ⊗ Enc(y) = Enc(x·y).
+
+**Taxonomy** — PHE (partially: + or × only), SHE (somewhat: bounded depth), LHE (levelled: fixed depth, no bootstrapping), FHE (fully: unlimited depth via bootstrapping). Why multiplicative depth is the critical resource.
+
+**Mathematical Foundations** — LWE: samples b = a·s + e mod q, hardness reduction from GapSVP/SIVP (Regev 2005). Ring-LWE: polynomial ring R = ℤ[x]/(xⁿ+1), RLWE hardness (Lyubashevsky-Peikert-Regev 2010). NTT-friendly cyclotomic structure. Standard parameter tables (n, log₂q) for 128-bit security. Noise growth: linear for addition, multiplicative for multiplication; decryption bound |noise| < q/2.
+
+**Noise management** — Modulus switching (drop a modulus level), key switching (relinearisation), rescaling (CKKS), and bootstrapping (homomorphic decryption to reset noise).
+
+**Schemes** — Gentry's blueprint (2009): self-referential bootstrapping, squashing trick. BGV (2011): modulus switching, RNS chain, levelled FHE. BFV (2012): scale-invariant noise, single large q; BGV vs BFV selection guide. CKKS (2017): approximate arithmetic, scaling factor Δ, n/2 SIMD slots via Galois automorphisms; best for ML/statistics. FHEW (2015): fast bootstrapping <100ms, ring-GSW external product. TFHE (2016/2020): torus LWE, gate-level FHE with programmable bootstrapping <10ms; TFHE vs CKKS comparison table. GSW external product and blind rotation for FHEW/TFHE.
+
+**Bootstrapping deep dive** — CKKS: CoeffToSlot → EvalMod (Chebyshev sine approximation) → SlotToCoeff. Cost table vs n and slot count. Amortised cost per slot enabling practical encrypted ML. TFHE: blind rotation algorithm step-by-step with RGSW accumulators.
+
+**Key operations** — Relinearisation: degree-2 ciphertext reduction using rlk = Enc(s²). Key switching: cross-key reencryption using ksk. Galois rotations for SIMD slot permutation. RNS representation: q = q₀·q₁·…·q_{L-1} (60-bit primes, 64-bit arithmetic). NTT: O(n log n) polynomial multiply; shared IP across FHE, PQC, ZK-SNARKs.
+
+**FHE Libraries** — Microsoft SEAL (BFV, CKKS), OpenFHE (all schemes), HElib (BGV, CKKS), HEAAN (CKKS reference), Concrete/Zama (TFHE, Rust+Python), Lattigo (Go, multiparty). HE-Std HomomorphicEncryption.org white paper: API standards and security parameter tables.
+
+**Compiler toolchain** — Circuit extraction, scheme selection, parameter synthesis, operator scheduling, SIMD packing. HEIR (Google, MLIR-based, 2024), Concrete (Zama), EVA (Microsoft), HECO, Cingulata.
+
+**Hardware Acceleration** — GPU: NTT and RNS limbs are embarrassingly parallel; cuFHE, PhantomFHE (25× SEAL CPU), A100 benchmarks (CKKS HomMul: 0.4ms, Bootstrap: 50ms). FPGA: custom Barrett modular multipliers, pipelined NTT butterflies, Alveo/Stratix 10 results (HEAX ISCA 2020, CraterLake ISCA 2022, FAB ISCA 2022). ASIC: F1 (MIT, MICRO 2021; 5400× CPU speedup), BTS (SNU, ISSCC 2022; on-chip CKKS bootstrapping), Poseidon (ETH 2023; TFHE <1ms gate-boot), Intel HERACLES. Memory bandwidth as the fundamental bottleneck; on-chip SRAM hierarchy design.
+
+**SystemVerilog** — Fully pipelined 3-stage NTT Cooley-Tukey butterfly with 64-bit Barrett modular reduction, parameterised for any NTT-friendly prime.
+
+**Code** — Python CKKS encrypted dot product using Microsoft SEAL bindings: parameter selection, RNS chain configuration, encode/encrypt, HomMul + relinearise + rescale, slot rotation for inner product, decrypt.
+
+**Interactive Scheme Selector** — Questionnaire (plaintext type × circuit depth × priority) → recommended scheme with rationale.
+
+**Applications** — Private ML inference: CKKS NN mapping (polynomial ReLU approximation via Chebyshev, batched linear layers via slot rotations). Published results: LeNet-5 (2s CPU), ResNet-20 (6min CPU / 30s A100), 1-layer BERT hybrid. CryptoNets, nGraph-HE, Concrete ML. Private genomics: GWAS χ² over BGV, PRS inner product (CKKS), iDASH 2021 winner. Regulated finance: private credit scoring (CKKS logistic regression), dark pool matching (TFHE comparison), risk aggregation (Duality). Private database queries: PIR, encrypted SQL aggregates, Spiral protocol.
+
+**Multi-party & ZK** — Threshold FHE: split secret key (Shamir), t-of-n decryption, Lattigo multiparty. FHE + ZK proofs: verifiable FHE (vFHE), SNARK-based correctness proofs, shared NTT datapath with PLONK/Groth16. Applications: private federated learning, auditable encrypted databases, FHE blockchains (fhEVM).
+
+**Security** — IND-CPA security; NOT IND-CCA2 (ciphertext malleability inherent). CKKS approximate leakage (Li-Micciancio 2021): smudging noise and noise flooding countermeasures. Quantum resistance: RLWE hardness not broken by Shor/Grover.
+
+**Standardisation** — HE-Std (HomomorphicEncryption.org): API standard and 128/192/256-bit parameter sets. ISO/IEC 18033-6 (PHE). NIST IR 8481 FHE survey (2023). lattice-estimator (Albrecht et al.) for concrete security estimation.
+
+**Limitations & open problems** — No native comparison/branching (polynomial approximations required), large ciphertext expansion (50–200 KB per float), evaluation key sizes (tens of GB), parameter tuning complexity. Open research: sub-ms CKKS bootstrapping, transciphering, FHE-native NN training, multiparty FHE at scale, functional encryption.
+
+**Ecosystem (2025)** — Commercial: Zama, Duality Technologies, Cornami, Microsoft, Intel, IBM. Research: MIT CSAIL, Stanford, Seoul Nat'l Univ, EPFL, ETH Zürich. Standards: HomomorphicEncryption.org, FHE.org, OpenFHE board.
 
 ---
 
@@ -142,23 +179,13 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 
 22 interactive slides covering:
 
-**Timing Attacks** — Kocher's 1996 timing attack fundamentals. Vulnerable vs. constant-time string comparison in C. Constant-time conditional select with branchless bitwise arithmetic. Rules for constant-time cryptographic code. The compiler optimisation problem and verification tools (ct-verif, dudect, timecop, Binsec/Rel).
+**Attack taxonomy** — Physical side-channels vs logical. Timing attacks (Kocher 1996): RSA/DH modular exponentiation timing; cache-timing (Bernstein AES 2005, Spectre 2018, Meltdown 2018). Power analysis: SPA (single trace), DPA (Kocher-Jaffe-Jun 1999), CPA (correlation with Hamming weight/distance), template attacks (Chari-Rao-Rohatgi CHES 2002). Electromagnetic attacks: near-field EM probes, EM-DPA. Fault injection: clock/voltage glitching, laser fault injection; Bellcore attack on RSA-CRT (Boneh-DeMillo-Lipton 1997), Piret-Quisquater AES DFA (2003), safe-error attacks.
 
-**Power Analysis** — CMOS dynamic power and the Hamming weight/distance models. Simple Power Analysis (SPA) with interactive RSA square-and-multiply trace visualisation. Differential Power Analysis (DPA) and Correlation Power Analysis (CPA) with animated correlation convergence demo. Template attacks and deep-learning SCA extensions (X-DeepSCA, cross-device single-trace attacks).
+**Hardware countermeasures** — Boolean masking (ISW private circuits 2003): t-probing security, correctness/uniformity requirements, masked S-box. Threshold Implementation (Nikova-Rechberger-Rijmen 2006): three key properties (correctness, non-completeness, uniformity), first-order DPA resistance. Dual-rail logic (WDDL): balanced power consumption. Random delay insertion and shuffling. Blinding for RSA/ECC. Voltage and clock monitors for fault detection.
 
-**Electromagnetic Emanations** — Near-field EM probes, SEMA/DEMA/CEMA techniques. STELLAR countermeasure for lower-metal routing and current-domain signature attenuation (CDSA). Advantages over power analysis: spatial resolution, non-contact measurement, bypass of decoupling capacitors.
+**TVLA validation** — Test Vector Leakage Assessment (Goodwill et al. 2011): Welch's t-test on fixed vs random traces; threshold |t| > 4.5 indicates leakage. Rambus DPA-resistant cores validated to 100M+ traces.
 
-**Cache & Microarchitectural Attacks** — AES T-table cache timing (Bernstein 2005). Flush+Reload, Prime+Probe, Evict+Time techniques. Spectre (Variant 1 bounds-check bypass, Variant 2 branch-target injection) and Meltdown (out-of-order execution, delayed exception handling). KPTI, retpoline, IBRS/IBPB, and DAWG mitigations.
-
-**Fault Injection** — Voltage glitching, clock glitching, EM fault injection, laser FI, and RowHammer with cost/practicality comparison. Differential Fault Analysis (DFA) on AES (Piret-Quisquater, 4 faults for full key) and RSA-CRT (Bellcore attack, single faulty signature). Software and hardware countermeasures including redundant computation, infection, and environmental sensors.
-
-**Countermeasures** — Boolean and arithmetic masking with Python masked-SubBytes example. Threshold Implementations (TI) with SystemVerilog AND-gate example and correctness/non-completeness/uniformity properties. DOM, HPC2/PINI, and AGEMA evolution. Hiding techniques: dual-rail logic (WDDL, SABL), shuffling, random delays, physical shielding with active mesh. Constant-time programming in practice (libsodium, BoringSSL, AES-NI). TVLA methodology with interactive t-test visualisation. RSA blinding, ECC scalar/point/projective coordinate blinding. Hardware-level SAH, on-die voltage regulators, active shield mesh, environmental sensors.
-
-**Cost of Protection** — Area (gate equivalents), throughput, randomness per encryption, and traces-to-break comparison table for unprotected vs. TI vs. DOM vs. shuffling+mask vs. SAH AES-128 implementations.
-
-**Case Studies** — EMV smart cards (DPA on DES/3DES), OpenSSL RSA cache timing (Bernstein/Percival 2005), TEMPEST/Van Eck phreaking, Spectre/Meltdown (2018), Plundervolt/VoltPillager (2019–21), ROCA Infineon TPM (2017). Defense-in-depth layered protection strategy across algorithm, software, hardware, and physical layers.
-
-**Interactive Demos** — SPA power trace canvas showing RSA key bit recovery from square/multiply amplitude patterns. Animated CPA correlation convergence showing correct key hypothesis separating from wrong guesses as trace count increases. TVLA t-test visualisation with ±4.5 threshold lines and leakage spike detection.
+**Cache attacks** — Flush+Reload, Prime+Probe, Evict+Time on shared L3 cache. Real-world: OpenSSL AES-128 key recovery in minutes on co-tenant VM. Mitigations: constant-time implementations, cache partition (ARM PA-Range).
 
 ---
 
@@ -187,22 +214,24 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 ## Repository Structure
 
 ```
-├── index.html                                    ← Landing page (links to all presentations)
-├── README.md                                     ← This file
+├── index.html                                      ← Landing page (links to all presentations)
+├── README.md                                       ← This file
 ├── 01-finite-field-arithmetic/
-│   └── index.html                                ← Reveal.js interactive slide deck
+│   └── index.html                                  ← Reveal.js interactive slide deck
 ├── 02-elliptic-curve-cryptography/
-│   └── index.html                                ← Reveal.js interactive slide deck
+│   └── index.html                                  ← Reveal.js interactive slide deck
 ├── 03-aes-design-implementation/
-│   └── index.html                                ← Reveal.js interactive slide deck
+│   └── index.html                                  ← Reveal.js interactive slide deck
 ├── 06-digital-signatures/
-│   └── index.html                                ← Reveal.js interactive slide deck
+│   └── index.html                                  ← Reveal.js interactive slide deck
 ├── 07-post-quantum-cryptography/
-│   └── index.html                                ← Reveal.js interactive slide deck
+│   └── index.html                                  ← Reveal.js interactive slide deck
+├── 08-fully-homomorphic-encryption/
+│   └── index.html                                  ← Reveal.js interactive slide deck
 ├── 09-side-channel-attacks/
-│   └── index.html                                ← Reveal.js interactive slide deck
+│   └── index.html                                  ← Reveal.js interactive slide deck
 └── 10-crypto-hardware-accelerator-design/
-    └── index.html                                ← Reveal.js interactive slide deck
+    └── index.html                                  ← Reveal.js interactive slide deck
 ```
 
 Each presentation is a single self-contained `index.html`. No build step, no npm — just HTML/CSS/JS with CDN-hosted Reveal.js and Google Fonts.
@@ -231,6 +260,8 @@ Each presentation is a single self-contained `index.html`. No build step, no npm
 **Presentation 06:** FIPS 186-5 (DSS) · FIPS 204 (ML-DSA) · FIPS 205 (SLH-DSA) · NIST SP 800-186 (ECC Curves) · RFC 6979 (Deterministic ECDSA) · RFC 8032 (EdDSA) · BIP 340 (Schnorr) · Johnson, Menezes, Vanstone, "The ECDSA" (2001) · Bernstein et al., "High-speed high-security signatures" (2011)
 
 **Presentation 07:** FIPS 203 (ML-KEM) · FIPS 204 (ML-DSA) · FIPS 205 (SLH-DSA) · NIST IR 8547 (PQC Transition) · SP 800-208 (LMS/XMSS) · Shor, "Polynomial-Time Algorithms for Prime Factorization" (1994) · Regev, "On Lattices, Learning with Errors" (2005) · Lyubashevsky, Peikert, Regev, "On Ideal Lattices and RLWE" (2010) · Bos et al., "CRYSTALS-Kyber" (2018) · Ducas et al., "CRYSTALS-Dilithium" (2018) · Bernstein et al., "The SPHINCS+ Signature Framework" (2019)
+
+**Presentation 08:** Gentry, "A Fully Homomorphic Encryption Scheme," Stanford PhD (2009) · Regev, "On Lattices, LWE, Random Linear Codes," STOC (2005) · Lyubashevsky, Peikert, Regev, "On Ideal Lattices and RLWE," EUROCRYPT (2010) · Brakerski, Gentry, Vaikuntanathan (BGV), ITCS (2012) · Fan, Vercauteren (BFV) (2012) · Cheon, Kim, Kim, Song (CKKS), ASIACRYPT (2017) · Ducas, Micciancio (FHEW), EUROCRYPT (2015) · Chillotti et al. (TFHE), J.Cryptology (2020) · Gentry, Sahai, Waters (GSW), CRYPTO (2013) · Li, Micciancio, "On the Security of HE on Approximate Numbers," EUROCRYPT (2021) · Han, Ki, "Better Bootstrapping for CKKS," CT-RSA (2020) · Reagen et al. (F1), MICRO (2021) · Kim et al. (BTS), ISSCC (2022) · Samardzic et al. (CraterLake), ISCA (2022) · Agrawal et al. (FAB), ISCA (2022) · Boura et al. (HEAX), ISCA (2020) · Viand et al. (Poseidon), ETH (2023) · HE-Std White Paper, HomomorphicEncryption.org (2021) · NIST IR 8481 (2023) · Albrecht et al., "Estimate all the {LWE, NTRU} schemes!", SCN (2018)
 
 **Presentation 09:** Kocher, "Timing Attacks on Implementations of DH, RSA, DSS" (1996) · Kocher, Jaffe & Jun, "Differential Power Analysis" (CRYPTO 1999) · Chari, Rao & Rohatgi, "Template Attacks" (CHES 2002) · Biham & Shamir, "Differential Fault Analysis" (1997) · Boneh, DeMillo & Lipton, "On the Importance of Checking Cryptographic Protocols for Faults" (1997) · Piret & Quisquater, "A DFA Technique Against SPN Structures" (2003) · Bernstein, "Cache-Timing Attacks on AES" (2005) · Kocher et al., "Spectre Attacks" (2018) · Lipp et al., "Meltdown" (2018) · Nikova, Rechberger & Rijmen, "Threshold Implementations" (2006) · ISW, "Private Circuits: Securing Hardware Against Probing Attacks" (2003) · Das & Sen, "EM and Power SCA: Advanced Attacks and Low-Overhead Countermeasures" (2020) · Schneider, Moradi & Güneysu, "Arithmetic Addition over Boolean Masking" (2015) · Goodwill et al., "TVLA — A Testing Methodology for SCA Resistance" (2011) · NIST SP 800-90B · FIPS 140-3 · Common Criteria ISO/IEC 15408
 
