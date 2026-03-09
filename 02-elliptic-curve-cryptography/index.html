@@ -1300,8 +1300,8 @@ Reveal.initialize({
   hash: true,
   slideNumber: 'c/t',
   width: 960,
-  height: 700,
-  margin: 0.06,
+  height: 900,
+  margin: 0.02,
   transition: 'fade',
   transitionSpeed: 'fast',
   plugins: [RevealHighlight],
@@ -1656,6 +1656,21 @@ for (let x = 0; x < FP; x++) {
   }
   slider.addEventListener('input', draw);
   draw();
+})();
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
 })();
 </script>
 </body>

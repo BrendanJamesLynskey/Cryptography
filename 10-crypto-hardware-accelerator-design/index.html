@@ -35,7 +35,7 @@
 .reveal pre { width: 100%; box-shadow: none; }
 .reveal pre code { padding: 18px 22px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); max-height: 520px; }
 .reveal .slide-number { font-family: var(--r-code-font); font-size: 14px; color: var(--dim); background: transparent; }
-.reveal section { text-align: left; }
+.reveal section { text-align: left; overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
 
 /* Custom elements */
 .title-slide { text-align: center !important; }
@@ -1146,14 +1146,29 @@ Reveal.initialize({
   hash: true,
   slideNumber: 'c/t',
   width: 1100,
-  height: 700,
-  margin: 0.06,
+  height: 900,
+  margin: 0.02,
   transition: 'slide',
   transitionSpeed: 'default',
   backgroundTransition: 'fade',
   plugins: [ RevealHighlight ],
   highlight: { highlightOnLoad: true }
 });
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
 </script>
 </body>
 </html>

@@ -34,7 +34,7 @@
 .reveal pre code { padding: 1em; border-radius: 8px; font-size: 0.58em; line-height: 1.5; background: var(--code-bg); border: 1px solid rgba(0,180,216,0.15); }
 .reveal .slide-number { font-family: 'JetBrains Mono', monospace; font-size: 0.7em; color: var(--dim); }
 .reveal section { text-align: left; }
-.reveal .slides > section { padding: 0.5em; }
+.reveal .slides > section { padding: 0.5em; overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
 .reveal .progress { color: var(--teal); height: 3px; }
 .reveal .controls { color: var(--teal); }
 
@@ -799,13 +799,28 @@ Reveal.initialize({
   hash: true,
   slideNumber: 'c/t',
   width: 1280,
-  height: 720,
-  margin: 0.06,
+  height: 900,
+  margin: 0.02,
   transition: 'slide',
   transitionSpeed: 'default',
   plugins: [ RevealHighlight ],
   highlight: { highlightOnLoad: true }
 });
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
 </script>
 </body>
 </html>
