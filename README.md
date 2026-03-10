@@ -17,6 +17,8 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 | 01 | Finite Field Arithmetic for Cryptography | 16 | ✅ Complete |
 | 02 | Elliptic Curve Cryptography (ECC) | 38 | ✅ Complete |
 | 03 | AES — Design & Implementation | 28 | ✅ Complete |
+| 04 | Hash Functions & MACs | 29 | ✅ Complete |
+| 05 | Public Key Cryptography (RSA, DH) | 28 | ✅ Complete |
 | 06 | Digital Signatures (ECDSA, EdDSA, Schnorr) | 25 | ✅ Complete |
 | 07 | Post-Quantum Cryptography | 21 | ✅ Complete |
 | 08 | Fully Homomorphic Encryption (FHE) | 39 | ✅ Complete |
@@ -92,6 +94,50 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 **Code** — Complete SystemVerilog AES-128 round with 16 parallel composite-field S-boxes (Canright tower-field decomposition). Python AES-ECB implementation from primitives. AES-GCM Python with GHASH.
 
 **Performance** — Throughput from OpenSSL software (3.2 Gbps) to AES-NI (25–53 Gbps on modern CPUs) to custom ASIC (53 Gbps, Mathew et al. JSSC 2011).
+
+---
+
+## Presentation 04: Hash Functions & MACs
+
+29 interactive slides covering:
+
+**Foundations** — Hash function definition, security properties (preimage resistance, second-preimage resistance, collision resistance), birthday bound O(2^(n/2)). Merkle-Damgård construction with compression function chaining, length padding, and why it enables length extension attacks.
+
+**SHA-2** — SHA-256/384/512/512-256 family. Compression function internals: eight working registers (a–h), Ch(e,f,g), Maj(a,b,c), Σ₀(a), Σ₁(e), round constants K_t from cube roots of primes. Message schedule W_t expansion with σ₀/σ₁ rotation functions. Davies-Meyer feedforward. Performance: software throughput, SHA-NI/ARM CE extensions, FPGA/ASIC implementations, Bitcoin mining ASICs.
+
+**Legacy** — MD5 (Wang et al. 2004 collision), SHA-1 (theoretical 2005, SHAttered 2017, SHA-mbles 2020). Deprecation timelines and real-world impact (rogue CA certificates, Flame malware).
+
+**SHA-3 / Keccak** — NIST competition (2007–2012), sponge construction (absorb/squeeze, rate r vs capacity c, security = c/2). Keccak-f[1600] permutation: θ, ρ, π, χ, ι steps over 5×5×64 state. SHA3-224/256/384/512, SHAKE128/256 XOFs, cSHAKE, TupleHash, ParallelHash, KangarooTwelve.
+
+**MACs** — HMAC (Bellare-Canetti-Krawczyk 1996): nested hashing construction and security proof. KMAC (SHA-3 native, no nesting needed). CMAC (cipher-based). Poly1305 (Bernstein). GMAC.
+
+**Applications** — Hash-based signatures (Lamport, WOTS+, XMSS, LMS, SLH-DSA). Merkle trees (proof of inclusion, Git, blockchain, certificate transparency). Password hashing (bcrypt, scrypt, Argon2id). Hash functions in TLS 1.3 (HKDF, transcript hashing).
+
+**Hardware** — SHA-256 round architectures (iterative, unrolled, pipelined). Keccak lane-complementing and bit-interleaving optimizations. FPGA throughput results.
+
+**Code** — SystemVerilog SHA-256 compression round module. Python SHA-256 single-block implementation from scratch. Interactive hash visualizer with live avalanche demonstration via Web Crypto API.
+
+---
+
+## Presentation 05: Public Key Cryptography (RSA, DH)
+
+28 interactive slides covering:
+
+**Foundations** — The key distribution problem (N(N-1)/2 scaling). Number theory: modular arithmetic, Euler's totient φ(n), Fermat's little theorem, Euler's theorem, Chinese Remainder Theorem. Prime number generation and Miller-Rabin primality testing.
+
+**Diffie-Hellman** — Original 1976 protocol: agree on (p, g), exchange g^a mod p and g^b mod p, derive shared secret g^(ab) mod p. Computational Diffie-Hellman (CDH) and Decisional Diffie-Hellman (DDH) assumptions. DLP algorithm hierarchy: baby-step giant-step, Pollard's rho, index calculus, number field sieve. Practical group selection: RFC 3526/7919 MODP groups, ephemeral DH (DHE) for forward secrecy, FFDHE in TLS 1.3.
+
+**RSA** — Key generation (p, q, n=pq, e=65537, d=e⁻¹ mod φ(n)). Encryption c=m^e mod n, decryption m=c^d mod n. Signatures (hash-then-sign). Padding: PKCS#1 v1.5 and Bleichenbacher's 1998 attack, OAEP, PSS. Integer factorization algorithms through GNFS. RSA-768/RSA-250 factoring records. CRT optimization (4× speedup). Multi-prime RSA. Key size recommendations (2048-bit minimum, 3072-bit for longevity).
+
+**Attacks** — RSA: Wiener (small d), Coppersmith (small e), Håstad broadcast, common modulus, timing (Kocher 1996), CRT fault (Boneh-DeMillo-Lipton). DH: MITM, small subgroup, Logjam (2015 precomputation on 512-bit). Why authentication is essential.
+
+**ElGamal & Hybrid Encryption** — ElGamal encryption from DH assumption. KEM/DEM paradigm for bulk encryption. RSA-KEM. HPKE (RFC 9180).
+
+**Infrastructure** — X.509 certificates, certificate chains, CRL/OCSP, Certificate Transparency. RSA vs ECC performance comparison. Forward secrecy (DHE/ECDHE). Quantum threat: Shor's algorithm, qubit estimates, CNSA 2.0 migration timeline.
+
+**Hardware** — Montgomery multiplier architectures (bit-serial to full-parallel). CRT acceleration. FPGA/ASIC implementations. Side-channel countermeasures (blinding, constant-time).
+
+**Code** — SystemVerilog parameterized radix-2 Montgomery modular multiplier. Python RSA key generation with Miller-Rabin, encrypt/decrypt from scratch. Interactive RSA demo with user-selectable small primes.
 
 ---
 
@@ -222,6 +268,10 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 │   └── index.html                                  ← Reveal.js interactive slide deck
 ├── 03-aes-design-implementation/
 │   └── index.html                                  ← Reveal.js interactive slide deck
+├── 04-hash-functions-macs/
+│   └── index.html                                  ← Reveal.js interactive slide deck
+├── 05-public-key-cryptography/
+│   └── index.html                                  ← Reveal.js interactive slide deck
 ├── 06-digital-signatures/
 │   └── index.html                                  ← Reveal.js interactive slide deck
 ├── 07-post-quantum-cryptography/
@@ -256,6 +306,10 @@ Each presentation is a single self-contained `index.html`. No build step, no npm
 **Presentation 02:** FIPS 186-5 (DSS) · NIST SP 800-186 (ECC Curves, 2023) · RFC 7748 (X25519/X448) · RFC 8032 (EdDSA) · RFC 6979 (Deterministic ECDSA) · SEC 2 (SECG Curves) · RFC 5639 (Brainpool) · Koblitz, "Elliptic Curve Cryptosystems" (1987) · Miller, "Use of Elliptic Curves in Cryptography" (CRYPTO 1985) · Montgomery, "Speeding the Pollard and EC Methods of Factorization" (1987) · Edwards, "A Normal Form for Elliptic Curves" (2007) · Bernstein, "Curve25519: New Diffie-Hellman Speed Records" (2006) · Bernstein & Lange, "Faster Addition and Doubling on Elliptic Curves" (ASIACRYPT 2007) · Renes, Costello, Batina, "Complete Addition Formulas for Prime Order Elliptic Curves" (2016) · Bernstein & Lange, "Montgomery Curves and the Montgomery Ladder" (2017) · Hankerson, Menezes, Vanstone, "Guide to Elliptic Curve Cryptography" (Springer, 2004) · Pohlig & Hellman (1978) · Pollard, "Monte Carlo Methods for Index Computation" (1978) · Smart, "The Discrete Logarithm Problem on Elliptic Curves of Trace One" (1999) · Menezes, Okamoto, Vanstone, "Reducing ECDLP to DLP over Extension Fields" (1993)
 
 **Presentation 03:** FIPS 197 (AES) · Daemen & Rijmen, "The Design of Rijndael" (Springer, 2002) · Canright, "A Very Compact Rijndael S-box" (CHES 2005) · Mathew et al., "53 Gbps AES in 45nm" IEEE JSSC (2011) · Bogdanov et al., "Biclique Cryptanalysis of AES" (ASIACRYPT 2011) · Biryukov & Khovratovich, "Related-Key Attacks on AES-256" (CRYPTO 2009) · Bernstein, "Cache-Timing Attacks on AES" (2005) · Kocher, Jaffe & Jun, "Differential Power Analysis" (CRYPTO 1999) · Gaj & Chodowiec, "FPGA and ASIC Implementations of AES" (2009) · NIST SP 800-38A (Modes of Operation) · NIST SP 800-38D (GCM) · Intel AES-NI White Paper (2010)
+
+**Presentation 04:** FIPS 180-4 (SHA-2) · FIPS 202 (SHA-3) · NIST SP 800-185 (SHA-3 Derived Functions) · RFC 2104 (HMAC) · NIST SP 800-208 (LMS/XMSS) · FIPS 205 (SLH-DSA) · Wang et al., "Collisions for Hash Functions MD4, MD5, HAVAL-128, RIPEMD" (2004) · Stevens et al., "The First Collision for Full SHA-1" (SHAttered, 2017) · Bertoni, Daemen, Peeters, Van Assche, "Keccak Reference" (2011) · Bellare, Canetti, Krawczyk, "Keying Hash Functions for Message Authentication" (CRYPTO 1996) · Bernstein, "The Poly1305-AES Message-Authentication Code" (2005) · Biham & Chen, "Near-Collisions of SHA-0" (CRYPTO 2004) · RFC 9180 (HPKE) · NIST SP 800-132 (PBKDF) · Percival, "Stronger Key Derivation via Sequential Memory-Hard Functions" (scrypt, 2009) · Biryukov, Dinu, Khovratovich, "Argon2" (2015)
+
+**Presentation 05:** Diffie & Hellman, "New Directions in Cryptography" (1976) · Rivest, Shamir, Adleman, "A Method for Obtaining Digital Signatures and Public-Key Cryptosystems" (1978) · FIPS 186-5 (DSS) · RFC 8017 (PKCS#1 v2.2) · RFC 3526/7919 (MODP Groups) · RFC 9180 (HPKE) · Montgomery, "Modular Multiplication Without Trial Division" (1985) · Bleichenbacher, "Chosen Ciphertext Attacks Against Protocols Based on RSA PKCS#1" (CRYPTO 1998) · Adrian et al., "Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice" (Logjam, 2015) · Wiener, "Cryptanalysis of Short RSA Secret Exponents" (1990) · Coppersmith, "Small Solutions to Polynomial Equations, and Low Exponent RSA Vulnerabilities" (1997) · Boneh, DeMillo, Lipton, "On the Importance of Checking Cryptographic Protocols for Faults" (1997) · Lenstra et al., "Factoring RSA-250" (2020)
 
 **Presentation 06:** FIPS 186-5 (DSS) · FIPS 204 (ML-DSA) · FIPS 205 (SLH-DSA) · NIST SP 800-186 (ECC Curves) · RFC 6979 (Deterministic ECDSA) · RFC 8032 (EdDSA) · BIP 340 (Schnorr) · Johnson, Menezes, Vanstone, "The ECDSA" (2001) · Bernstein et al., "High-speed high-security signatures" (2011)
 

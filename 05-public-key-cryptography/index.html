@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>05 — Public Key Cryptography (RSA, DH)</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --r-background-color: #0a0a0f;
+    --r-main-font: 'DM Sans', sans-serif;
+    --r-main-font-size: 28px;
+    --r-main-color: #d4d4d8;
+    --r-heading-font: 'Playfair Display', serif;
+    --r-heading-color: #fafafa;
+    --r-heading-text-transform: none;
+    --r-code-font: 'JetBrains Mono', monospace;
+    --r-link-color: #60a5fa;
+    --r-link-color-hover: #93c5fd;
+    --r-selection-background-color: #2563eb;
+    --accent: #f59e0b;
+    --accent2: #10b981;
+    --accent3: #8b5cf6;
+    --accent4: #ef4444;
+    --dim: #71717a;
+    --surface: #18181b;
+    --surface2: #27272a;
+  }
+
+  .reveal { font-weight: 400; }
+  .reveal h1, .reveal h2, .reveal h3 { font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; }
+  .reveal h1 { font-size: 2.4em; }
+  .reveal h2 { font-size: 1.6em; margin-bottom: 0.5em; }
+  .reveal h3 { font-size: 1.2em; color: var(--accent); font-family: 'DM Sans', sans-serif; font-weight: 700; }
+  .reveal p, .reveal li { line-height: 1.6; }
+  .reveal code { font-family: var(--r-code-font); font-size: 0.85em; }
+  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(0,0,0,.5); border: 1px solid var(--surface2); border-radius: 8px; }
+  .reveal pre code { padding: 1.2em; line-height: 1.5; max-height: 520px; }
+
+  .accent  { color: var(--accent); }
+  .accent2 { color: var(--accent2); }
+  .accent3 { color: var(--accent3); }
+  .accent4 { color: var(--accent4); }
+  .dim     { color: var(--dim); }
+  .mono    { font-family: var(--r-code-font); }
+  .small   { font-size: 0.65em; }
+  .smaller { font-size: 0.55em; }
+  .tiny    { font-size: 0.45em; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; align-items: start; text-align: left; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1em; align-items: start; text-align: left; }
+
+  .box {
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    border-radius: 8px;
+    padding: 0.8em 1em;
+    margin: 0.3em 0;
+    text-align: left;
+  }
+  .box h3 { margin: 0 0 0.3em 0; font-size: 0.9em; }
+  .box p, .box ul { margin: 0; font-size: 0.75em; }
+  .box ul { padding-left: 1.2em; }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(245,158,11,.03));
+    border: 1px solid rgba(245,158,11,.3);
+    border-radius: 8px;
+    padding: 0.8em 1em;
+    margin: 0.5em 0;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15em 0.6em;
+    border-radius: 999px;
+    font-size: 0.55em;
+    font-weight: 700;
+    vertical-align: middle;
+    font-family: var(--r-code-font);
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: var(--accent); border: 1px solid rgba(245,158,11,.3); }
+  .badge-green  { background: rgba(16,185,129,.15); color: var(--accent2); border: 1px solid rgba(16,185,129,.3); }
+  .badge-purple { background: rgba(139,92,246,.15); color: var(--accent3); border: 1px solid rgba(139,92,246,.3); }
+  .badge-red    { background: rgba(239,68,68,.15); color: var(--accent4); border: 1px solid rgba(239,68,68,.3); }
+
+  table.clean {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.6em; margin: 0.5em 0;
+  }
+  table.clean th {
+    background: var(--surface2); color: var(--accent);
+    padding: 0.5em 0.8em; text-align: left;
+    font-family: var(--r-code-font); font-weight: 700;
+    border-bottom: 2px solid var(--accent);
+  }
+  table.clean td {
+    padding: 0.45em 0.8em; border-bottom: 1px solid var(--surface2);
+  }
+  table.clean tr:hover td { background: var(--surface); }
+
+  .ref { font-size: 0.42em; color: var(--dim); margin-top: 1.5em; }
+  .ref a { color: var(--dim); }
+
+  .slide-number { font-family: 'JetBrains Mono', monospace !important; }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,.0); }
+    50% { box-shadow: 0 0 15px 2px rgba(245,158,11,.25); }
+  }
+  .glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+  .reveal .slides > section { overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
+</style>
+</head>
+
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- SLIDE 01: TITLE -->
+<!-- ============================================================ -->
+<section>
+  <p class="small dim" style="letter-spacing:0.3em;text-transform:uppercase;margin-bottom:0.2em;">Presentation 05</p>
+  <h1 style="margin-bottom:0.15em;">Public Key Cryptography</h1>
+  <p style="font-size:1.3em;color:var(--accent);font-family:'Playfair Display',serif;font-weight:700;margin:0;">RSA &middot; Diffie-Hellman</p>
+  <p class="small dim" style="margin-top:1.5em;">
+    Key Exchange &middot; Number Theory &middot; Integer Factorization &middot; Discrete Logarithm<br/>
+    Padding Schemes &middot; PKI &middot; Forward Secrecy &middot; Quantum Threats
+  </p>
+  <p class="tiny dim" style="margin-top:2em;">
+    &rarr; / &larr; &nbsp;navigate &emsp; Esc &nbsp;overview &emsp; F &nbsp;fullscreen &emsp; ?print-pdf &nbsp;export
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 02: THE KEY DISTRIBUTION PROBLEM -->
+<!-- ============================================================ -->
+<section>
+  <h2>The Key Distribution Problem</h2>
+  <div class="two-col">
+    <div>
+      <h3>Symmetric Crypto Alone Fails at Scale</h3>
+      <div class="box">
+        <p>For <span class="accent">N</span> parties to communicate pairwise with symmetric keys, each pair needs a unique shared secret:</p>
+        <p style="text-align:center;font-size:1.1em;margin:0.4em 0;"><span class="mono accent">N(N&minus;1) / 2</span> keys required</p>
+        <p class="small dim">10 users &rarr; 45 keys &emsp; 1,000 users &rarr; 499,500 keys &emsp; 1M users &rarr; ~5 &times; 10<sup>11</sup> keys</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="accent">Key distribution</span> requires a pre-existing secure channel &mdash; a chicken-and-egg problem.</p>
+        <p class="small">Physical couriers, diplomatic bags, or pre-shared keys simply do not scale to the internet.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Historical Approaches</h3>
+      <div class="box">
+        <p><span class="badge badge-amber">1974</span> <span class="accent">Merkle's Puzzles</span></p>
+        <p class="small">Ralph Merkle proposed sending N puzzles, each requiring O(N) work to solve. The intended recipient solves one; an eavesdropper must solve all N &rarr; O(N<sup>2</sup>) quadratic gap.</p>
+        <p class="small dim">First published concept of public-key agreement, though only quadratic security.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="badge badge-amber">1976</span> <span class="accent">Diffie &amp; Hellman</span></p>
+        <p class="small">"New Directions in Cryptography" &mdash; introduced the concept of <span class="accent2">public-key cryptography</span> and the DH key exchange protocol.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="badge badge-amber">1977</span> <span class="accent">RSA</span></p>
+        <p class="small">Rivest, Shamir, Adleman &mdash; first practical public-key encryption and signature scheme.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Diffie &amp; Hellman, "New Directions in Cryptography" IEEE IT (1976) &middot; Merkle, "Secure Communications Over Insecure Channels" CACM (1978)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 03: NUMBER THEORY FOUNDATIONS I -->
+<!-- ============================================================ -->
+<section>
+  <h2>Number Theory Foundations</h2>
+  <div class="two-col">
+    <div>
+      <h3>Modular Arithmetic</h3>
+      <div class="box">
+        <p><span class="accent">a &equiv; b (mod n)</span> means n divides (a &minus; b)</p>
+        <p class="small">Modular arithmetic forms a <span class="accent">ring</span> Z/nZ with addition and multiplication.</p>
+        <p class="small">The set of integers coprime to n forms the <span class="accent">multiplicative group</span> (Z/nZ)* of order &phi;(n).</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="accent">Euler's Totient Function &phi;(n)</span></p>
+        <p class="small">Counts integers in [1, n] coprime to n.</p>
+        <p class="small mono">&phi;(p) = p &minus; 1 &emsp; (p prime)</p>
+        <p class="small mono">&phi;(pq) = (p&minus;1)(q&minus;1) &emsp; (p,q distinct primes)</p>
+        <p class="small mono">&phi;(p<sup>k</sup>) = p<sup>k</sup> &minus; p<sup>k&minus;1</sup></p>
+      </div>
+    </div>
+    <div>
+      <h3>Key Theorems</h3>
+      <div class="box">
+        <p><span class="accent">Fermat's Little Theorem</span></p>
+        <p class="small">If p is prime and gcd(a, p) = 1:</p>
+        <p class="small mono" style="text-align:center;">a<sup>p&minus;1</sup> &equiv; 1 (mod p)</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="accent">Euler's Theorem</span> (generalization)</p>
+        <p class="small">If gcd(a, n) = 1:</p>
+        <p class="small mono" style="text-align:center;">a<sup>&phi;(n)</sup> &equiv; 1 (mod n)</p>
+        <p class="small dim">This is the mathematical foundation of RSA.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="accent">Chinese Remainder Theorem (CRT)</span></p>
+        <p class="small">If gcd(m, n) = 1, then for any a, b there exists a unique x (mod mn) such that:</p>
+        <p class="small mono" style="text-align:center;">x &equiv; a (mod m) &emsp; x &equiv; b (mod n)</p>
+        <p class="small dim">CRT enables a 4&times; speedup in RSA private key operations.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Hardy &amp; Wright, "An Introduction to the Theory of Numbers" &middot; Shoup, "A Computational Introduction to Number Theory and Algebra"</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 04: PRIME NUMBERS IN CRYPTOGRAPHY -->
+<!-- ============================================================ -->
+<section>
+  <h2>Prime Numbers in Cryptography</h2>
+  <div class="two-col">
+    <div>
+      <h3>Prime Generation</h3>
+      <div class="box">
+        <p><span class="accent">Prime Number Theorem:</span> density of primes near N is ~1/ln(N)</p>
+        <p class="small">For a 1024-bit prime: ~1 in 710 random odd numbers is prime.</p>
+        <p class="small">Generation: pick random odd n, test primality, increment by 2, repeat.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="accent">Miller-Rabin Primality Test</span></p>
+        <p class="small">Probabilistic test based on Fermat's Little Theorem:</p>
+        <p class="small">Write n&minus;1 = 2<sup>s</sup> &middot; d (d odd). For random witness a:</p>
+        <p class="small mono">a<sup>d</sup> &equiv; 1 (mod n) &emsp; OR</p>
+        <p class="small mono">a<sup>2<sup>r</sup>d</sup> &equiv; &minus;1 (mod n) for some 0 &le; r &lt; s</p>
+        <p class="small">Error probability: &le; <span class="mono">4<sup>&minus;t</sup></span> for t rounds.</p>
+        <p class="small accent2">64 rounds &rarr; error &lt; 2<sup>&minus;128</sup></p>
+      </div>
+    </div>
+    <div>
+      <h3>Prime Types for Crypto</h3>
+      <div class="box">
+        <p><span class="badge badge-green">SAFE PRIME</span></p>
+        <p class="small">p is a safe prime if p = 2q + 1 where q is also prime (a Sophie Germain prime).</p>
+        <p class="small accent2">Ensures (Z/pZ)* has a large prime-order subgroup &rarr; resists Pohlig-Hellman attack on DH.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="badge badge-green">STRONG PRIME</span></p>
+        <p class="small">p is strong if: p &minus; 1 has a large prime factor r, p + 1 has a large prime factor, and r &minus; 1 has a large prime factor.</p>
+        <p class="small dim">Historically required for RSA to resist Pollard's p&minus;1 method, but modern key sizes make this less critical.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="accent">Industrial-Strength Generation</span></p>
+        <p class="small">FIPS 186-5 specifies provable (Shawe-Taylor) and probable (Miller-Rabin) prime generation methods with required error bounds for each RSA key size.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">FIPS 186-5, "Digital Signature Standard" (2023) &middot; Menezes, Oorschot &amp; Vanstone, "Handbook of Applied Cryptography" ch. 4</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 05: DIFFIE-HELLMAN KEY EXCHANGE -->
+<!-- ============================================================ -->
+<section>
+  <h2>Diffie-Hellman Key Exchange</h2>
+  <p class="small">The original <span class="accent">1976 protocol</span> for establishing a shared secret over an insecure channel.</p>
+  <div class="two-col" style="margin-top:0.3em;">
+    <div>
+      <h3>Protocol</h3>
+      <div class="box" style="border-color:rgba(245,158,11,.3);">
+        <p class="small"><span class="badge badge-amber">SETUP</span> Agree on public parameters: prime <span class="mono accent">p</span> and generator <span class="mono accent">g</span> of (Z/pZ)*</p>
+      </div>
+      <div class="box">
+        <p class="small"><span class="badge badge-purple">ALICE</span> Choose secret <span class="mono">a</span> &isin; [2, p&minus;2]</p>
+        <p class="small">Compute and send <span class="mono accent">A = g<sup>a</sup> mod p</span></p>
+      </div>
+      <div class="box">
+        <p class="small"><span class="badge badge-green">BOB</span> Choose secret <span class="mono">b</span> &isin; [2, p&minus;2]</p>
+        <p class="small">Compute and send <span class="mono accent">B = g<sup>b</sup> mod p</span></p>
+      </div>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p class="small"><span class="badge badge-green">SHARED SECRET</span></p>
+        <p class="small">Alice computes: <span class="mono">K = B<sup>a</sup> mod p = g<sup>ab</sup> mod p</span></p>
+        <p class="small">Bob computes: &nbsp;<span class="mono">K = A<sup>b</sup> mod p = g<sup>ab</sup> mod p</span></p>
+      </div>
+    </div>
+    <div>
+      <h3>Visual Diagram</h3>
+      <div class="box" style="text-align:center;font-family:var(--r-code-font);font-size:0.65em;">
+        <p style="margin:0;"><span style="color:var(--accent3);">Alice</span> &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; <span style="color:var(--accent2);">Bob</span></p>
+        <p style="margin:0.2em 0;">secret <span style="color:var(--accent3);">a</span> &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; secret <span style="color:var(--accent2);">b</span></p>
+        <p style="margin:0.2em 0;">&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</p>
+        <p style="margin:0.2em 0;"><span style="color:var(--accent3);">A = g<sup>a</sup> mod p</span> &mdash;&mdash;&mdash;&rarr;</p>
+        <p style="margin:0.2em 0;">&emsp;&emsp;&emsp;&emsp;&emsp; &larr;&mdash;&mdash;&mdash; <span style="color:var(--accent2);">B = g<sup>b</sup> mod p</span></p>
+        <p style="margin:0.2em 0;">&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</p>
+        <p style="margin:0.2em 0;color:var(--accent);">K = g<sup>ab</sup> mod p</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.5em;">
+        <p class="small"><span class="accent">Key insight:</span> An eavesdropper sees p, g, g<sup>a</sup> mod p, and g<sup>b</sup> mod p but cannot efficiently compute g<sup>ab</sup> mod p. This is the <span class="accent">Computational Diffie-Hellman (CDH)</span> assumption.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p class="small accent4">Warning: Vanilla DH is vulnerable to man-in-the-middle attacks &mdash; no authentication of A or B. Must be combined with signatures or certificates.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Diffie &amp; Hellman, "New Directions in Cryptography" IEEE Trans. Information Theory (1976)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 06: DH SECURITY — DISCRETE LOGARITHM PROBLEM -->
+<!-- ============================================================ -->
+<section>
+  <h2>DH Security: Discrete Logarithm Problem</h2>
+  <div class="two-col">
+    <div>
+      <h3>The DLP</h3>
+      <div class="box">
+        <p>Given <span class="mono">g, p, h = g<sup>x</sup> mod p</span>, find <span class="accent">x</span>.</p>
+        <p class="small">No polynomial-time algorithm is known for general groups. Security of DH, ElGamal, and DSA rests on DLP hardness.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Related Problems</h3>
+      <div class="box">
+        <p class="small"><span class="accent">CDH</span> (Computational DH): Given g<sup>a</sup>, g<sup>b</sup>, compute g<sup>ab</sup></p>
+        <p class="small"><span class="accent">DDH</span> (Decisional DH): Distinguish (g<sup>a</sup>, g<sup>b</sup>, g<sup>ab</sup>) from (g<sup>a</sup>, g<sup>b</sup>, g<sup>c</sup>)</p>
+        <p class="small dim">DLP &ge; CDH &ge; DDH (in terms of hardness)</p>
+      </div>
+    </div>
+    <div>
+      <h3>Best Algorithms</h3>
+      <table class="clean">
+        <tr><th>Algorithm</th><th>Complexity</th><th>Notes</th></tr>
+        <tr>
+          <td>Brute force</td>
+          <td class="mono">O(p)</td>
+          <td class="dim">Trivial</td>
+        </tr>
+        <tr>
+          <td>Baby-step Giant-step</td>
+          <td class="mono">O(&radic;p)</td>
+          <td class="dim">Shanks, 1971</td>
+        </tr>
+        <tr>
+          <td>Pollard's rho</td>
+          <td class="mono">O(&radic;p)</td>
+          <td class="dim">Parallelizable</td>
+        </tr>
+        <tr>
+          <td>Pohlig-Hellman</td>
+          <td class="mono">O(&radic;q)</td>
+          <td class="dim">q = largest prime factor of group order</td>
+        </tr>
+        <tr>
+          <td>Index calculus</td>
+          <td class="mono">L<sub>p</sub>[1/2, c]</td>
+          <td class="dim">Sub-exponential; Z/pZ* only</td>
+        </tr>
+        <tr>
+          <td class="accent4">Number field sieve</td>
+          <td class="mono accent4">L<sub>p</sub>[1/3, 1.923]</td>
+          <td class="dim">Best known for large p</td>
+        </tr>
+      </table>
+      <div class="box" style="margin-top:0.3em;">
+        <p class="small">L<sub>p</sub>[&alpha;, c] = exp(c &middot; (ln p)<sup>&alpha;</sup> &middot; (ln ln p)<sup>1&minus;&alpha;</sup>)</p>
+        <p class="small dim">Sub-exponential but super-polynomial for &alpha; &isin; (0,1).</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Menezes, Oorschot &amp; Vanstone, "Handbook of Applied Cryptography" ch. 3 &middot; Joux &amp; Lercier, "Discrete Logarithms in GF(p)" (2006)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 07: DH IN PRACTICE -->
+<!-- ============================================================ -->
+<section>
+  <h2>DH in Practice</h2>
+  <div class="two-col">
+    <div>
+      <h3>Group Selection</h3>
+      <div class="box">
+        <p><span class="badge badge-purple">RFC 3526</span> MODP groups (2003)</p>
+        <p class="small">Standardized groups: 1536, 2048, 3072, 4096, 6144, 8192-bit primes. All are safe primes (p = 2q+1).</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-purple">RFC 7919</span> Negotiated FFDHE (2016)</p>
+        <p class="small">TLS extension for negotiating named DH groups. Prevents downgrade to weak custom groups.</p>
+        <p class="small">Groups: ffdhe2048, ffdhe3072, ffdhe4096, ffdhe6144, ffdhe8192.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent">Generator Selection</span></p>
+        <p class="small">Use generator g of a prime-order subgroup of order q where p = 2q+1. Typically g = 2 for safe primes.</p>
+        <p class="small dim">Prevents small subgroup attacks.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Static vs Ephemeral DH</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p><span class="accent4">Static DH</span></p>
+        <p class="small">Long-term DH key pair. Same shared secret for repeated exchanges with same party.</p>
+        <p class="small accent4">No forward secrecy: compromise of long-term key reveals all past sessions.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;border-color:rgba(16,185,129,.4);">
+        <p><span class="accent2">Ephemeral DH (DHE)</span></p>
+        <p class="small">Fresh random exponent per session. Shared secret is unique each time.</p>
+        <p class="small accent2">Provides forward secrecy: compromise of long-term signing key does NOT reveal past session keys.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent">FFDHE in TLS 1.3</span></p>
+        <p class="small">TLS 1.3 supports FFDHE key exchange alongside ECDHE. Only named groups allowed (no custom parameters). All key exchanges are ephemeral &mdash; <span class="accent2">forward secrecy is mandatory</span>.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">RFC 3526 (2003) &middot; RFC 7919 (2016) &middot; RFC 8446, TLS 1.3 (2018)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 08: RSA KEY GENERATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>RSA: Key Generation</h2>
+  <div class="two-col">
+    <div>
+      <h3>Algorithm</h3>
+      <div class="box" style="border-color:rgba(245,158,11,.3);">
+        <p><span class="badge badge-amber">STEP 1</span> Choose two large distinct primes <span class="mono accent">p</span> and <span class="mono accent">q</span></p>
+        <p class="small dim">Each ~n/2 bits for an n-bit RSA modulus. |p &minus; q| should not be too small.</p>
+      </div>
+      <div class="box">
+        <p><span class="badge badge-amber">STEP 2</span> Compute <span class="mono accent">n = p &middot; q</span></p>
+        <p class="small">n is the RSA modulus (public). Its bit length defines the key size (2048, 3072, 4096, ...).</p>
+      </div>
+      <div class="box">
+        <p><span class="badge badge-amber">STEP 3</span> Compute <span class="mono accent">&phi;(n) = (p&minus;1)(q&minus;1)</span></p>
+        <p class="small dim">Alternatively use Carmichael's function: &lambda;(n) = lcm(p&minus;1, q&minus;1). Smaller exponents, same correctness.</p>
+      </div>
+      <div class="box">
+        <p><span class="badge badge-amber">STEP 4</span> Choose <span class="mono accent">e</span> such that 1 &lt; e &lt; &phi;(n) and gcd(e, &phi;(n)) = 1</p>
+        <p class="small">Standard choice: <span class="mono accent2">e = 65537 = 2<sup>16</sup> + 1</span> (Fermat prime F<sub>4</sub>)</p>
+        <p class="small dim">Only two 1-bits &rarr; fast modular exponentiation (17 squarings + 1 multiply).</p>
+      </div>
+      <div class="box">
+        <p><span class="badge badge-amber">STEP 5</span> Compute <span class="mono accent">d = e<sup>&minus;1</sup> mod &phi;(n)</span></p>
+        <p class="small">Via the Extended Euclidean Algorithm. d is the private exponent.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Key Components</h3>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p><span class="accent2">Public Key:</span> <span class="mono">(n, e)</span></p>
+        <p class="small">Published openly. Anyone can encrypt messages or verify signatures.</p>
+      </div>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p><span class="accent4">Private Key:</span> <span class="mono">d</span></p>
+        <p class="small">Kept secret. Used to decrypt or sign.</p>
+        <p class="small dim">In practice, store (p, q, d, d<sub>p</sub>, d<sub>q</sub>, q<sub>inv</sub>) for CRT optimization.</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.5em;">
+        <p class="small"><span class="accent">Security basis:</span> Given n, it is computationally infeasible to factor n into p &middot; q. Without factoring, computing &phi;(n) or d from (n, e) alone is believed equally hard.</p>
+      </div>
+      <div class="box" style="margin-top:0.5em;">
+        <h3>Example (tiny)</h3>
+        <p class="small mono">p = 61, q = 53 &rarr; n = 3233</p>
+        <p class="small mono">&phi;(n) = 60 &times; 52 = 3120</p>
+        <p class="small mono">e = 17 &rarr; d = 2753</p>
+        <p class="small mono">17 &times; 2753 = 46801 = 15 &times; 3120 + 1 &check;</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Rivest, Shamir &amp; Adleman, "A Method for Obtaining Digital Signatures..." CACM (1978) &middot; PKCS #1 v2.2, RFC 8017</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 09: RSA ENCRYPTION & DECRYPTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>RSA Encryption &amp; Decryption</h2>
+  <div class="two-col">
+    <div>
+      <h3>Textbook RSA</h3>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p><span class="accent2">Encrypt</span> (with public key):</p>
+        <p class="mono" style="text-align:center;font-size:0.9em;">c = m<sup>e</sup> mod n</p>
+        <p class="small dim">Message m must satisfy 0 &le; m &lt; n.</p>
+      </div>
+      <div class="box" style="border-color:rgba(245,158,11,.3);">
+        <p><span class="accent">Decrypt</span> (with private key):</p>
+        <p class="mono" style="text-align:center;font-size:0.9em;">m = c<sup>d</sup> mod n</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <h3>Why It Works</h3>
+        <p class="small">By Euler's theorem: m<sup>ed</sup> &equiv; m<sup>1 + k&phi;(n)</sup> &equiv; m &middot; (m<sup>&phi;(n)</sup>)<sup>k</sup> &equiv; m &middot; 1<sup>k</sup> &equiv; m (mod n)</p>
+        <p class="small dim">This holds whenever gcd(m, n) = 1. For m = 0 or m divisible by p or q, correctness follows from CRT.</p>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--accent4);">Textbook RSA Is Insecure!</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p class="small"><span class="accent4">Deterministic:</span> Same plaintext always produces same ciphertext. Attacker can build a dictionary.</p>
+      </div>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p class="small"><span class="accent4">Malleable:</span> Given Enc(m<sub>1</sub>) and Enc(m<sub>2</sub>), attacker can compute Enc(m<sub>1</sub> &middot; m<sub>2</sub>) without decrypting:</p>
+        <p class="small mono">m<sub>1</sub><sup>e</sup> &middot; m<sub>2</sub><sup>e</sup> = (m<sub>1</sub>m<sub>2</sub>)<sup>e</sup> mod n</p>
+      </div>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p class="small"><span class="accent4">No semantic security:</span> Attacker can test whether a ciphertext corresponds to a guessed plaintext by re-encrypting the guess.</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.5em;">
+        <p class="small"><span class="accent">Real-world RSA</span> always uses a <span class="accent">padding scheme</span> (OAEP for encryption, PSS for signatures) to achieve IND-CCA2 security.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: RSA SIGNATURES -->
+<!-- ============================================================ -->
+<section>
+  <h2>RSA Signatures</h2>
+  <div class="two-col">
+    <div>
+      <h3>Sign &amp; Verify</h3>
+      <div class="box" style="border-color:rgba(245,158,11,.3);">
+        <p><span class="accent">Sign</span> (with private key):</p>
+        <p class="mono" style="text-align:center;font-size:0.9em;">s = m<sup>d</sup> mod n</p>
+        <p class="small dim">Only the holder of d can produce s.</p>
+      </div>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p><span class="accent2">Verify</span> (with public key):</p>
+        <p class="mono" style="text-align:center;font-size:0.9em;">m' = s<sup>e</sup> mod n</p>
+        <p class="small">Accept if m' equals the original message (or its hash).</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <h3>Hash-then-Sign Paradigm</h3>
+        <p class="small">Never sign the raw message directly.</p>
+        <p class="small">1. Compute <span class="mono">h = Hash(message)</span></p>
+        <p class="small">2. Sign the hash: <span class="mono">s = h<sup>d</sup> mod n</span></p>
+        <p class="small dim">Reasons: hash has fixed size (fits in one RSA block), prevents existential forgery on raw RSA.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Security Properties</h3>
+      <div class="box">
+        <p class="small"><span class="accent">Unforgeability:</span> Without d, an attacker cannot produce a valid signature on a new message (under the RSA assumption).</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p class="small"><span class="accent">Non-repudiation:</span> Only the private key holder could have signed. Unlike MACs, a third party can verify without the signing key.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;border-color:rgba(239,68,68,.3);">
+        <h3 style="color:var(--accent4);">Textbook RSA Signature Attacks</h3>
+        <p class="small accent4">Existential forgery: Choose arbitrary s, compute m = s<sup>e</sup> mod n. This (m, s) is a valid pair!</p>
+        <p class="small accent4">Blinding attack: Get victim to sign m' = m &middot; r<sup>e</sup>, then s/r is signature on m.</p>
+        <p class="small">Both attacks are prevented by hash-then-sign + proper padding (PSS).</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p class="small"><span class="accent3">RSA-PSS</span> (Probabilistic Signature Scheme): randomized padding that achieves EUF-CMA security in the random oracle model.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Bellare &amp; Rogaway, "The Exact Security of Digital Signatures" (EUROCRYPT 1996) &middot; PKCS #1 v2.2, RFC 8017</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: RSA PADDING SCHEMES -->
+<!-- ============================================================ -->
+<section>
+  <h2>RSA Padding Schemes</h2>
+  <div class="two-col">
+    <div>
+      <h3>For Encryption</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p><span class="badge badge-red">PKCS#1 v1.5</span> <span class="small dim">(1993)</span></p>
+        <p class="small">Format: <span class="mono">0x00 || 0x02 || [random padding] || 0x00 || [message]</span></p>
+        <p class="small accent4">Bleichenbacher's attack (1998): adaptive chosen-ciphertext attack. ~1 million queries to decrypt by exploiting padding validity oracle.</p>
+        <p class="small accent4">ROBOT attack (2017) showed this was still exploitable in practice across major TLS implementations.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;border-color:rgba(16,185,129,.4);">
+        <p><span class="badge badge-green">RSA-OAEP</span> <span class="small dim">(1994/2001)</span></p>
+        <p class="small"><span class="accent2">Optimal Asymmetric Encryption Padding</span> (Bellare &amp; Rogaway)</p>
+        <p class="small">Two-round Feistel structure using hash functions G and H:</p>
+        <p class="small mono">s = m &oplus; G(r), &emsp; t = r &oplus; H(s)</p>
+        <p class="small mono">Encrypt: c = (s || t)<sup>e</sup> mod n</p>
+        <p class="small accent2">Provably IND-CCA2 secure in the random oracle model.</p>
+      </div>
+    </div>
+    <div>
+      <h3>For Signatures</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p><span class="badge badge-red">PKCS#1 v1.5 Signatures</span></p>
+        <p class="small">Format: <span class="mono">0x00 || 0x01 || [0xFF padding] || 0x00 || [DigestInfo]</span></p>
+        <p class="small accent4">Bleichenbacher (2006) / BERserk: parsing vulnerabilities in implementations that don't check padding strictly. Allowed signature forgery.</p>
+        <p class="small dim">Still widely used (TLS 1.2 and earlier) but being phased out.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;border-color:rgba(16,185,129,.4);">
+        <p><span class="badge badge-green">RSA-PSS</span> <span class="small dim">(1996/2003)</span></p>
+        <p class="small"><span class="accent2">Probabilistic Signature Scheme</span></p>
+        <p class="small">Randomized via a salt value. Uses MGF (mask generation function) based on hash.</p>
+        <p class="small accent2">Provably EUF-CMA secure in the random oracle model.</p>
+        <p class="small accent2">Mandatory in TLS 1.3 for RSA signatures.</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.4em;">
+        <p class="small"><span class="accent">Recommendation:</span> Use <span class="accent2">OAEP</span> for encryption and <span class="accent2">PSS</span> for signatures. Avoid PKCS#1 v1.5 in new designs.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Bleichenbacher, "Chosen Ciphertext Attacks Against Protocols Based on RSA..." (CRYPTO 1998) &middot; Bellare &amp; Rogaway (EUROCRYPT 1994)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: RSA SECURITY — INTEGER FACTORIZATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>RSA Security: Integer Factorization</h2>
+  <div class="two-col">
+    <div>
+      <h3>Factoring Algorithms</h3>
+      <table class="clean">
+        <tr><th>Algorithm</th><th>Complexity</th><th>Era</th></tr>
+        <tr>
+          <td>Trial division</td>
+          <td class="mono">O(&radic;n)</td>
+          <td class="dim">Ancient</td>
+        </tr>
+        <tr>
+          <td>Pollard's p&minus;1</td>
+          <td class="mono">O(B &middot; log n)</td>
+          <td class="dim">1974</td>
+        </tr>
+        <tr>
+          <td>Pollard's rho</td>
+          <td class="mono">O(n<sup>1/4</sup>)</td>
+          <td class="dim">1975</td>
+        </tr>
+        <tr>
+          <td>Quadratic sieve</td>
+          <td class="mono">L<sub>n</sub>[1/2, 1]</td>
+          <td class="dim">1981</td>
+        </tr>
+        <tr>
+          <td>Elliptic curve method</td>
+          <td class="mono">L<sub>p</sub>[1/2, &radic;2]</td>
+          <td class="dim">1987</td>
+        </tr>
+        <tr>
+          <td class="accent4">GNFS</td>
+          <td class="mono accent4">L<sub>n</sub>[1/3, 1.902]</td>
+          <td class="dim">1993</td>
+        </tr>
+      </table>
+      <div class="box" style="margin-top:0.3em;">
+        <p class="small"><span class="accent">GNFS</span> (General Number Field Sieve) is the fastest known algorithm for factoring general integers &gt; ~100 digits.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Factoring Records</h3>
+      <div class="box">
+        <p><span class="accent">RSA-768</span> (768-bit, 232 digits) &mdash; factored <span class="accent4">2009</span></p>
+        <p class="small dim">~2,000 CPU-years equivalent. Lenstra et al.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent">RSA-250</span> (829-bit, 250 digits) &mdash; factored <span class="accent4">2020</span></p>
+        <p class="small dim">~2,700 CPU-years. Boudot, Gaudry, Guillevic, Heninger, Thom&eacute;, Zimmermann.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p class="small accent4">RSA-1024 is within reach of nation-state adversaries (estimated ~10<sup>8</sup> CPU-years with current methods).</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.5em;">
+        <p class="small"><span class="accent">Current Recommendations:</span></p>
+        <p class="small"><span class="accent2">2048-bit</span> &mdash; minimum for current use (NIST SP 800-57)</p>
+        <p class="small"><span class="accent2">3072-bit</span> &mdash; recommended for protection beyond 2030</p>
+        <p class="small"><span class="accent3">4096-bit</span> &mdash; conservative choice / high-value assets</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Lenstra et al., "Factorization of a 768-Bit RSA Modulus" (CRYPTO 2010) &middot; NIST SP 800-57 Part 1 Rev. 5 (2020)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: RSA IMPLEMENTATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>RSA Implementation</h2>
+  <div class="two-col">
+    <div>
+      <h3>Modular Exponentiation</h3>
+      <div class="box">
+        <p><span class="accent">Square-and-Multiply</span></p>
+        <p class="small">Compute m<sup>e</sup> mod n by scanning bits of e:</p>
+        <p class="small mono">result = 1</p>
+        <p class="small mono">for bit in e (MSB to LSB):</p>
+        <p class="small mono">&emsp; result = result<sup>2</sup> mod n</p>
+        <p class="small mono">&emsp; if bit == 1: result = result &middot; m mod n</p>
+        <p class="small">For a k-bit exponent: k squarings + ~k/2 multiplies on average.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent">Montgomery Multiplication</span></p>
+        <p class="small">Replaces expensive division (mod n) with shifts and additions by working in <span class="accent">Montgomery form</span>: &tilde;a = a &middot; R mod n, where R = 2<sup>k</sup>.</p>
+        <p class="small mono">MontMul(&tilde;a, &tilde;b) = &tilde;a &middot; &tilde;b &middot; R<sup>&minus;1</sup> mod n</p>
+        <p class="small">Reduction uses only additions and right-shifts &mdash; no trial division.</p>
+        <p class="small accent2">The standard method in all serious RSA implementations.</p>
+      </div>
+    </div>
+    <div>
+      <h3>CRT Optimization</h3>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p class="small">Instead of computing <span class="mono">m = c<sup>d</sup> mod n</span> directly:</p>
+        <p class="small mono">m<sub>p</sub> = c<sup>d mod (p&minus;1)</sup> mod p</p>
+        <p class="small mono">m<sub>q</sub> = c<sup>d mod (q&minus;1)</sup> mod q</p>
+        <p class="small mono">m = CRT(m<sub>p</sub>, m<sub>q</sub>)</p>
+        <p class="small accent2">~4&times; speedup: two half-size exponentiations are 4&times; faster than one full-size.</p>
+        <p class="small dim">This is why PKCS#8 RSA private keys store p, q, d<sub>p</sub>, d<sub>q</sub>, q<sub>inv</sub>.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <p><span class="accent">Multi-Prime RSA</span></p>
+        <p class="small">Use n = p<sub>1</sub> &middot; p<sub>2</sub> &middot; ... &middot; p<sub>r</sub> (r &ge; 3 primes).</p>
+        <p class="small">CRT gives r<sup>2</sup>&times; speedup for r primes.</p>
+        <p class="small dim">3 primes: ~9&times; faster than single modular exponentiation.</p>
+        <p class="small accent4">Caution: each prime is smaller &rarr; easier to factor individually. Need larger n to compensate.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Montgomery, "Modular Multiplication Without Trial Division" Mathematics of Computation (1985) &middot; PKCS #1 v2.2, RFC 8017</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 14: RSA KEY SIZES & PERFORMANCE -->
+<!-- ============================================================ -->
+<section>
+  <h2>RSA Key Sizes &amp; Performance</h2>
+  <table class="clean">
+    <tr>
+      <th>RSA bits</th>
+      <th>Symmetric equiv.</th>
+      <th>ECC equiv. (bits)</th>
+      <th>Sign/s (SW)</th>
+      <th>Verify/s (SW)</th>
+      <th>Pub key size</th>
+      <th>Status</th>
+    </tr>
+    <tr>
+      <td class="accent4 mono">1024</td>
+      <td>~80-bit</td>
+      <td>160</td>
+      <td>~5,500</td>
+      <td>~160,000</td>
+      <td>128 B</td>
+      <td><span class="badge badge-red">BROKEN</span></td>
+    </tr>
+    <tr>
+      <td class="mono">2048</td>
+      <td>~112-bit</td>
+      <td>224</td>
+      <td>~800</td>
+      <td>~28,000</td>
+      <td>256 B</td>
+      <td><span class="badge badge-amber">MINIMUM</span></td>
+    </tr>
+    <tr>
+      <td class="mono accent2">3072</td>
+      <td>~128-bit</td>
+      <td>256</td>
+      <td>~270</td>
+      <td>~13,000</td>
+      <td>384 B</td>
+      <td><span class="badge badge-green">RECOMMENDED</span></td>
+    </tr>
+    <tr>
+      <td class="mono">4096</td>
+      <td>~140-bit</td>
+      <td>~384</td>
+      <td>~120</td>
+      <td>~7,500</td>
+      <td>512 B</td>
+      <td><span class="badge badge-green">CONSERVATIVE</span></td>
+    </tr>
+    <tr>
+      <td class="mono">7680</td>
+      <td>~192-bit</td>
+      <td>384</td>
+      <td>~18</td>
+      <td>~2,200</td>
+      <td>960 B</td>
+      <td><span class="badge badge-purple">NICHE</span></td>
+    </tr>
+    <tr>
+      <td class="mono">15360</td>
+      <td>~256-bit</td>
+      <td>521</td>
+      <td>~2</td>
+      <td>~350</td>
+      <td>1920 B</td>
+      <td><span class="badge badge-purple">THEORETICAL</span></td>
+    </tr>
+  </table>
+  <p class="small dim" style="margin-top:0.3em;">Benchmarks: OpenSSL 3.x on Intel i7 @ 3.6 GHz, single-core. Sign uses CRT; verify uses e = 65537.</p>
+  <div class="highlight-box" style="margin-top:0.5em;">
+    <p class="small"><span class="accent">Key observation:</span> RSA signing throughput drops dramatically with key size (O(k<sup>3</sup>) for k-bit modulus), while ECC P-256 achieves 128-bit security with ~40,000 sign/s and 256-bit keys. This is the driving force behind the migration to ECC.</p>
+  </div>
+  <p class="ref">NIST SP 800-57 Part 1 Rev. 5 (2020) &middot; OpenSSL speed benchmarks &middot; Barker, "Recommendation for Key Management"</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 15: ELGAMAL ENCRYPTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>ElGamal Encryption</h2>
+  <div class="two-col">
+    <div>
+      <h3>Key Generation</h3>
+      <div class="box">
+        <p class="small">Choose prime p, generator g of (Z/pZ)*.</p>
+        <p class="small">Choose secret <span class="mono accent">x</span> &isin; [1, p&minus;2].</p>
+        <p class="small">Compute <span class="mono accent">h = g<sup>x</sup> mod p</span>.</p>
+        <p class="small"><span class="accent2">Public key:</span> (p, g, h) &emsp; <span class="accent4">Private key:</span> x</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Encryption</h3>
+      <div class="box">
+        <p class="small">To encrypt message m &isin; (Z/pZ)*:</p>
+        <p class="small">Choose random <span class="mono">k</span> &isin; [1, p&minus;2].</p>
+        <p class="small mono">c<sub>1</sub> = g<sup>k</sup> mod p</p>
+        <p class="small mono">c<sub>2</sub> = m &middot; h<sup>k</sup> mod p</p>
+        <p class="small">Ciphertext: <span class="mono">(c<sub>1</sub>, c<sub>2</sub>)</span></p>
+        <p class="small dim">Note: ciphertext is 2&times; the size of plaintext (message expansion).</p>
+      </div>
+    </div>
+    <div>
+      <h3>Decryption</h3>
+      <div class="box">
+        <p class="small">Compute shared secret: <span class="mono">s = c<sub>1</sub><sup>x</sup> mod p</span></p>
+        <p class="small">Recover message: <span class="mono">m = c<sub>2</sub> &middot; s<sup>&minus;1</sup> mod p</span></p>
+        <p class="small dim">Works because s = g<sup>kx</sup> = h<sup>k</sup>, so c<sub>2</sub> &middot; s<sup>&minus;1</sup> = m &middot; h<sup>k</sup> &middot; h<sup>&minus;k</sup> = m.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Relationship to DH</h3>
+      <div class="box">
+        <p class="small">ElGamal is essentially DH key exchange followed by one-time-pad encryption.</p>
+        <p class="small">The ephemeral key k creates a DH shared secret h<sup>k</sup> = g<sup>xk</sup> which masks the message.</p>
+        <p class="small accent2">Security reduces to the DDH assumption (stronger than CDH).</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>Properties</h3>
+        <p class="small accent2">Semantically secure (IND-CPA) due to randomization via k.</p>
+        <p class="small accent">Homomorphic: Enc(m<sub>1</sub>) &middot; Enc(m<sub>2</sub>) = Enc(m<sub>1</sub> &middot; m<sub>2</sub>)</p>
+        <p class="small dim">Used in voting protocols, mix-nets, threshold cryptography.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">ElGamal, "A Public Key Cryptosystem and a Signature Scheme Based on Discrete Logarithms" IEEE IT (1985)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 16: HYBRID ENCRYPTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Hybrid Encryption</h2>
+  <div class="two-col">
+    <div>
+      <h3>Why Not Encrypt Everything with RSA/DH?</h3>
+      <div class="box">
+        <p class="small"><span class="accent4">Speed:</span> RSA-2048 encrypt is ~1,000&times; slower than AES-128-GCM per byte.</p>
+        <p class="small"><span class="accent4">Message size:</span> RSA can only encrypt messages &lt; n (256 bytes for RSA-2048 minus padding overhead).</p>
+        <p class="small"><span class="accent4">Expansion:</span> ElGamal doubles ciphertext size.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <h3>KEM/DEM Paradigm</h3>
+        <p class="small"><span class="accent">KEM</span> (Key Encapsulation Mechanism): Use public-key crypto to establish a shared symmetric key.</p>
+        <p class="small"><span class="accent">DEM</span> (Data Encapsulation Mechanism): Use the symmetric key with a fast cipher (AES-GCM) for bulk data.</p>
+        <p class="small accent2">Clean separation with provable security composition.</p>
+      </div>
+    </div>
+    <div>
+      <h3>RSA-KEM</h3>
+      <div class="box">
+        <p class="small">1. Choose random r &isin; [0, n). Compute <span class="mono">c = r<sup>e</sup> mod n</span>.</p>
+        <p class="small">2. Derive symmetric key: <span class="mono">K = KDF(r)</span></p>
+        <p class="small">3. Encrypt data with AES-GCM using K.</p>
+        <p class="small">4. Send (c, AES-GCM ciphertext).</p>
+        <p class="small dim">Simpler and more efficient than RSA-OAEP for key transport. Standardized in ISO 18033-2.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <h3>HPKE <span class="small dim">(RFC 9180)</span></h3>
+        <p class="small"><span class="accent3">Hybrid Public Key Encryption</span> &mdash; modern framework combining:</p>
+        <p class="small">KEM (DHKEM with X25519/P-256) + KDF (HKDF) + AEAD (AES-GCM/ChaCha20-Poly1305)</p>
+        <p class="small accent2">Used in: TLS Encrypted ClientHello (ECH), MLS messaging protocol, OHTTP.</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.4em;">
+        <p class="small"><span class="accent">In practice:</span> Every TLS handshake, every PGP message, every Signal session uses hybrid encryption. Public-key crypto is the key exchange; symmetric crypto does the heavy lifting.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Cramer &amp; Shoup, "Design and Analysis of Practical Public-Key Encryption Schemes Secure against Adaptive CCA" (2003) &middot; RFC 9180 (2022)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 17: ATTACKS ON RSA -->
+<!-- ============================================================ -->
+<section>
+  <h2>Attacks on RSA</h2>
+  <div class="two-col">
+    <div>
+      <h3>Mathematical Attacks</h3>
+      <div class="box">
+        <p><span class="badge badge-red">WIENER</span> <span class="small dim">(1990)</span></p>
+        <p class="small">If d &lt; n<sup>0.25</sup>/3, continued fraction expansion of e/n recovers d efficiently.</p>
+        <p class="small accent4">Exploits small private exponent.</p>
+        <p class="small dim">Boneh-Durfee (1999) extended to d &lt; n<sup>0.292</sup> using lattice methods.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-red">COPPERSMITH</span> <span class="small dim">(1996)</span></p>
+        <p class="small">Uses LLL lattice reduction to find small roots of polynomials mod n.</p>
+        <p class="small accent4">Applications: small e with small message padding, partial key exposure (knowing ~half of d suffices to recover the rest), stereotyped messages.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-red">H&Aring;STAD BROADCAST</span></p>
+        <p class="small">If same message m is encrypted with e = 3 to 3 different recipients (different n<sub>i</sub>), CRT + cube root recovers m.</p>
+        <p class="small dim">Prevented by proper padding (OAEP).</p>
+      </div>
+    </div>
+    <div>
+      <h3>Implementation Attacks</h3>
+      <div class="box">
+        <p><span class="badge badge-red">TIMING</span> <span class="small dim">(Kocher, 1996)</span></p>
+        <p class="small">Square-and-multiply branches on key bits. Measuring execution time reveals the private exponent d.</p>
+        <p class="small accent2">Countermeasure: constant-time implementation, RSA blinding.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-red">FAULT ON CRT-RSA</span></p>
+        <p class="small"><span class="accent4">Boneh-DeMillo-Lipton (1997):</span> A single fault during CRT computation leaks p or q.</p>
+        <p class="small">If fault in m<sub>p</sub> but not m<sub>q</sub>: gcd(s<sub>faulty</sub><sup>e</sup> &minus; m, n) = q.</p>
+        <p class="small accent4">Devastating: one faulty signature breaks the key.</p>
+        <p class="small accent2">Countermeasure: verify signature before output.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-red">COMMON MODULUS</span></p>
+        <p class="small">If two users share the same n with different e<sub>1</sub>, e<sub>2</sub> where gcd(e<sub>1</sub>, e<sub>2</sub>) = 1, an attacker with both ciphertexts can decrypt using the extended Euclidean algorithm.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Wiener (EUROCRYPT 1990) &middot; Coppersmith (J. Cryptology 1997) &middot; Boneh, DeMillo &amp; Lipton (EUROCRYPT 1997) &middot; Kocher (CRYPTO 1996)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 18: ATTACKS ON DH -->
+<!-- ============================================================ -->
+<section>
+  <h2>Attacks on Diffie-Hellman</h2>
+  <div class="two-col">
+    <div>
+      <h3>Protocol-Level Attacks</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p><span class="badge badge-red">MAN-IN-THE-MIDDLE</span></p>
+        <p class="small">Mallory intercepts Alice's A and Bob's B, substitutes her own values. Establishes separate shared secrets with each party.</p>
+        <p class="small accent4">Vanilla DH provides NO authentication.</p>
+        <p class="small accent2">Fix: authenticate key exchange with digital signatures (STS protocol, TLS handshake).</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-red">SMALL SUBGROUP</span></p>
+        <p class="small">If the group order has small prime factors, attacker sends elements of small subgroups. Victim's shared secret leaks information about the private exponent modulo small primes.</p>
+        <p class="small accent2">Fix: use safe primes (p = 2q+1) or validate received elements (check g<sup>q</sup> = 1 in prime-order subgroup).</p>
+      </div>
+    </div>
+    <div>
+      <h3>Computational Attacks</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p><span class="badge badge-red">LOGJAM</span> <span class="small dim">(2015)</span></p>
+        <p class="small accent4">Precomputation attack on 512-bit DH (export-grade):</p>
+        <p class="small">NFS precomputation for a fixed prime takes ~1 week. After that, individual DLPs take ~90 seconds.</p>
+        <p class="small accent4">A single 1024-bit prime used by most of the internet could be targeted by a nation-state with ~$100M in custom hardware (est.).</p>
+        <p class="small accent2">Fix: use &ge; 2048-bit groups, prefer ECDH.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-red">PRECOMPUTATION DANGER</span></p>
+        <p class="small">Many servers used the <em>same</em> DH primes (e.g., Apache's hardcoded 1024-bit prime). Precomputation against that prime breaks ALL connections using it.</p>
+        <p class="small dim">Snowden documents suggest NSA may have performed such precomputation.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-red">INVALID GROUP</span></p>
+        <p class="small">Attacker sends a value from a different (weaker) group. If not validated, victim computes in the wrong group.</p>
+        <p class="small accent2">Fix: validate received public keys are in the expected group.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Adrian et al., "Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice" (CCS 2015) &middot; RFC 2785, "Methods for Avoiding the Small-Subgroup Attacks"</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 19: KEY MANAGEMENT & PKI -->
+<!-- ============================================================ -->
+<section>
+  <h2>Key Management &amp; PKI</h2>
+  <div class="two-col">
+    <div>
+      <h3>X.509 Certificates</h3>
+      <div class="box">
+        <p class="small">A certificate binds a <span class="accent">public key</span> to an <span class="accent">identity</span> (domain name, organization), signed by a trusted <span class="accent3">Certificate Authority (CA)</span>.</p>
+        <p class="small">Key fields: subject, issuer, validity period, public key, extensions (SAN, key usage), CA signature.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent">Certificate Chains</span></p>
+        <p class="small mono" style="font-size:0.7em;">Root CA (self-signed, in trust store)<br/>&emsp;&darr; signs<br/>Intermediate CA<br/>&emsp;&darr; signs<br/>End-entity certificate (your server)</p>
+        <p class="small dim">Root CAs are pre-installed in browsers/OSes (~150 trusted roots).</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent">Revocation</span></p>
+        <p class="small"><span class="accent3">CRL</span> (Certificate Revocation List): CA publishes list of revoked serial numbers. Scalability issues.</p>
+        <p class="small"><span class="accent3">OCSP</span> (Online Certificate Status Protocol): Real-time check. Privacy concern (CA learns which sites you visit).</p>
+        <p class="small"><span class="accent3">OCSP Stapling</span>: Server fetches its own OCSP response and staples it to the TLS handshake.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Trust Models</h3>
+      <div class="box">
+        <p><span class="badge badge-purple">HIERARCHICAL PKI</span></p>
+        <p class="small">Used by TLS/SSL (WebPKI). Top-down trust from root CAs.</p>
+        <p class="small accent2">Scalable, well-understood, legally binding.</p>
+        <p class="small accent4">Single point of failure: compromised CA can issue rogue certificates (DigiNotar 2011, Symantec 2015).</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-purple">WEB OF TRUST</span></p>
+        <p class="small">Used by PGP/GPG. Decentralized: users sign each other's keys.</p>
+        <p class="small dim">Trust is transitive and user-defined. No central authority.</p>
+        <p class="small accent4">Difficult to bootstrap, poor UX, key management burden on users.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-green">CERTIFICATE TRANSPARENCY</span></p>
+        <p class="small">Append-only public log of all issued certificates (RFC 6962).</p>
+        <p class="small">Domain owners monitor logs to detect misissued certs.</p>
+        <p class="small accent2">Required by Chrome since 2018 for all new certificates.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">RFC 5280 (X.509 v3) &middot; RFC 6960 (OCSP) &middot; RFC 6962 (Certificate Transparency)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 20: RSA vs ECC -->
+<!-- ============================================================ -->
+<section>
+  <h2>RSA vs ECC</h2>
+  <div class="two-col">
+    <div>
+      <h3>Key Size Comparison</h3>
+      <table class="clean">
+        <tr><th>Security (bits)</th><th>RSA (bits)</th><th>ECC (bits)</th><th>Ratio</th></tr>
+        <tr><td>80</td><td class="accent4">1024</td><td>160</td><td>6.4&times;</td></tr>
+        <tr><td>112</td><td>2048</td><td>224</td><td>9.1&times;</td></tr>
+        <tr><td>128</td><td>3072</td><td>256</td><td>12&times;</td></tr>
+        <tr><td>192</td><td>7680</td><td>384</td><td>20&times;</td></tr>
+        <tr><td>256</td><td>15360</td><td>521</td><td>29.5&times;</td></tr>
+      </table>
+      <div class="box" style="margin-top:0.3em;">
+        <p class="small">The ratio grows because RSA relies on sub-exponential factoring (L[1/3]) while ECC relies on exponential ECDLP (Pollard's rho: O(&radic;n)).</p>
+      </div>
+    </div>
+    <div>
+      <h3>Performance at 128-bit Security</h3>
+      <table class="clean">
+        <tr><th>Operation</th><th>RSA-3072</th><th>ECDSA P-256</th></tr>
+        <tr><td>Key generation</td><td>~150 ms</td><td class="accent2">~0.1 ms</td></tr>
+        <tr><td>Sign</td><td>~3.7 ms</td><td class="accent2">~0.2 ms</td></tr>
+        <tr><td>Verify</td><td class="accent2">~0.08 ms</td><td>~0.5 ms</td></tr>
+        <tr><td>Public key size</td><td>384 B</td><td class="accent2">32 B</td></tr>
+        <tr><td>Signature size</td><td>384 B</td><td class="accent2">64 B</td></tr>
+      </table>
+      <div class="highlight-box" style="margin-top:0.5em;">
+        <p class="small"><span class="accent">Industry migration:</span> ECC dominates in TLS 1.3 (ECDHE + ECDSA). RSA still used for legacy compatibility, certificate signatures, and code signing. NIST recommends transitioning to ECC or PQC.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p class="small"><span class="accent">RSA advantage:</span> Verification is extremely fast (e = 65537 has only 17 squarings). Ideal when verification is done far more often than signing (certificate validation, firmware signatures).</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">NIST SP 800-57 (2020) &middot; eBACS benchmarking project &middot; RFC 8446, TLS 1.3</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 21: FORWARD SECRECY -->
+<!-- ============================================================ -->
+<section>
+  <h2>Forward Secrecy</h2>
+  <div class="two-col">
+    <div>
+      <h3>Definition</h3>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p class="small"><span class="accent2">Perfect Forward Secrecy (PFS):</span> Compromise of long-term private keys does <em>not</em> compromise past session keys.</p>
+        <p class="small">Even if an attacker records all ciphertext and later obtains the server's private key, they cannot decrypt historical traffic.</p>
+      </div>
+      <div class="box" style="margin-top:0.4em;">
+        <h3>Why It Matters</h3>
+        <p class="small"><span class="accent4">Without FS (RSA key transport):</span> Server's RSA private key decrypts the pre-master secret from any recorded session.</p>
+        <p class="small dim">Mass surveillance: "record now, decrypt later" is a realistic threat.</p>
+        <p class="small accent2">With FS: Each session uses unique ephemeral keys. Breaking one session does not help with any other.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Achieving Forward Secrecy</h3>
+      <div class="box">
+        <p><span class="badge badge-green">DHE</span> Ephemeral Diffie-Hellman</p>
+        <p class="small">Fresh DH exponents per session. Long-term key only used for signing the ephemeral public values.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-green">ECDHE</span> Ephemeral Elliptic Curve DH</p>
+        <p class="small">Same concept on elliptic curves. Faster, smaller keys.</p>
+        <p class="small accent2">The dominant key exchange in modern TLS.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent3">TLS 1.3 Mandates Forward Secrecy</span></p>
+        <p class="small">RSA key transport (non-FS) was <span class="accent4">removed entirely</span> from TLS 1.3.</p>
+        <p class="small">Only (EC)DHE key exchange is allowed.</p>
+        <p class="small">Cipher suites: TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384, TLS_CHACHA20_POLY1305_SHA256.</p>
+      </div>
+      <div class="highlight-box" style="margin-top:0.3em;">
+        <p class="small"><span class="accent">Key deletion:</span> Ephemeral secrets must be securely erased after key derivation. Memory zeroization and key lifetime management are critical for FS to hold.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">RFC 8446 (TLS 1.3) &middot; NIST SP 800-52 Rev. 2 (TLS Guidelines)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 22: QUANTUM THREAT -->
+<!-- ============================================================ -->
+<section>
+  <h2>Quantum Threat</h2>
+  <div class="two-col">
+    <div>
+      <h3>Shor's Algorithm</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.3);">
+        <p class="small"><span class="accent4">Factoring:</span> Shor's algorithm factors n-bit integers in <span class="mono">O(n<sup>3</sup>)</span> quantum time using <span class="mono">O(n)</span> logical qubits.</p>
+        <p class="small accent4">RSA-2048 can be broken in hours on a sufficiently large fault-tolerant quantum computer.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;border-color:rgba(239,68,68,.3);">
+        <p class="small"><span class="accent4">Discrete Log:</span> Shor also solves DLP in polynomial time.</p>
+        <p class="small accent4">Breaks DH, ECDH, ElGamal, DSA, and ECDSA.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>Qubit Estimates (Logical Qubits)</h3>
+        <p class="small mono">RSA-2048: &emsp; ~4,100 logical qubits</p>
+        <p class="small mono">RSA-3072: &emsp; ~6,200 logical qubits</p>
+        <p class="small mono">ECC P-256: &emsp; ~2,330 logical qubits</p>
+        <p class="small dim">With current error rates, physical qubit overhead is ~1,000&times;&ndash;10,000&times;.</p>
+        <p class="small dim">Recent work by Gidney &amp; Eker&aring; (2021): RSA-2048 in ~8 hours with 20M physical qubits.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Migration to PQC</h3>
+      <div class="box" style="border-color:rgba(139,92,246,.4);">
+        <p><span class="badge badge-purple">NIST PQC STANDARDS</span></p>
+        <p class="small"><span class="accent3">ML-KEM</span> (FIPS 203) &mdash; lattice-based KEM (ex-CRYSTALS-Kyber)</p>
+        <p class="small"><span class="accent3">ML-DSA</span> (FIPS 204) &mdash; lattice-based signatures (ex-CRYSTALS-Dilithium)</p>
+        <p class="small"><span class="accent3">SLH-DSA</span> (FIPS 205) &mdash; hash-based signatures (ex-SPHINCS+)</p>
+        <p class="small dim">Finalized August 2024.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent">Harvest Now, Decrypt Later</span></p>
+        <p class="small accent4">Adversaries recording encrypted traffic today can decrypt it once quantum computers arrive. Long-lived secrets (government, healthcare, financial) are already at risk.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="accent3">CNSA 2.0 Timeline</span> (NSA)</p>
+        <p class="small">2025: begin transition to PQC</p>
+        <p class="small">2030: PQC for all new systems</p>
+        <p class="small">2033: exclusive PQC for web browsers/servers</p>
+        <p class="small">2035: exclusive PQC for all NSS</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Shor, "Algorithms for Quantum Computation" (FOCS 1994) &middot; Gidney &amp; Eker&aring;, "How to Factor 2048-bit RSA..." (2021) &middot; NIST FIPS 203/204/205 (2024)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 23: HARDWARE IMPLEMENTATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Hardware Implementation</h2>
+  <div class="two-col">
+    <div>
+      <h3>Montgomery Multiplier Architecture</h3>
+      <div class="box">
+        <p class="small"><span class="accent">Radix-2 Montgomery:</span> Process one bit per clock cycle. Area-efficient but slow (k cycles for k-bit modulus).</p>
+        <p class="small"><span class="accent">High-Radix (2<sup>w</sup>):</span> Process w bits per cycle. k/w cycles but needs w-bit multiplier. Common: w = 16 or 32.</p>
+        <p class="small"><span class="accent">Systolic Array:</span> Pipeline multiple word-level multiplications. Throughput of one Montgomery multiplication per cycle after pipeline fills.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>FPGA &amp; ASIC</h3>
+        <p class="small">RSA-2048 on Virtex-7: ~0.3ms per modular exponentiation (CRT)</p>
+        <p class="small">RSA-2048 on 28nm ASIC: ~0.05ms per operation</p>
+        <p class="small dim">Throughput limited by modular exponentiation: O(k<sup>2</sup>) multiplications for k-bit modulus.</p>
+      </div>
+    </div>
+    <div>
+      <h3>CRT Acceleration</h3>
+      <div class="box">
+        <p class="small">With CRT, two independent half-size exponentiations can run in parallel on dual Montgomery cores.</p>
+        <p class="small accent2">Combined CRT + dual-core: ~8&times; speedup over single full-width exponentiation.</p>
+      </div>
+      <h3 style="margin-top:0.4em;">Side-Channel Countermeasures</h3>
+      <div class="box">
+        <p><span class="badge badge-green">RSA BLINDING</span></p>
+        <p class="small">Before decryption: multiply c by r<sup>e</sup> for random r.</p>
+        <p class="small">After: divide result by r.</p>
+        <p class="small">Attacker's timing/power observations are decorrelated from the actual c and d.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-green">CONSTANT-TIME</span></p>
+        <p class="small">Always perform both square and multiply (discard multiply result when bit = 0). No branching on secret bits.</p>
+        <p class="small dim">Montgomery ladder: another constant-time approach for modular exponentiation.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Tenca &amp; Ko&ccedil;, "A Scalable Architecture for Modular Multiplication" (IEEE Trans. Computers, 2003)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 24: SYSTEMVERILOG — MONTGOMERY MULTIPLIER -->
+<!-- ============================================================ -->
+<section>
+  <h2>SystemVerilog &mdash; Montgomery Multiplier</h2>
+<pre><code class="language-verilog">// Radix-2 Montgomery Modular Multiplier
+// Computes: result = a * b * R^(-1) mod n, where R = 2^WIDTH
+module montgomery_mul #(
+    parameter WIDTH = 2048
+)(
+    input  logic                clk,
+    input  logic                rst_n,
+    input  logic                start,
+    input  logic [WIDTH-1:0]    a,        // multiplicand (in Montgomery form)
+    input  logic [WIDTH-1:0]    b,        // multiplier   (in Montgomery form)
+    input  logic [WIDTH-1:0]    n,        // modulus (odd)
+    output logic [WIDTH-1:0]    result,   // a * b * R^(-1) mod n
+    output logic                done
+);
+
+    logic [WIDTH:0]   s;          // partial sum (WIDTH+1 bits for overflow)
+    logic [$clog2(WIDTH)-1:0] i;  // bit counter
+    logic             running;
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            s       <= '0;
+            i       <= '0;
+            running <= 1'b0;
+            done    <= 1'b0;
+        end else if (start) begin
+            s       <= '0;
+            i       <= '0;
+            running <= 1'b1;
+            done    <= 1'b0;
+        end else if (running) begin
+            // Step 1: q_i = (s[0] + a[i]*b[0]) mod 2
+            logic q_i;
+            logic [WIDTH:0] s_next;
+
+            q_i    = s[0] ^ (a[i] & b[0]);
+            // Step 2: s = (s + a[i]*b + q_i*n) >> 1
+            s_next = s + (a[i] ? {1'b0, b} : '0) + (q_i ? {1'b0, n} : '0);
+            s      <= s_next >> 1;
+
+            if (i == WIDTH[$clog2(WIDTH)-1:0] - 1) begin
+                running <= 1'b0;
+                done    <= 1'b1;
+            end
+            i <= i + 1;
+        end
+    end
+
+    // Final subtraction: if s >= n, result = s - n; else result = s
+    assign result = (s >= {1'b0, n}) ? s[WIDTH-1:0] - n : s[WIDTH-1:0];
+
+endmodule</code></pre>
+  <p class="ref">Montgomery, "Modular Multiplication Without Trial Division" Math. Comp. (1985) &middot; Ko&ccedil; et al., "Analyzing and Comparing Montgomery Multiplication Algorithms" IEEE Micro (1996)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 25: PYTHON — RSA FROM SCRATCH -->
+<!-- ============================================================ -->
+<section>
+  <h2>Python &mdash; RSA Key Gen &amp; Encrypt/Decrypt</h2>
+<pre><code class="language-python">import random, math
+
+def is_probable_prime(n, k=64):
+    """Miller-Rabin primality test with k rounds."""
+    if n < 2: return False
+    if n < 4: return True
+    if n % 2 == 0: return False
+    # Write n-1 as 2^s * d
+    s, d = 0, n - 1
+    while d % 2 == 0:
+        s += 1; d //= 2
+    for _ in range(k):
+        a = random.randrange(2, n - 1)
+        x = pow(a, d, n)
+        if x == 1 or x == n - 1:
+            continue
+        for _ in range(s - 1):
+            x = pow(x, 2, n)
+            if x == n - 1: break
+        else:
+            return False   # composite
+    return True            # probably prime
+
+def gen_prime(bits):
+    """Generate a random probable prime of given bit length."""
+    while True:
+        p = random.getrandbits(bits) | (1 << (bits - 1)) | 1  # set MSB and LSB
+        if is_probable_prime(p):
+            return p
+
+def extended_gcd(a, b):
+    if a == 0: return b, 0, 1
+    g, x1, y1 = extended_gcd(b % a, a)
+    return g, y1 - (b // a) * x1, x1
+
+def mod_inverse(e, phi):
+    g, x, _ = extended_gcd(e % phi, phi)
+    assert g == 1, "Modular inverse does not exist"
+    return x % phi
+
+def rsa_keygen(bits=2048):
+    p = gen_prime(bits // 2)
+    q = gen_prime(bits // 2)
+    n   = p * q
+    phi = (p - 1) * (q - 1)
+    e   = 65537
+    d   = mod_inverse(e, phi)
+    return {'pub': (n, e), 'priv': (n, d), 'p': p, 'q': q}
+
+def rsa_encrypt(m, pub):
+    n, e = pub
+    assert 0 <= m < n, "Message must be in [0, n)"
+    return pow(m, e, n)
+
+def rsa_decrypt(c, priv):
+    n, d = priv
+    return pow(c, d, n)
+
+# --- Demo with small primes ---
+keys = rsa_keygen(bits=512)   # small for demo only!
+msg  = 42
+ct   = rsa_encrypt(msg, keys['pub'])
+pt   = rsa_decrypt(ct, keys['priv'])
+assert pt == msg, "Decryption failed!"
+print(f"n  = {keys['pub'][0]}")
+print(f"e  = {keys['pub'][1]}")
+print(f"ct = {ct}")
+print(f"pt = {pt}  ✓")</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 26: INTERACTIVE DEMO — RSA WITH SMALL PRIMES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Interactive Demo: RSA with Small Primes</h2>
+  <p class="small">Pick two primes and watch RSA key generation, encryption, and decryption step by step.</p>
+  <div class="two-col" style="margin-top:0.3em;">
+    <div>
+      <div class="box" style="font-family:var(--r-code-font);font-size:0.6em;">
+        <p style="margin-bottom:0.4em;"><span class="accent">Input Primes:</span></p>
+        <label>p = <input type="number" id="rsa-p" value="61" style="background:var(--surface);border:1px solid var(--surface2);color:var(--accent);font-family:var(--r-code-font);padding:0.3em;width:5em;border-radius:4px;"></label>
+        &emsp;
+        <label>q = <input type="number" id="rsa-q" value="53" style="background:var(--surface);border:1px solid var(--surface2);color:var(--accent);font-family:var(--r-code-font);padding:0.3em;width:5em;border-radius:4px;"></label>
+        <br/><br/>
+        <label>Message m = <input type="number" id="rsa-m" value="42" style="background:var(--surface);border:1px solid var(--surface2);color:var(--accent2);font-family:var(--r-code-font);padding:0.3em;width:5em;border-radius:4px;"></label>
+        <br/><br/>
+        <button id="rsa-go" style="background:var(--accent);color:#000;border:none;padding:0.4em 1.2em;border-radius:6px;font-weight:700;cursor:pointer;font-family:var(--r-code-font);">Compute</button>
+      </div>
+    </div>
+    <div>
+      <div class="box" id="rsa-output" style="font-family:var(--r-code-font);font-size:0.58em;min-height:12em;">
+        <p class="dim">Click "Compute" to see results...</p>
+      </div>
+    </div>
+  </div>
+  <script>
+  document.getElementById('rsa-go').addEventListener('click', function() {
+    var p = parseInt(document.getElementById('rsa-p').value);
+    var q = parseInt(document.getElementById('rsa-q').value);
+    var m = parseInt(document.getElementById('rsa-m').value);
+    var out = document.getElementById('rsa-output');
+
+    function modpow(base, exp, mod) {
+      var result = 1n;
+      base = BigInt(base) % BigInt(mod);
+      exp = BigInt(exp);
+      mod = BigInt(mod);
+      while (exp > 0n) {
+        if (exp % 2n === 1n) result = (result * base) % mod;
+        exp = exp / 2n;
+        base = (base * base) % mod;
+      }
+      return Number(result);
+    }
+
+    function extgcd(a, b) {
+      if (a === 0) return [b, 0, 1];
+      var r = extgcd(b % a, a);
+      return [r[0], r[2] - Math.floor(b / a) * r[1], r[1]];
+    }
+
+    function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+    var n = p * q;
+    var phi = (p - 1) * (q - 1);
+    var e = 65537;
+    if (gcd(e, phi) !== 1) { e = 3; }
+    if (gcd(e, phi) !== 1) { e = 17; }
+    var r = extgcd(e % phi, phi);
+    var d = ((r[1] % phi) + phi) % phi;
+
+    if (m >= n) { out.innerHTML = '<p style="color:var(--accent4);">Error: m must be &lt; n = ' + n + '</p>'; return; }
+
+    var c = modpow(m, e, n);
+    var dec = modpow(c, d, n);
+
+    out.innerHTML =
+      '<p><span style="color:var(--accent);">n</span> = p &times; q = ' + p + ' &times; ' + q + ' = <b>' + n + '</b></p>' +
+      '<p><span style="color:var(--accent);">&phi;(n)</span> = (p&minus;1)(q&minus;1) = ' + (p-1) + ' &times; ' + (q-1) + ' = <b>' + phi + '</b></p>' +
+      '<p><span style="color:var(--accent);">e</span> = ' + e + '</p>' +
+      '<p><span style="color:var(--accent);">d</span> = e<sup>&minus;1</sup> mod &phi;(n) = <b>' + d + '</b></p>' +
+      '<p style="color:var(--dim);">Check: e &times; d mod &phi;(n) = ' + ((e * d) % phi) + '</p>' +
+      '<hr style="border-color:var(--surface2);margin:0.5em 0;">' +
+      '<p><span style="color:var(--accent2);">Encrypt:</span> c = m<sup>e</sup> mod n = ' + m + '<sup>' + e + '</sup> mod ' + n + ' = <b style="color:var(--accent3);">' + c + '</b></p>' +
+      '<p><span style="color:var(--accent2);">Decrypt:</span> m = c<sup>d</sup> mod n = ' + c + '<sup>' + d + '</sup> mod ' + n + ' = <b style="color:var(--accent2);">' + dec + '</b></p>' +
+      '<p>' + (dec === m ? '<span style="color:var(--accent2);">&#10003; Decryption successful!</span>' : '<span style="color:var(--accent4);">&#10007; Decryption failed!</span>') + '</p>';
+  });
+  </script>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 27: SUMMARY -->
+<!-- ============================================================ -->
+<section>
+  <h2>Summary</h2>
+  <div class="three-col" style="margin-top:0.3em;">
+    <div class="box" style="text-align:center;">
+      <h3 style="color:var(--accent);">Diffie-Hellman</h3>
+      <p class="small">First public-key protocol (1976). Establishes shared secret over insecure channel.</p>
+      <p class="small">Security: <span class="accent">Discrete Logarithm Problem</span></p>
+      <p class="small">Best attack: <span class="mono">L[1/3]</span> (NFS)</p>
+      <p class="small accent2">Use ephemeral DH (DHE/ECDHE) for forward secrecy.</p>
+      <p class="small dim">Minimum: 2048-bit MODP or 256-bit ECDH.</p>
+    </div>
+    <div class="box" style="text-align:center;">
+      <h3 style="color:var(--accent);">RSA</h3>
+      <p class="small">First practical PKE &amp; signature (1977). Encrypt, sign, key transport.</p>
+      <p class="small">Security: <span class="accent">Integer Factorization Problem</span></p>
+      <p class="small">Best attack: <span class="mono">L[1/3]</span> (GNFS)</p>
+      <p class="small accent2">Always use OAEP/PSS padding. Never textbook RSA.</p>
+      <p class="small dim">Minimum: 2048-bit. Recommend: 3072-bit.</p>
+    </div>
+    <div class="box" style="text-align:center;">
+      <h3 style="color:var(--accent4);">Quantum Future</h3>
+      <p class="small">Shor's algorithm breaks both RSA and DH in polynomial time.</p>
+      <p class="small"><span class="accent3">NIST PQC:</span> ML-KEM, ML-DSA, SLH-DSA standardized (2024).</p>
+      <p class="small accent4">Harvest-now-decrypt-later is already a threat.</p>
+      <p class="small accent2">Begin migrating to hybrid classical+PQC now.</p>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:0.5em;text-align:center;">
+    <span class="small"><span class="accent">Public-key cryptography</span> solved the key distribution problem and enabled the modern internet. But the quantum transition demands we rethink foundations that have served us for nearly 50 years.</span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 28: REFERENCES -->
+<!-- ============================================================ -->
+<section>
+  <h2>References</h2>
+  <div class="two-col small">
+    <div>
+      <p><span class="accent">Foundational Papers</span></p>
+      <p class="dim">Diffie &amp; Hellman, "New Directions in Cryptography" IEEE IT (1976)</p>
+      <p class="dim">Rivest, Shamir &amp; Adleman, "A Method for Obtaining Digital Signatures and Public-Key Cryptosystems" CACM (1978)</p>
+      <p class="dim">ElGamal, "A Public Key Cryptosystem..." IEEE IT (1985)</p>
+      <p class="dim">Merkle, "Secure Communications Over Insecure Channels" CACM (1978)</p>
+      <p style="margin-top:0.5em;"><span class="accent">Standards</span></p>
+      <p class="dim">PKCS #1 v2.2 / RFC 8017 &mdash; RSA Cryptography Specifications</p>
+      <p class="dim">NIST SP 800-57 &mdash; Recommendation for Key Management</p>
+      <p class="dim">FIPS 186-5 &mdash; Digital Signature Standard (2023)</p>
+      <p class="dim">RFC 3526 / 7919 &mdash; MODP DH Groups / Negotiated FFDHE</p>
+      <p class="dim">RFC 8446 &mdash; TLS 1.3</p>
+      <p class="dim">RFC 9180 &mdash; Hybrid Public Key Encryption (HPKE)</p>
+    </div>
+    <div>
+      <p><span class="accent">Attacks &amp; Cryptanalysis</span></p>
+      <p class="dim">Bleichenbacher, "Chosen Ciphertext Attacks..." (CRYPTO 1998)</p>
+      <p class="dim">Wiener, "Cryptanalysis of Short RSA Secret Exponents" (EUROCRYPT 1990)</p>
+      <p class="dim">Coppersmith, "Small Solutions to Polynomial Equations..." J. Cryptology (1997)</p>
+      <p class="dim">Boneh, DeMillo &amp; Lipton, "On the Importance of Checking..." (EUROCRYPT 1997)</p>
+      <p class="dim">Kocher, "Timing Attacks on... RSA, DSS..." (CRYPTO 1996)</p>
+      <p class="dim">Adrian et al., "Imperfect Forward Secrecy: How DH Fails in Practice" (CCS 2015)</p>
+      <p style="margin-top:0.5em;"><span class="accent">Textbooks</span></p>
+      <p class="dim">Menezes, Oorschot &amp; Vanstone, "Handbook of Applied Cryptography" (CRC, 1996)</p>
+      <p class="dim">Katz &amp; Lindell, "Introduction to Modern Cryptography" (3rd ed., 2020)</p>
+      <p class="dim">Shoup, "A Computational Introduction to Number Theory and Algebra" (2008)</p>
+      <p class="dim">Boneh &amp; Shoup, "A Graduate Course in Applied Cryptography" (2020)</p>
+    </div>
+  </div>
+  <p class="tiny dim" style="text-align:center;margin-top:1em;">
+    Part of the <a href="../index.html" style="color:var(--accent);">Modern Cryptography Presentation Series</a>
+  </p>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  showSlideNumber: 'all',
+  transition: 'slide',
+  transitionSpeed: 'default',
+  backgroundTransition: 'fade',
+  center: false,
+  width: 1280,
+  height: 900,
+  margin: 0.02,
+  plugins: [ RevealHighlight ]
+});
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
+</script>
+</body>
+</html>

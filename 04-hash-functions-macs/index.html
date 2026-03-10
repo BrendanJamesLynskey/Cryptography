@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>04 — Hash Functions &amp; MACs</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --r-background-color: #0a0a0f;
+    --r-main-font: 'DM Sans', sans-serif;
+    --r-main-font-size: 28px;
+    --r-main-color: #d4d4d8;
+    --r-heading-font: 'Playfair Display', serif;
+    --r-heading-color: #fafafa;
+    --r-heading-text-transform: none;
+    --r-code-font: 'JetBrains Mono', monospace;
+    --r-link-color: #60a5fa;
+    --r-link-color-hover: #93c5fd;
+    --r-selection-background-color: #2563eb;
+    --accent: #f59e0b;
+    --accent2: #10b981;
+    --accent3: #8b5cf6;
+    --accent4: #ef4444;
+    --dim: #71717a;
+    --surface: #18181b;
+    --surface2: #27272a;
+  }
+
+  .reveal { font-weight: 400; }
+  .reveal h1, .reveal h2, .reveal h3 { font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; }
+  .reveal h1 { font-size: 2.4em; }
+  .reveal h2 { font-size: 1.6em; margin-bottom: 0.5em; }
+  .reveal h3 { font-size: 1.2em; color: var(--accent); font-family: 'DM Sans', sans-serif; font-weight: 700; }
+  .reveal p, .reveal li { line-height: 1.6; }
+  .reveal code { font-family: var(--r-code-font); font-size: 0.85em; }
+  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(0,0,0,.5); border: 1px solid var(--surface2); border-radius: 8px; }
+  .reveal pre code { padding: 1.2em; line-height: 1.5; max-height: 520px; }
+
+  .accent  { color: var(--accent); }
+  .accent2 { color: var(--accent2); }
+  .accent3 { color: var(--accent3); }
+  .accent4 { color: var(--accent4); }
+  .dim     { color: var(--dim); }
+  .mono    { font-family: var(--r-code-font); }
+  .small   { font-size: 0.65em; }
+  .smaller { font-size: 0.55em; }
+  .tiny    { font-size: 0.45em; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; align-items: start; text-align: left; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1em; align-items: start; text-align: left; }
+
+  .box {
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    border-radius: 8px;
+    padding: 0.8em 1em;
+    margin: 0.3em 0;
+    text-align: left;
+  }
+  .box h3 { margin: 0 0 0.3em 0; font-size: 0.9em; }
+  .box p, .box ul { margin: 0; font-size: 0.75em; }
+  .box ul { padding-left: 1.2em; }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(245,158,11,.03));
+    border: 1px solid rgba(245,158,11,.3);
+    border-radius: 8px;
+    padding: 0.8em 1em;
+    margin: 0.5em 0;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15em 0.6em;
+    border-radius: 999px;
+    font-size: 0.55em;
+    font-weight: 700;
+    vertical-align: middle;
+    font-family: var(--r-code-font);
+  }
+  .badge-amber  { background: rgba(245,158,11,.15); color: var(--accent); border: 1px solid rgba(245,158,11,.3); }
+  .badge-green  { background: rgba(16,185,129,.15); color: var(--accent2); border: 1px solid rgba(16,185,129,.3); }
+  .badge-purple { background: rgba(139,92,246,.15); color: var(--accent3); border: 1px solid rgba(139,92,246,.3); }
+  .badge-red    { background: rgba(239,68,68,.15); color: var(--accent4); border: 1px solid rgba(239,68,68,.3); }
+
+  table.clean {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.6em; margin: 0.5em 0;
+  }
+  table.clean th {
+    background: var(--surface2); color: var(--accent);
+    padding: 0.5em 0.8em; text-align: left;
+    font-family: var(--r-code-font); font-weight: 700;
+    border-bottom: 2px solid var(--accent);
+  }
+  table.clean td {
+    padding: 0.45em 0.8em; border-bottom: 1px solid var(--surface2);
+  }
+  table.clean tr:hover td { background: var(--surface); }
+
+  .ref { font-size: 0.42em; color: var(--dim); margin-top: 1.5em; }
+  .ref a { color: var(--dim); }
+
+  .slide-number { font-family: 'JetBrains Mono', monospace !important; }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,.0); }
+    50% { box-shadow: 0 0 15px 2px rgba(245,158,11,.25); }
+  }
+  .glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+  /* Sponge diagram */
+  .sponge-row {
+    display: flex; align-items: center; gap: 0.3em;
+    margin: 0.3em 0; font-size: 0.7em;
+  }
+  .sponge-row .block {
+    text-align: center; padding: 0.5em 0.3em;
+    border-radius: 6px; font-weight: 700;
+    font-family: var(--r-code-font);
+  }
+  .sponge-row .arrow { color: var(--dim); font-size: 1.2em; flex: 0; }
+
+  /* Hash widget */
+  .hash-widget input {
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    color: var(--accent);
+    font-family: var(--r-code-font);
+    font-size: 1em;
+    padding: 0.4em 0.6em;
+    width: 80%;
+    border-radius: 4px;
+  }
+  .hash-widget .result {
+    color: var(--accent2);
+    font-family: var(--r-code-font);
+    font-size: 0.7em;
+    font-weight: 700;
+    word-break: break-all;
+  }
+
+  .reveal .slides > section { overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
+</style>
+</head>
+
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- SLIDE 01: TITLE -->
+<!-- ============================================================ -->
+<section>
+  <p class="small dim" style="letter-spacing:0.3em;text-transform:uppercase;margin-bottom:0.2em;">Presentation 04</p>
+  <h1 style="margin-bottom:0.15em;">Hash Functions &amp; MACs</h1>
+  <p style="font-size:1.3em;color:var(--accent);font-family:'Playfair Display',serif;font-weight:700;margin:0;">Integrity, Authentication &amp; Commitment</p>
+  <p class="small dim" style="margin-top:1.5em;">
+    SHA-2 &middot; SHA-3 / Keccak &middot; Merkle-Damg&aring;rd &middot; Sponge Construction<br/>
+    HMAC &middot; KMAC &middot; Poly1305 &middot; Merkle Trees &middot; Password Hashing
+  </p>
+  <p class="tiny dim" style="margin-top:2em;">
+    &rarr; / &larr; &nbsp;navigate &emsp; Esc &nbsp;overview &emsp; F &nbsp;fullscreen &emsp; ?print-pdf &nbsp;export
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 02: WHAT IS A HASH FUNCTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>What Is a Cryptographic Hash Function?</h2>
+  <p class="small">A function <span class="mono accent">H : {0,1}* &rarr; {0,1}<sup>n</sup></span> mapping arbitrary-length input to a fixed-length <span class="accent">digest</span>.</p>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div>
+      <h3>Core Properties</h3>
+      <div class="box">
+        <p><span class="accent">Deterministic</span> &mdash; same input always produces the same output</p>
+      </div>
+      <div class="box">
+        <p><span class="accent">Fixed output</span> &mdash; regardless of input length, output is always <em>n</em> bits</p>
+      </div>
+      <div class="box">
+        <p><span class="accent">Efficient</span> &mdash; computing H(m) is fast (linear in |m|)</p>
+      </div>
+      <div class="box">
+        <p><span class="accent">Avalanche effect</span> &mdash; flipping one input bit changes ~50% of output bits</p>
+      </div>
+    </div>
+    <div>
+      <h3>One-Way Function</h3>
+      <div class="box">
+        <p class="small">Given a digest <span class="mono">d = H(m)</span>, it must be computationally infeasible to find <em>any</em> message <span class="mono">m'</span> such that <span class="mono">H(m') = d</span>.</p>
+        <p class="small dim">This is <em>not</em> about secrecy of the algorithm &mdash; the function is public. It is about the computational difficulty of inversion.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Compression</h3>
+      <div class="box">
+        <p class="small">Since the domain is infinite and the range is finite (2<sup>n</sup>), collisions <em>must</em> exist by the pigeonhole principle. The security requirement is that they are <span class="accent">hard to find</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 03: SECURITY PROPERTIES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Security Properties</h2>
+  <div class="three-col" style="margin-top:0.5em;">
+    <div class="box" style="border-color:rgba(245,158,11,.4);">
+      <h3>Preimage Resistance</h3>
+      <p class="small">Given <span class="mono">d</span>, find <em>any</em> <span class="mono">m</span> such that <span class="mono">H(m) = d</span>.</p>
+      <p class="small accent">Cost: O(2<sup>n</sup>)</p>
+      <p class="small dim">Also called "one-wayness." Generic attack: brute-force search over messages.</p>
+    </div>
+    <div class="box" style="border-color:rgba(139,92,246,.4);">
+      <h3 style="color:var(--accent3);">Second-Preimage Resistance</h3>
+      <p class="small">Given <span class="mono">m<sub>1</sub></span>, find <span class="mono">m<sub>2</sub> &ne; m<sub>1</sub></span> such that <span class="mono">H(m<sub>1</sub>) = H(m<sub>2</sub>)</span>.</p>
+      <p class="small accent3">Cost: O(2<sup>n</sup>)</p>
+      <p class="small dim">Harder than collision resistance &mdash; one input is fixed by the attacker's target.</p>
+    </div>
+    <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <h3 style="color:var(--accent4);">Collision Resistance</h3>
+      <p class="small">Find <em>any</em> <span class="mono">m<sub>1</sub> &ne; m<sub>2</sub></span> such that <span class="mono">H(m<sub>1</sub>) = H(m<sub>2</sub>)</span>.</p>
+      <p class="small accent4">Cost: O(2<sup>n/2</sup>)</p>
+      <p class="small dim">The <span class="accent">birthday bound</span> &mdash; in a set of 2<sup>n/2</sup> random digests, a collision is expected with probability &gt; 50%.</p>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:0.5em;text-align:center;">
+    <span class="small"><span class="accent">Birthday Paradox:</span> For an <em>n</em>-bit hash, collision search costs ~O(2<sup>n/2</sup>) evaluations. SHA-256 thus provides ~2<sup>128</sup> collision resistance.</span>
+  </div>
+  <div class="box" style="margin-top:0.3em;">
+    <h3>Implications for Design</h3>
+    <p class="small">Collision resistance &rArr; second-preimage resistance (for most practical constructions), but <em>not</em> vice versa. A hash function with an <em>n</em>-bit digest should target <span class="accent">n/2 bits</span> of collision security and <span class="accent">n bits</span> of (second-)preimage security.</p>
+  </div>
+  <p class="ref">Rogaway &amp; Shrimpton, "Cryptographic Hash-Function Basics" (2004)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 04: MERKLE-DAMGARD CONSTRUCTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Merkle-Damg&aring;rd Construction</h2>
+  <p class="small">The dominant paradigm for hash function design from 1979 through SHA-2. Reduces collision resistance of the <span class="accent">full hash</span> to collision resistance of a fixed-size <span class="accent">compression function</span>.</p>
+  <div style="display:flex;align-items:center;gap:0.2em;margin:0.6em 0;font-size:0.65em;flex-wrap:wrap;justify-content:center;">
+    <div style="background:var(--surface2);padding:0.4em 0.7em;border-radius:6px;font-family:var(--r-code-font);color:var(--accent3);">IV</div>
+    <span class="dim">&rarr;</span>
+    <div style="background:var(--surface);border:1px solid var(--accent);padding:0.5em 0.7em;border-radius:6px;font-family:var(--r-code-font);text-align:center;">f<br/><span class="tiny dim">&uarr; m<sub>1</sub></span></div>
+    <span class="dim">&rarr;</span>
+    <div style="background:var(--surface);border:1px solid var(--accent);padding:0.5em 0.7em;border-radius:6px;font-family:var(--r-code-font);text-align:center;">f<br/><span class="tiny dim">&uarr; m<sub>2</sub></span></div>
+    <span class="dim">&rarr;</span>
+    <div style="background:var(--surface);border:1px solid var(--accent);padding:0.5em 0.7em;border-radius:6px;font-family:var(--r-code-font);text-align:center;">f<br/><span class="tiny dim">&uarr; m<sub>3</sub></span></div>
+    <span class="dim">&rarr; &middot;&middot;&middot; &rarr;</span>
+    <div style="background:var(--surface);border:1px solid var(--accent);padding:0.5em 0.7em;border-radius:6px;font-family:var(--r-code-font);text-align:center;">f<br/><span class="tiny dim">&uarr; m<sub>k</sub>||pad||len</span></div>
+    <span class="dim">&rarr;</span>
+    <div style="background:var(--surface2);padding:0.4em 0.7em;border-radius:6px;font-family:var(--r-code-font);color:var(--accent2);">H(m)</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <h3>How It Works</h3>
+      <div class="box">
+        <p class="small">1. <span class="accent">Pad</span> message to multiple of block size (512 bits for SHA-256)</p>
+        <p class="small">2. Append <span class="accent">length field</span> (Merkle-Damg&aring;rd strengthening)</p>
+        <p class="small">3. Split padded message into blocks m<sub>1</sub>, m<sub>2</sub>, ..., m<sub>k</sub></p>
+        <p class="small">4. Chain: h<sub>0</sub> = IV, &nbsp; h<sub>i</sub> = f(h<sub>i-1</sub>, m<sub>i</sub>)</p>
+        <p class="small">5. Output: H(m) = h<sub>k</sub></p>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--accent4);">Length Extension Attack</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.4);">
+        <p class="small accent4">Given H(m) and |m|, an attacker can compute H(m || pad || m') without knowing m.</p>
+        <p class="small">The attacker uses H(m) as the chaining value and continues the Merkle-Damg&aring;rd iteration with new blocks m'.</p>
+        <p class="small dim">Affects: MD5, SHA-1, SHA-256, SHA-512</p>
+        <p class="small accent2">Not affected: SHA-3, HMAC, SHA-512/256, truncated variants</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Merkle, "One Way Hash Functions and DES" (CRYPTO 1989) &middot; Damg&aring;rd, "A Design Principle for Hash Functions" (CRYPTO 1989)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 05: MD5 & SHA-1 -->
+<!-- ============================================================ -->
+<section>
+  <h2>MD5 &amp; SHA-1 <span class="badge badge-red">DEPRECATED</span></h2>
+  <div class="two-col">
+    <div>
+      <h3 style="color:var(--accent4);">MD5 (1992)</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.4);">
+        <p class="small">128-bit digest, 512-bit blocks, 64 rounds</p>
+        <p class="small">Designed by Ron Rivest (RFC 1321)</p>
+        <p class="small accent4">2004 &mdash; Wang et al. find collisions in 2<sup>39</sup> operations</p>
+        <p class="small accent4">2006 &mdash; Practical collision in seconds on a laptop</p>
+        <p class="small accent4">2008 &mdash; Rogue CA certificate attack (Sotirov et al.)</p>
+        <p class="small accent4">2012 &mdash; Flame malware used MD5 collision for code signing</p>
+        <p class="small dim">Only 128-bit &rArr; birthday bound is just 2<sup>64</sup>, and actual attacks far below that.</p>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--accent4);">SHA-1 (1995)</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.4);">
+        <p class="small">160-bit digest, 512-bit blocks, 80 rounds</p>
+        <p class="small">NSA design, published as FIPS 180-1</p>
+        <p class="small accent4">2005 &mdash; Wang et al. theoretical collision in 2<sup>63</sup></p>
+        <p class="small accent4">2017 &mdash; <span class="accent">SHAttered</span>: first practical collision (Google/CWI), 2<sup>63.1</sup> SHA-1 computations, ~110 GPU-years</p>
+        <p class="small accent4">2020 &mdash; <span class="accent">SHA-mbles</span>: chosen-prefix collision for $45k in cloud compute</p>
+        <p class="small dim">CA/Browser Forum banned SHA-1 certs in 2017. Git transitioning to SHA-256.</p>
+      </div>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:0.5em;text-align:center;">
+    <span class="small accent4">Both MD5 and SHA-1 are cryptographically broken.</span>
+    <span class="small"> Do not use for digital signatures, certificate validation, or any collision-resistant application. Legacy use for checksums (non-adversarial) persists but is discouraged.</span>
+  </div>
+  <p class="ref">Wang et al., "Collisions for Hash Functions MD4, MD5, HAVAL-128" (CRYPTO 2004) &middot; Stevens et al., "The First Collision for Full SHA-1" (CRYPTO 2017)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 06: SHA-2 FAMILY -->
+<!-- ============================================================ -->
+<section>
+  <h2>SHA-2 Family <span class="badge badge-green">FIPS 180-4</span></h2>
+  <p class="small">Published by NIST in 2001 (SHA-256/384/512), with SHA-224 and SHA-512/256 added later. Still the most widely deployed secure hash family.</p>
+  <table class="clean">
+    <tr><th>Variant</th><th>Digest</th><th>Block Size</th><th>Word Size</th><th>Rounds</th><th>Operations</th></tr>
+    <tr><td class="accent">SHA-224</td><td>224 bits</td><td>512 bits</td><td>32 bits</td><td>64</td><td>+, AND, OR, XOR, SHR, ROTR</td></tr>
+    <tr><td class="accent">SHA-256</td><td>256 bits</td><td>512 bits</td><td>32 bits</td><td>64</td><td>+, AND, OR, XOR, SHR, ROTR</td></tr>
+    <tr><td class="accent">SHA-384</td><td>384 bits</td><td>1024 bits</td><td>64 bits</td><td>80</td><td>+, AND, OR, XOR, SHR, ROTR</td></tr>
+    <tr><td class="accent">SHA-512</td><td>512 bits</td><td>1024 bits</td><td>64 bits</td><td>80</td><td>+, AND, OR, XOR, SHR, ROTR</td></tr>
+    <tr><td class="accent">SHA-512/256</td><td>256 bits</td><td>1024 bits</td><td>64 bits</td><td>80</td><td>+, AND, OR, XOR, SHR, ROTR</td></tr>
+  </table>
+  <div class="two-col" style="margin-top:0.3em;">
+    <div class="box">
+      <h3>Design Lineage</h3>
+      <p class="small">Merkle-Damg&aring;rd structure with Davies-Meyer compression function: <span class="mono">h<sub>i</sub> = E<sub>m<sub>i</sub></sub>(h<sub>i-1</sub>) + h<sub>i-1</sub></span></p>
+      <p class="small">Constants K<sub>t</sub> derived from the <span class="accent">fractional parts of cube roots</span> of the first 64 (or 80) primes &mdash; nothing-up-my-sleeve numbers.</p>
+    </div>
+    <div class="box">
+      <h3 style="color:var(--accent2);">Why SHA-512/256?</h3>
+      <p class="small accent2">Uses the 64-bit SHA-512 core (faster on 64-bit CPUs) but truncates to 256 bits.</p>
+      <p class="small">Different IV than SHA-512 &rArr; no length extension attack between variants.</p>
+      <p class="small">On x86-64: SHA-512/256 is often ~50% faster than SHA-256.</p>
+    </div>
+  </div>
+  <p class="ref">FIPS 180-4 &mdash; Secure Hash Standard (NIST, 2015)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 07: SHA-256 COMPRESSION FUNCTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>SHA-256 Compression Function</h2>
+  <p class="small">Each round updates eight 32-bit working variables <span class="mono accent">a, b, c, d, e, f, g, h</span> using two auxiliary functions and modular addition.</p>
+  <div style="display:flex;gap:0.4em;margin:0.5em 0;font-size:0.6em;flex-wrap:wrap;justify-content:center;align-items:center;">
+    <div style="display:flex;flex-direction:column;gap:0.2em;align-items:center;">
+      <div style="display:flex;gap:0.3em;">
+        <div style="background:var(--surface);border:1px solid var(--accent);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">a</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">b</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">c</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">d</div>
+        <div style="background:var(--surface);border:1px solid var(--accent3);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">e</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">f</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">g</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">h</div>
+      </div>
+      <span class="dim">&darr;</span>
+      <div style="background:rgba(245,158,11,.15);border:1px solid var(--accent);padding:0.3em 0.8em;border-radius:6px;text-align:center;">
+        <span class="accent">T<sub>1</sub></span> = h + &Sigma;<sub>1</sub>(e) + Ch(e,f,g) + K<sub>t</sub> + W<sub>t</sub><br/>
+        <span class="accent">T<sub>2</sub></span> = &Sigma;<sub>0</sub>(a) + Maj(a,b,c)
+      </div>
+      <span class="dim">&darr;</span>
+      <div style="display:flex;gap:0.3em;">
+        <div style="background:var(--surface);border:1px solid var(--accent2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;color:var(--accent2);">T<sub>1</sub>+T<sub>2</sub></div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">a</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">b</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">c</div>
+        <div style="background:var(--surface);border:1px solid var(--accent2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;color:var(--accent2);">d+T<sub>1</sub></div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">e</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">f</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">g</div>
+      </div>
+    </div>
+  </div>
+  <div class="two-col" style="margin-top:0.3em;">
+    <div class="box">
+      <h3>Auxiliary Functions</h3>
+      <p class="small"><span class="mono accent">Ch(e,f,g)</span> = (e AND f) XOR (NOT e AND g)</p>
+      <p class="small">"Choose" &mdash; <em>e</em> selects between <em>f</em> and <em>g</em> bitwise</p>
+      <p class="small"><span class="mono accent">Maj(a,b,c)</span> = (a AND b) XOR (a AND c) XOR (b AND c)</p>
+      <p class="small">"Majority" &mdash; output bit is the majority of the three inputs</p>
+    </div>
+    <div class="box">
+      <h3>Sigma Functions</h3>
+      <p class="small"><span class="mono accent">&Sigma;<sub>0</sub>(a)</span> = ROTR<sup>2</sup>(a) &oplus; ROTR<sup>13</sup>(a) &oplus; ROTR<sup>22</sup>(a)</p>
+      <p class="small"><span class="mono accent">&Sigma;<sub>1</sub>(e)</span> = ROTR<sup>6</sup>(e) &oplus; ROTR<sup>11</sup>(e) &oplus; ROTR<sup>25</sup>(e)</p>
+      <p class="small dim">All additions are modulo 2<sup>32</sup>. Each round mixes non-linear selection (Ch), majority voting (Maj), and bit rotation (&Sigma;) to achieve diffusion.</p>
+    </div>
+  </div>
+  <p class="ref">FIPS 180-4, Section 6.2</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 08: SHA-256 MESSAGE SCHEDULE -->
+<!-- ============================================================ -->
+<section>
+  <h2>SHA-256 Message Schedule</h2>
+  <p class="small">The 512-bit message block is expanded into 64 thirty-two-bit words <span class="mono accent">W<sub>0</sub> ... W<sub>63</sub></span>.</p>
+  <div class="highlight-box" style="text-align:center;">
+    <span class="mono" style="font-size:0.8em;">
+      W<sub>t</sub> = <span class="accent">&sigma;<sub>1</sub></span>(W<sub>t-2</sub>) + W<sub>t-7</sub> + <span class="accent">&sigma;<sub>0</sub></span>(W<sub>t-15</sub>) + W<sub>t-16</sub> &emsp; <span class="dim">for t = 16..63</span>
+    </span>
+  </div>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div>
+      <h3>First 16 Words</h3>
+      <div class="box">
+        <p class="small">W<sub>0</sub> through W<sub>15</sub> are taken directly from the 512-bit message block (big-endian 32-bit words).</p>
+        <p class="small dim">For a message block m = m<sub>0</sub>m<sub>1</sub>...m<sub>15</sub>, each m<sub>i</sub> is a 32-bit word.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Expansion Functions</h3>
+      <div class="box">
+        <p class="small"><span class="mono accent">&sigma;<sub>0</sub>(x)</span> = ROTR<sup>7</sup>(x) &oplus; ROTR<sup>18</sup>(x) &oplus; SHR<sup>3</sup>(x)</p>
+        <p class="small"><span class="mono accent">&sigma;<sub>1</sub>(x)</span> = ROTR<sup>17</sup>(x) &oplus; ROTR<sup>19</sup>(x) &oplus; SHR<sup>10</sup>(x)</p>
+        <p class="small dim">Note: lowercase &sigma; (message schedule) vs uppercase &Sigma; (compression function). SHR is logical right shift; ROTR is circular right rotation.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Design Rationale</h3>
+      <div class="box">
+        <p class="small">The schedule ensures every input bit influences multiple rounds. Without expansion, only 16 rounds would see fresh message material.</p>
+        <p class="small">The choice of offsets (2, 7, 15, 16) and rotation constants is optimized for <span class="accent">diffusion speed</span> &mdash; after ~20 rounds, every bit of the message block has influenced every bit of the state.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Constants K<sub>t</sub></h3>
+      <div class="box">
+        <p class="small">64 constants from fractional parts of <span class="accent">cube roots of the first 64 primes</span>:</p>
+        <p class="tiny mono">K<sub>0</sub> = 0x428a2f98 (&#8731;2)<br/>
+        K<sub>1</sub> = 0x71374491 (&#8731;3)<br/>
+        K<sub>2</sub> = 0xb5c0fbcf (&#8731;5)<br/>
+        K<sub>3</sub> = 0xe9b5dba5 (&#8731;7) ...</p>
+        <p class="small dim">"Nothing-up-my-sleeve" numbers &mdash; verifiably not chosen to create backdoors.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 09: SHA-2 PERFORMANCE & HARDWARE -->
+<!-- ============================================================ -->
+<section>
+  <h2>SHA-2 Performance &amp; Hardware</h2>
+  <table class="clean">
+    <tr><th>Platform</th><th>Implementation</th><th>Throughput</th><th>Notes</th></tr>
+    <tr><td>x86-64 (no extensions)</td><td>Optimized C/ASM</td><td class="mono">~500 MB/s</td><td class="dim">Single-core, ~4 GHz</td></tr>
+    <tr><td>x86-64 (SHA-NI)</td><td>Intel SHA Extensions</td><td class="mono accent2">~2.5 GB/s</td><td class="dim">Ice Lake+, single core</td></tr>
+    <tr><td>ARM (Crypto Ext.)</td><td>ARMv8-A SHA2 insns</td><td class="mono accent2">~1.8 GB/s</td><td class="dim">Cortex-A76 class</td></tr>
+    <tr><td>Xilinx Virtex-7</td><td>Iterative FPGA</td><td class="mono">~5 Gbps</td><td class="dim">~800 slices</td></tr>
+    <tr><td>14nm ASIC</td><td>Full unrolled pipeline</td><td class="mono accent2">~40 Gbps</td><td class="dim">Custom design</td></tr>
+    <tr><td>Bitcoin ASIC (S21)</td><td>Application-specific</td><td class="mono accent2">~200 TH/s</td><td class="dim">double-SHA-256 only, ~3000W</td></tr>
+  </table>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div class="box">
+      <h3>Intel SHA-NI</h3>
+      <p class="small">Instructions: <span class="mono">SHA256RNDS2</span>, <span class="mono">SHA256MSG1</span>, <span class="mono">SHA256MSG2</span></p>
+      <p class="small">Two rounds per <span class="mono">SHA256RNDS2</span> instruction &rArr; 32 instructions for all 64 rounds</p>
+      <p class="small dim">Available since Goldmont (Atom), Ice Lake (mainstream)</p>
+    </div>
+    <div class="box">
+      <h3>Bitcoin Mining as Extreme Case</h3>
+      <p class="small">SHA-256d = SHA-256(SHA-256(header)). Global hashrate (2025): ~600 EH/s = 6&times;10<sup>20</sup> double-SHA-256/s.</p>
+      <p class="small dim">The entire world's SHA-256 mining hardware demonstrates that SHA-256's structure is extremely hardware-friendly but also that brute-force search scales massively.</p>
+    </div>
+  </div>
+  <p class="ref">Intel Architecture Instruction Set Reference &middot; Bitmain Antminer S21 specifications</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: SHA-3 / KECCAK INTRO -->
+<!-- ============================================================ -->
+<section>
+  <h2>SHA-3 / Keccak <span class="badge badge-purple">FIPS 202</span></h2>
+  <p class="small">A fundamentally different hash construction selected via a public NIST competition (2007&ndash;2012).</p>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div>
+      <h3>Why a New Standard?</h3>
+      <div class="box">
+        <p class="small"><span class="accent">Diversity</span> &mdash; SHA-2 is Merkle-Damg&aring;rd. If a structural attack against M-D is found, we need a backup with a completely different design.</p>
+        <p class="small"><span class="accent">Length extension</span> &mdash; M-D hashes inherently vulnerable; SHA-3's sponge construction is immune.</p>
+        <p class="small"><span class="accent">Flexibility</span> &mdash; SHA-3 natively supports XOFs (extendable output functions), domain separation, and arbitrary output lengths.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">The Competition</h3>
+      <div class="box">
+        <p class="small"><span class="accent">2007</span> &mdash; NIST calls for SHA-3 candidates</p>
+        <p class="small"><span class="accent">2008</span> &mdash; 64 submissions received</p>
+        <p class="small"><span class="accent">2010</span> &mdash; 5 finalists: BLAKE, Gr&oslash;stl, JH, <span class="accent2">Keccak</span>, Skein</p>
+        <p class="small"><span class="accent">2012</span> &mdash; Keccak selected as SHA-3</p>
+      </div>
+    </div>
+    <div>
+      <h3>The Keccak Team</h3>
+      <div class="box">
+        <p class="small"><span class="accent">Guido Bertoni</span> (STMicroelectronics)</p>
+        <p class="small"><span class="accent">Joan Daemen</span> (STMicroelectronics) &mdash; co-designer of AES/Rijndael</p>
+        <p class="small"><span class="accent">Micha&euml;l Peeters</span> (NXP Semiconductors)</p>
+        <p class="small"><span class="accent">Gilles Van Assche</span> (STMicroelectronics)</p>
+        <p class="small dim">The team also developed Keyak (AEAD), Ketje (lightweight AEAD), and KangarooTwelve.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Key Innovation</h3>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p class="small accent2">Sponge construction &mdash; a single permutation-based framework that yields hash functions, MACs, PRNGs, stream ciphers, and authenticated encryption from one primitive.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">FIPS 202 &mdash; SHA-3 Standard (NIST, 2015) &middot; Bertoni et al., "Keccak Reference" (2011)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: SPONGE CONSTRUCTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Sponge Construction</h2>
+  <p class="small">A mode of operation for a fixed-width permutation <span class="mono accent">f : {0,1}<sup>b</sup> &rarr; {0,1}<sup>b</sup></span> that can process arbitrary input and produce arbitrary output.</p>
+  <div style="margin:0.5em 0;text-align:center;">
+    <div style="display:inline-flex;align-items:center;gap:0.15em;font-size:0.6em;">
+      <div style="text-align:center;padding:0.3em;">
+        <div style="color:var(--accent);font-weight:700;margin-bottom:0.3em;">ABSORB</div>
+        <div style="display:flex;align-items:center;gap:0.15em;">
+          <div style="background:var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);">0<sup>b</sup></div>
+          <span class="dim">&rarr;</span>
+          <div style="background:rgba(245,158,11,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
+            <span class="dim tiny">&oplus;m<sub>1</sub></span><br/>f
+          </div>
+          <span class="dim">&rarr;</span>
+          <div style="background:rgba(245,158,11,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
+            <span class="dim tiny">&oplus;m<sub>2</sub></span><br/>f
+          </div>
+          <span class="dim">&rarr;</span>
+          <div style="background:rgba(245,158,11,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
+            <span class="dim tiny">&oplus;m<sub>k</sub></span><br/>f
+          </div>
+        </div>
+      </div>
+      <span class="dim" style="font-size:1.5em;">&rarr;</span>
+      <div style="text-align:center;padding:0.3em;">
+        <div style="color:var(--accent2);font-weight:700;margin-bottom:0.3em;">SQUEEZE</div>
+        <div style="display:flex;align-items:center;gap:0.15em;">
+          <div style="background:rgba(16,185,129,.15);border:1px solid var(--accent2);padding:0.3em;border-radius:6px;text-align:center;">
+            f<br/><span class="tiny" style="color:var(--accent2);">z<sub>1</sub>&darr;</span>
+          </div>
+          <span class="dim">&rarr;</span>
+          <div style="background:rgba(16,185,129,.15);border:1px solid var(--accent2);padding:0.3em;border-radius:6px;text-align:center;">
+            f<br/><span class="tiny" style="color:var(--accent2);">z<sub>2</sub>&darr;</span>
+          </div>
+          <span class="dim">&rarr; &middot;&middot;&middot;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div>
+      <h3>Parameters</h3>
+      <div class="box">
+        <p class="small"><span class="accent">State width</span> b = r + c = 1600 bits (for SHA-3)</p>
+        <p class="small"><span class="accent">Rate (r)</span> &mdash; bits absorbed/squeezed per call to f. Higher r = faster.</p>
+        <p class="small"><span class="accent">Capacity (c)</span> &mdash; bits never directly exposed. Security level = <span class="accent">c/2</span>.</p>
+        <p class="small dim">Example: SHA3-256 uses r=1088, c=512 &rArr; 256-bit security.</p>
+      </div>
+    </div>
+    <div>
+      <h3>How It Works</h3>
+      <div class="box">
+        <p class="small"><span class="accent2">Absorb:</span> XOR message blocks (r bits each) into the rate portion of the state, apply f after each block.</p>
+        <p class="small"><span class="accent2">Squeeze:</span> Extract r bits from the rate portion. Apply f to get more output if needed.</p>
+        <p class="small dim">The capacity portion acts as a "secret" internal state that the attacker cannot directly observe or control.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Bertoni et al., "Cryptographic Sponge Functions" (2011)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: KECCAK-f PERMUTATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Keccak-f Permutation</h2>
+  <p class="small">The state is a 3D array of <span class="mono accent">5 &times; 5 &times; 64</span> = 1600 bits. Each of <span class="accent">24 rounds</span> applies five step mappings.</p>
+  <div class="three-col" style="margin-top:0.5em;font-size:0.9em;">
+    <div class="box">
+      <h3>&theta; (Theta)</h3>
+      <p class="small">XOR each bit with the parity of its column and the adjacent column (shifted by one position).</p>
+      <p class="small accent">Linear diffusion &mdash; ensures every output bit depends on &ge;11 input bits.</p>
+    </div>
+    <div class="box">
+      <h3>&rho; (Rho)</h3>
+      <p class="small">Rotate each of the 25 lanes by a different offset (0 to 63 positions).</p>
+      <p class="small dim">Inter-slice diffusion: bits spread across the z-axis of the state.</p>
+    </div>
+    <div class="box">
+      <h3>&pi; (Pi)</h3>
+      <p class="small">Rearrange the positions of the 25 lanes: (x,y) &rarr; (y, 2x+3y mod 5).</p>
+      <p class="small dim">Long-range transposition &mdash; disrupts any column/row structure.</p>
+    </div>
+  </div>
+  <div class="two-col" style="margin-top:0.3em;">
+    <div class="box">
+      <h3>&chi; (Chi)</h3>
+      <p class="small mono">a[x] = a[x] XOR ((NOT a[x+1]) AND a[x+2])</p>
+      <p class="small accent4">The only non-linear step. Provides resistance to linear and differential cryptanalysis.</p>
+      <p class="small dim">Algebraic degree 2. After multiple rounds, the algebraic degree grows exponentially.</p>
+    </div>
+    <div class="box">
+      <h3>&iota; (Iota)</h3>
+      <p class="small">XOR a round constant into lane (0,0). Breaks symmetry between rounds.</p>
+      <p class="small dim">Without &iota;, all rounds would be identical and the permutation would have exploitable self-similarity. Constants are derived from an LFSR.</p>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:0.3em;text-align:center;">
+    <span class="small">Round pipeline: <span class="mono accent">&theta; &rarr; &rho; &rarr; &pi; &rarr; &chi; &rarr; &iota;</span> &mdash; repeated 24 times. Total: only ~6 basic operations per bit per round.</span>
+  </div>
+  <p class="ref">Bertoni et al., "The Keccak Reference" (Jan 2011), Section 1.2</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: SHA-3 VARIANTS -->
+<!-- ============================================================ -->
+<section>
+  <h2>SHA-3 Variants &amp; Extensions</h2>
+  <table class="clean">
+    <tr><th>Function</th><th>Output</th><th>Rate (r)</th><th>Capacity (c)</th><th>Security</th><th>Type</th></tr>
+    <tr><td class="accent">SHA3-224</td><td>224 bits</td><td>1152</td><td>448</td><td>112-bit collision</td><td>Hash</td></tr>
+    <tr><td class="accent">SHA3-256</td><td>256 bits</td><td>1088</td><td>512</td><td>128-bit collision</td><td>Hash</td></tr>
+    <tr><td class="accent">SHA3-384</td><td>384 bits</td><td>832</td><td>768</td><td>192-bit collision</td><td>Hash</td></tr>
+    <tr><td class="accent">SHA3-512</td><td>512 bits</td><td>576</td><td>1024</td><td>256-bit collision</td><td>Hash</td></tr>
+    <tr><td class="accent3">SHAKE128</td><td>variable</td><td>1344</td><td>256</td><td>128-bit all</td><td>XOF</td></tr>
+    <tr><td class="accent3">SHAKE256</td><td>variable</td><td>1088</td><td>512</td><td>256-bit all</td><td>XOF</td></tr>
+  </table>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div>
+      <h3>XOFs (Extendable Output Functions)</h3>
+      <div class="box">
+        <p class="small">SHAKE128/256 can produce <em>any</em> number of output bytes by continuing the squeeze phase. Useful for:</p>
+        <p class="small">&bull; Key derivation (KDF)</p>
+        <p class="small">&bull; Pseudorandom number generation</p>
+        <p class="small">&bull; Domain separation via customization strings</p>
+      </div>
+    </div>
+    <div>
+      <h3>NIST SP 800-185 Extensions</h3>
+      <div class="box">
+        <p class="small"><span class="accent3">cSHAKE</span> &mdash; customizable SHAKE with function name + customization string</p>
+        <p class="small"><span class="accent3">TupleHash</span> &mdash; hash of tuples with unambiguous encoding</p>
+        <p class="small"><span class="accent3">ParallelHash</span> &mdash; parallelizable hashing for large messages</p>
+        <p class="small"><span class="accent3">KMAC</span> &mdash; Keccak-based MAC (see slide 16)</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3 style="color:var(--accent2);">KangarooTwelve (K12)</h3>
+        <p class="small">Reduced-round (12 vs 24) Keccak-p with tree hashing. ~6&times; faster than SHA3-256. Proposed by the Keccak team as a fast, safe alternative.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">NIST SP 800-185 &mdash; SHA-3 Derived Functions (2016) &middot; Guido Bertoni et al., "KangarooTwelve" (2016)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 14: SHA-2 vs SHA-3 COMPARISON -->
+<!-- ============================================================ -->
+<section>
+  <h2>SHA-2 vs SHA-3 Comparison</h2>
+  <table class="clean">
+    <tr><th>Property</th><th>SHA-2 (SHA-256)</th><th>SHA-3 (SHA3-256)</th></tr>
+    <tr><td class="accent">Construction</td><td>Merkle-Damg&aring;rd</td><td>Sponge (Keccak)</td></tr>
+    <tr><td class="accent">Primitive</td><td>Compression function (Davies-Meyer)</td><td>Permutation (Keccak-f[1600])</td></tr>
+    <tr><td class="accent">Block size</td><td>512 bits</td><td>1088 bits (rate)</td></tr>
+    <tr><td class="accent">State size</td><td>256 bits</td><td>1600 bits</td></tr>
+    <tr><td class="accent">Rounds</td><td>64</td><td>24</td></tr>
+    <tr><td class="accent">Length extension</td><td class="accent4">Vulnerable</td><td class="accent2">Immune</td></tr>
+    <tr><td class="accent">XOF support</td><td>No (needs external construction)</td><td class="accent2">Native (SHAKE)</td></tr>
+    <tr><td class="accent">Software speed (x86)</td><td class="accent2">~15 cycles/byte (SHA-NI: ~3.5)</td><td>~12 cycles/byte (no HW accel)</td></tr>
+    <tr><td class="accent">HW area (ASIC)</td><td>~10 kGE (iterative)</td><td>~13 kGE (iterative)</td></tr>
+    <tr><td class="accent">Grover (quantum)</td><td>128-bit &rarr; 2<sup>128</sup></td><td>128-bit &rarr; 2<sup>128</sup></td></tr>
+  </table>
+  <div class="highlight-box" style="margin-top:0.5em;text-align:center;">
+    <span class="small"><span class="accent2">Both SHA-2 and SHA-3 are considered secure</span> as of 2025. SHA-2 has broader hardware acceleration support; SHA-3 offers structural advantages and versatility. Modern systems should support both.</span>
+  </div>
+  <p class="ref">Bernstein &amp; Lange, "eBACS: ECRYPT Benchmarking" &middot; Keccak team, "Software Performance" (keccak.team)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 15: HMAC -->
+<!-- ============================================================ -->
+<section>
+  <h2>HMAC <span class="badge badge-green">RFC 2104 / FIPS 198-1</span></h2>
+  <p class="small">The standard construction for building a <span class="accent">Message Authentication Code</span> from a hash function.</p>
+  <div class="highlight-box" style="text-align:center;margin:0.5em 0;">
+    <span class="mono" style="font-size:0.85em;">
+      HMAC-H(K, m) = H( (K &oplus; <span class="accent">opad</span>) &Vert; H( (K &oplus; <span class="accent">ipad</span>) &Vert; m ) )
+    </span>
+  </div>
+  <div class="two-col">
+    <div>
+      <h3>Construction Details</h3>
+      <div class="box">
+        <p class="small"><span class="accent">K</span> = key (if |K| &gt; block size, use H(K); if shorter, pad with zeros)</p>
+        <p class="small"><span class="accent">ipad</span> = 0x36 repeated to block size (inner padding)</p>
+        <p class="small"><span class="accent">opad</span> = 0x5C repeated to block size (outer padding)</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>Step by Step</h3>
+        <p class="small">1. Compute inner hash: <span class="mono">H((K &oplus; ipad) || m)</span></p>
+        <p class="small">2. Compute outer hash: <span class="mono">H((K &oplus; opad) || inner_hash)</span></p>
+        <p class="small dim">The double hashing prevents length extension &mdash; even with a Merkle-Damg&aring;rd hash, the outer hash seals the construction.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Security</h3>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p class="small accent2">Proven secure by Bellare, Canetti &amp; Krawczyk (1996)</p>
+        <p class="small">HMAC is a PRF (pseudorandom function) if the compression function of H is a PRF.</p>
+        <p class="small">Security does <em>not</em> require collision resistance of H &mdash; HMAC-MD5 remains a secure MAC even though MD5 collisions are trivial.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>Why Not Just H(K || m)?</h3>
+        <p class="small accent4">Vulnerable to length extension: attacker can compute H(K || m || pad || m') from H(K || m).</p>
+        <p class="small accent4">H(m || K) is also problematic &mdash; offline collision search on H(m || K) for different m values.</p>
+        <p class="small">HMAC's nested structure avoids both attacks.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Bellare, Canetti &amp; Krawczyk, "Keying Hash Functions for Message Authentication" (CRYPTO 1996) &middot; RFC 2104</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 16: KMAC & OTHER MACs -->
+<!-- ============================================================ -->
+<section>
+  <h2>KMAC &amp; Other MACs</h2>
+  <div class="two-col">
+    <div>
+      <h3 style="color:var(--accent3);">KMAC (SP 800-185)</h3>
+      <div class="box" style="border-color:rgba(139,92,246,.4);">
+        <p class="small">Keccak-based MAC &mdash; <span class="accent2">no nested construction needed</span>.</p>
+        <p class="small mono">KMAC256(K, X, L, S) = cSHAKE256(bytepad(encode(K),168) || X || right_encode(L), L, "KMAC", S)</p>
+        <p class="small">Because the sponge construction has capacity bits that absorb the key, KMAC is simpler and avoids HMAC's double-hash overhead.</p>
+        <p class="small dim">Also supports XOF mode (KMACXOF128/256) for variable-length output.</p>
+      </div>
+      <h3 style="margin-top:0.5em;color:var(--accent);">Poly1305 (Bernstein)</h3>
+      <div class="box">
+        <p class="small">One-time MAC based on polynomial evaluation over GF(2<sup>130</sup>-5).</p>
+        <p class="small">Paired with ChaCha20 as <span class="accent">ChaCha20-Poly1305</span> (RFC 8439) &mdash; the primary AEAD in TLS 1.3 alongside AES-GCM.</p>
+        <p class="small accent2">Extremely fast in software: ~1 cycle/byte on modern x86.</p>
+      </div>
+    </div>
+    <div>
+      <h3>CMAC (SP 800-38B)</h3>
+      <div class="box">
+        <p class="small">Cipher-based MAC built on block ciphers (typically AES).</p>
+        <p class="small">Fixes CBC-MAC vulnerability (arbitrary-length messages) using a subkey derivation step and final XOR.</p>
+        <p class="small mono dim">CMAC = AES-CBC with K1/K2 subkeys derived from AES(K, 0)</p>
+      </div>
+      <h3 style="margin-top:0.5em;">GMAC</h3>
+      <div class="box">
+        <p class="small">The authentication component of AES-GCM used standalone (empty plaintext).</p>
+        <p class="small">Based on GHASH &mdash; universal hashing in GF(2<sup>128</sup>).</p>
+        <p class="small dim">Requires unique nonces; nonce reuse completely breaks authenticity.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Comparison</h3>
+      <div class="box">
+        <p class="small"><span class="accent2">HMAC</span> &mdash; hash-based, widely deployed, works with any hash</p>
+        <p class="small"><span class="accent3">KMAC</span> &mdash; sponge-based, cleaner, SHA-3 ecosystem</p>
+        <p class="small"><span class="accent">CMAC</span> &mdash; cipher-based, good when you already have AES</p>
+        <p class="small"><span class="accent">Poly1305</span> &mdash; fastest in software, one-time (needs cipher)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 17: HASH-BASED SIGNATURES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Hash-Based Signatures</h2>
+  <p class="small">Digital signatures built solely on the security of hash functions &mdash; <span class="accent2">the most conservative post-quantum signature approach</span>.</p>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div>
+      <h3>Lamport One-Time Signatures</h3>
+      <div class="box">
+        <p class="small">For each bit of the message hash:</p>
+        <p class="small">&bull; Generate two random values (sk<sub>0</sub>, sk<sub>1</sub>)</p>
+        <p class="small">&bull; Publish H(sk<sub>0</sub>), H(sk<sub>1</sub>) as public key</p>
+        <p class="small">&bull; To sign bit <em>b</em>, reveal sk<sub>b</sub></p>
+        <p class="small accent4">One-time only &mdash; revealing sk values for different messages leaks key material.</p>
+        <p class="small dim">Key size for 256-bit security: ~16 KB private, ~16 KB public, ~8 KB signature.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Winternitz OTS (WOTS+)</h3>
+      <div class="box">
+        <p class="small">Chains of hash evaluations trade signature size for computation. Parameter <em>w</em> controls the tradeoff.</p>
+        <p class="small dim">WOTS+ with w=16: ~2.5 KB signatures (vs 8 KB for Lamport).</p>
+      </div>
+    </div>
+    <div>
+      <h3>Stateful: XMSS &amp; LMS</h3>
+      <div class="box">
+        <p class="small"><span class="accent3">XMSS</span> (RFC 8391) and <span class="accent3">LMS</span> (RFC 8554, SP 800-208) use Merkle trees to authenticate many one-time keys.</p>
+        <p class="small accent4">Stateful: signer must never reuse a leaf index. State management is critical.</p>
+        <p class="small dim">Approved by NIST for firmware/software updates where state tracking is feasible.</p>
+      </div>
+      <h3 style="margin-top:0.5em;color:var(--accent2);">Stateless: SLH-DSA (SPHINCS+)</h3>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p class="small"><span class="accent3">FIPS 205</span> &mdash; standardized 2024. Based on SPHINCS+.</p>
+        <p class="small accent2">Stateless &mdash; no state management required. Uses a hyper-tree of WOTS+ / FORS trees.</p>
+        <p class="small">Tradeoff: larger signatures (~7&ndash;49 KB) and slower signing than lattice-based schemes, but security relies <em>only</em> on hash function properties.</p>
+        <p class="small dim">Parameter sets: SLH-DSA-128s (small), SLH-DSA-128f (fast), up to 256-bit security.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">FIPS 205 (SLH-DSA, 2024) &middot; SP 800-208 (LMS/XMSS, 2020) &middot; Bernstein et al., "SPHINCS+" (2019)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 18: MERKLE TREES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Merkle Trees</h2>
+  <p class="small">A tree of hashes enabling efficient <span class="accent">proof of inclusion</span> for any leaf in O(log n) hashes.</p>
+  <div style="text-align:center;margin:0.5em 0;">
+    <div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.3em;font-size:0.6em;font-family:var(--r-code-font);">
+      <div style="background:rgba(245,158,11,.2);border:1px solid var(--accent);padding:0.3em 0.8em;border-radius:6px;color:var(--accent);">Root = H(H<sub>01</sub> || H<sub>23</sub>)</div>
+      <div style="display:flex;gap:3em;">
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.6em;border-radius:6px;">H<sub>01</sub> = H(H<sub>0</sub>||H<sub>1</sub>)</div>
+        <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.6em;border-radius:6px;">H<sub>23</sub> = H(H<sub>2</sub>||H<sub>3</sub>)</div>
+      </div>
+      <div style="display:flex;gap:1em;">
+        <div style="background:var(--surface2);padding:0.3em 0.5em;border-radius:4px;">H<sub>0</sub>=H(D<sub>0</sub>)</div>
+        <div style="background:var(--surface2);padding:0.3em 0.5em;border-radius:4px;">H<sub>1</sub>=H(D<sub>1</sub>)</div>
+        <div style="background:rgba(16,185,129,.15);border:1px solid var(--accent2);padding:0.3em 0.5em;border-radius:4px;color:var(--accent2);">H<sub>2</sub>=H(D<sub>2</sub>)</div>
+        <div style="background:var(--surface2);padding:0.3em 0.5em;border-radius:4px;">H<sub>3</sub>=H(D<sub>3</sub>)</div>
+      </div>
+      <div style="display:flex;gap:1.8em;">
+        <div style="padding:0.2em 0.4em;color:var(--dim);">D<sub>0</sub></div>
+        <div style="padding:0.2em 0.4em;color:var(--dim);">D<sub>1</sub></div>
+        <div style="padding:0.2em 0.4em;color:var(--accent2);">D<sub>2</sub></div>
+        <div style="padding:0.2em 0.4em;color:var(--dim);">D<sub>3</sub></div>
+      </div>
+    </div>
+  </div>
+  <p class="small" style="text-align:center;">To prove <span class="accent2">D<sub>2</sub></span> is in the tree, provide: <span class="mono">H<sub>3</sub></span> and <span class="mono">H<sub>01</sub></span> (2 hashes for 4 leaves &mdash; log<sub>2</sub>(4) = 2).</p>
+  <div class="three-col" style="margin-top:0.5em;">
+    <div class="box">
+      <h3 style="color:var(--accent);">Git</h3>
+      <p class="small">Every commit is a Merkle DAG. Tree objects hash file blobs; commit objects hash trees. Content-addressable storage.</p>
+      <p class="small dim">Git uses SHA-1 (transitioning to SHA-256 via <code>object-format</code>).</p>
+    </div>
+    <div class="box">
+      <h3 style="color:var(--accent3);">Blockchain</h3>
+      <p class="small">Transactions in each block form a Merkle tree. SPV (lightweight) clients verify transaction inclusion without downloading full blocks.</p>
+      <p class="small dim">Bitcoin: double-SHA-256 Merkle tree per block.</p>
+    </div>
+    <div class="box">
+      <h3 style="color:var(--accent2);">Certificate Transparency</h3>
+      <p class="small">RFC 6962: append-only Merkle tree log of all issued TLS certificates. Enables auditing without trust in any single CA.</p>
+      <p class="small dim">Consistency proofs + inclusion proofs in O(log n).</p>
+    </div>
+  </div>
+  <p class="ref">Merkle, "A Digital Signature Based on a Conventional Encryption Function" (CRYPTO 1987) &middot; RFC 6962</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 19: PASSWORD HASHING -->
+<!-- ============================================================ -->
+<section>
+  <h2>Password Hashing</h2>
+  <p class="small">Cryptographic hash functions like SHA-256 are designed to be <span class="accent">fast</span>. For password hashing, we need functions that are intentionally <span class="accent4">slow</span>.</p>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div>
+      <h3 style="color:var(--accent4);">Why SHA-256 Is Wrong</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.4);">
+        <p class="small">A GPU can compute ~10 billion SHA-256 hashes/second.</p>
+        <p class="small">An 8-character alphanumeric password has ~2&times;10<sup>14</sup> possibilities &rarr; exhausted in ~6 hours on one GPU.</p>
+        <p class="small accent4">Fast hashes enable brute-force and dictionary attacks on leaked password databases.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Requirements</h3>
+      <div class="box">
+        <p class="small"><span class="accent">CPU-hard</span> &mdash; configurable iteration count</p>
+        <p class="small"><span class="accent">Memory-hard</span> &mdash; requires large memory allocation, defeating GPU/ASIC parallelism</p>
+        <p class="small"><span class="accent">Salt</span> &mdash; unique random value per password prevents rainbow tables</p>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--accent2);">Recommended Functions</h3>
+      <div class="box">
+        <p><span class="badge badge-amber">bcrypt</span></p>
+        <p class="small">Blowfish-based, adjustable cost factor (2<sup>cost</sup> iterations). Mature, widely deployed. 72-byte password limit.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <p><span class="badge badge-purple">scrypt</span></p>
+        <p class="small">Memory-hard: requires O(N) memory and O(N) time. Parameters: N (CPU/memory cost), r (block size), p (parallelism). Used in Litecoin, Tarsnap.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;border-color:rgba(16,185,129,.4);">
+        <p><span class="badge badge-green">Argon2</span> <span class="tiny accent2">PHC Winner 2015</span></p>
+        <p class="small accent2">Current best practice. Three variants:</p>
+        <p class="small"><span class="accent2">Argon2d</span> &mdash; data-dependent access (GPU-resistant)</p>
+        <p class="small"><span class="accent2">Argon2i</span> &mdash; data-independent access (side-channel resistant)</p>
+        <p class="small"><span class="accent2">Argon2id</span> &mdash; hybrid (recommended default)</p>
+        <p class="small dim">OWASP recommendation: Argon2id, m=19456 (19 MB), t=2 iterations, p=1.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Biryukov et al., "Argon2" (PHC, 2015) &middot; OWASP Password Storage Cheat Sheet</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 20: HASH FUNCTIONS IN TLS 1.3 -->
+<!-- ============================================================ -->
+<section>
+  <h2>Hash Functions in TLS 1.3</h2>
+  <p class="small">TLS 1.3 (RFC 8446) relies heavily on hash functions for key derivation, transcript binding, and message authentication.</p>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div>
+      <h3>HKDF (RFC 5869)</h3>
+      <div class="box">
+        <p class="small">HMAC-based Key Derivation Function &mdash; two stages:</p>
+        <p class="small"><span class="accent">Extract:</span> <span class="mono">PRK = HMAC-Hash(salt, IKM)</span></p>
+        <p class="small">Concentrates entropy from input keying material.</p>
+        <p class="small"><span class="accent">Expand:</span> <span class="mono">OKM = HMAC-Hash(PRK, info || counter)</span></p>
+        <p class="small">Derives arbitrary-length output keying material.</p>
+        <p class="small dim">TLS 1.3 uses HKDF-SHA256 or HKDF-SHA384 depending on cipher suite.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Transcript Hash</h3>
+      <div class="box">
+        <p class="small">TLS 1.3 maintains a running hash of all handshake messages:</p>
+        <p class="small mono dim">Transcript-Hash(M1, M2, ...) = Hash(M1 || M2 || ...)</p>
+        <p class="small">This hash binds the key schedule to the specific handshake, preventing transcript manipulation.</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Finished Messages</h3>
+      <div class="box">
+        <p class="small">The Finished message is an HMAC over the transcript hash using a key derived from the handshake secret:</p>
+        <p class="small mono dim">verify_data = HMAC(finished_key, Transcript-Hash)</p>
+        <p class="small">Provides key confirmation and handshake integrity.</p>
+      </div>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:0.3em;text-align:center;">
+    <span class="small">TLS 1.3 key schedule: <span class="mono">PSK &rarr; <span class="accent">HKDF-Extract</span> &rarr; Early Secret &rarr; <span class="accent">Derive-Secret</span> &rarr; Handshake Secret &rarr; ... &rarr; Application Keys</span></span>
+  </div>
+  <p class="ref">RFC 8446 &mdash; TLS 1.3, Section 7.1 (Key Schedule) &middot; RFC 5869 &mdash; HKDF</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 21: HARDWARE IMPLEMENTATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Hardware Implementation</h2>
+  <div class="two-col">
+    <div>
+      <h3>SHA-256 Architecture</h3>
+      <div class="box">
+        <p class="small"><span class="accent">Iterative:</span> One compression round per clock cycle. 64 cycles per block. Compact: ~10 kGE.</p>
+        <p class="small"><span class="accent">Unrolled (2x):</span> Two rounds per cycle. 32 cycles/block. Critical path doubles but throughput 2x.</p>
+        <p class="small"><span class="accent">Fully pipelined:</span> 64-stage pipeline. One block result per cycle after initial latency. Highest throughput; area ~64x iterative.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>Critical Path</h3>
+        <p class="small">T<sub>1</sub> computation requires 5 additions in series: h + &Sigma;<sub>1</sub>(e) + Ch(e,f,g) + K<sub>t</sub> + W<sub>t</sub></p>
+        <p class="small accent">Carry-save adders (CSA) reduce the chain: 5-to-2 CSA tree followed by one carry-propagate add.</p>
+        <p class="small dim">CSA optimization can improve Fmax by ~40%.</p>
+      </div>
+    </div>
+    <div>
+      <h3>SHA-3 / Keccak Hardware</h3>
+      <div class="box">
+        <p class="small"><span class="accent2">Lane-complementing:</span> Store some lanes in complemented form to eliminate NOT operations in &chi;, replacing AND/NOT/XOR with AND/XOR only.</p>
+        <p class="small"><span class="accent2">Bit-interleaving:</span> Split each 64-bit lane into even/odd bit planes. Rotations by even amounts become free wire permutations on 32-bit datapaths.</p>
+        <p class="small dim">Useful on 32-bit embedded processors or narrow FPGA datapaths.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>FPGA Results</h3>
+        <table class="clean" style="font-size:0.85em;">
+          <tr><th>Design</th><th>Slices</th><th>Throughput</th></tr>
+          <tr><td>SHA-256 iterative</td><td>~800</td><td>~3 Gbps</td></tr>
+          <tr><td>SHA-3 iterative</td><td>~1,600</td><td>~5 Gbps</td></tr>
+          <tr><td>SHA-3 high-speed</td><td>~3,200</td><td>~24 Gbps</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Kerckhof et al., "Compact FPGA Implementations of SHA-3 Candidates" (2011) &middot; Homsirikamol et al., "SHA-3 Hardware Implementations" (2012)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 22: SYSTEMVERILOG IMPLEMENTATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>SystemVerilog &mdash; SHA-256 Round</h2>
+<pre><code class="language-verilog">module sha256_round (
+    input  logic [31:0] a_in, b_in, c_in, d_in,
+    input  logic [31:0] e_in, f_in, g_in, h_in,
+    input  logic [31:0] K_t,   // round constant
+    input  logic [31:0] W_t,   // message schedule word
+    output logic [31:0] a_out, b_out, c_out, d_out,
+    output logic [31:0] e_out, f_out, g_out, h_out
+);
+
+    // -- Auxiliary functions --
+    function automatic logic [31:0] Ch(
+        input logic [31:0] e, f, g);
+        return (e & f) ^ (~e & g);
+    endfunction
+
+    function automatic logic [31:0] Maj(
+        input logic [31:0] a, b, c);
+        return (a & b) ^ (a & c) ^ (b & c);
+    endfunction
+
+    function automatic logic [31:0] Sigma0(input logic [31:0] x);
+        return {x[1:0],  x[31:2]}  ^   // ROTR 2
+               {x[12:0], x[31:13]} ^   // ROTR 13
+               {x[21:0], x[31:22]};    // ROTR 22
+    endfunction
+
+    function automatic logic [31:0] Sigma1(input logic [31:0] x);
+        return {x[5:0],  x[31:6]}  ^   // ROTR 6
+               {x[10:0], x[31:11]} ^   // ROTR 11
+               {x[24:0], x[31:25]};    // ROTR 25
+    endfunction
+
+    // -- Round computation --
+    logic [31:0] T1, T2;
+
+    assign T1 = h_in + Sigma1(e_in) + Ch(e_in, f_in, g_in) + K_t + W_t;
+    assign T2 = Sigma0(a_in) + Maj(a_in, b_in, c_in);
+
+    assign a_out = T1 + T2;
+    assign b_out = a_in;
+    assign c_out = b_in;
+    assign d_out = c_in;
+    assign e_out = d_in + T1;
+    assign f_out = e_in;
+    assign g_out = f_in;
+    assign h_out = g_in;
+
+endmodule</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 23: PYTHON IMPLEMENTATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Python &mdash; SHA-256 from Scratch <span class="dim small">(one block)</span></h2>
+<pre><code class="language-python">import struct
+
+# Initial hash values: fractional parts of square roots of first 8 primes
+H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]
+
+# Round constants: fractional parts of cube roots of first 64 primes
+K = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+     0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+     0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+     # ... 48 more constants (64 total) ...
+     ]
+
+def rotr(x, n):  return ((x >> n) | (x << (32 - n))) & 0xFFFFFFFF
+def shr(x, n):   return x >> n
+
+def sigma0(x):   return rotr(x,7)  ^ rotr(x,18) ^ shr(x,3)
+def sigma1(x):   return rotr(x,17) ^ rotr(x,19) ^ shr(x,10)
+def Sigma0(x):   return rotr(x,2)  ^ rotr(x,13) ^ rotr(x,22)
+def Sigma1(x):   return rotr(x,6)  ^ rotr(x,11) ^ rotr(x,25)
+def Ch(e,f,g):   return (e & f) ^ (~e & g)
+def Maj(a,b,c):  return (a & b) ^ (a & c) ^ (b & c)
+def add(*args):  return sum(args) & 0xFFFFFFFF
+
+def sha256_block(block, h):
+    """Process one 512-bit (64-byte) block."""
+    W = list(struct.unpack('>16L', block))           # 16 words from block
+    for t in range(16, 64):                          # expand to 64 words
+        W.append(add(sigma1(W[t-2]), W[t-7], sigma0(W[t-15]), W[t-16]))
+
+    a, b, c, d, e, f, g, hh = h                     # working variables
+    for t in range(64):                              # 64 rounds
+        T1 = add(hh, Sigma1(e), Ch(e,f,g), K[t], W[t])
+        T2 = add(Sigma0(a), Maj(a,b,c))
+        a, b, c, d, e, f, g, hh = add(T1,T2), a, b, c, add(d,T1), e, f, g
+
+    return [add(x, y) for x, y in zip(h, [a,b,c,d,e,f,g,hh])]</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 24: INTERACTIVE HASH VISUALIZER -->
+<!-- ============================================================ -->
+<section>
+  <h2>Interactive: Hash Visualizer</h2>
+  <p class="small">Type text below to see its SHA-256 hash update in real time. Change a single character to observe the <span class="accent">avalanche effect</span>.</p>
+  <div class="hash-widget" style="text-align:center;margin:1em 0;">
+    <div style="margin-bottom:0.5em;">
+      <input type="text" id="hashInput" value="Hello, cryptography!" placeholder="Type a message..." style="width:60%;" />
+    </div>
+    <div style="margin:0.5em 0;">
+      <span class="small dim">SHA-256 digest:</span><br/>
+      <span class="result" id="hashOutput" style="font-size:0.6em;">computing...</span>
+    </div>
+    <div style="margin-top:1em;">
+      <span class="small dim">Bits changed from previous input:</span><br/>
+      <span class="accent" id="bitsChanged" style="font-family:var(--r-code-font);font-size:1.2em;">0 / 256</span>
+      <span class="small dim"> &mdash; expect ~128 (50%) for a 1-char change</span>
+    </div>
+  </div>
+  <div class="two-col" style="margin-top:0.5em;">
+    <div class="box">
+      <h3>Avalanche Effect</h3>
+      <p class="small">A well-designed hash function changes ~50% of output bits when a single input bit flips. SHA-256 achieves this within 4&ndash;5 rounds of compression.</p>
+      <p class="small dim">The <em>strict avalanche criterion</em> (SAC): flipping input bit <em>i</em> should flip each output bit with probability 1/2.</p>
+    </div>
+    <div class="box">
+      <h3>Try These</h3>
+      <p class="small mono">"abc" &rarr; ba7816bf...</p>
+      <p class="small mono">"abd" &rarr; a52d1598...</p>
+      <p class="small dim">A single letter change (c&rarr;d) flips ~130 of 256 output bits. There is no way to predict which bits flip without computing the hash.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 25: REAL-WORLD VULNERABILITIES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Real-World Hash Vulnerabilities</h2>
+  <div class="two-col">
+    <div>
+      <h3 style="color:var(--accent4);">Notable Incidents</h3>
+      <div class="box" style="border-color:rgba(239,68,68,.4);">
+        <p><span class="badge badge-red">2008</span> <span class="small">Rogue CA Certificate</span></p>
+        <p class="small">MD5 collision used to forge a CA certificate that could sign arbitrary TLS certificates. Sotirov et al. at 25C3.</p>
+      </div>
+      <div class="box" style="border-color:rgba(239,68,68,.4);">
+        <p><span class="badge badge-red">2012</span> <span class="small">Flame Malware</span></p>
+        <p class="small">Nation-state malware used an MD5 chosen-prefix collision to forge a Windows Update code-signing certificate.</p>
+      </div>
+      <div class="box" style="border-color:rgba(239,68,68,.4);">
+        <p><span class="badge badge-red">2017</span> <span class="small">SHAttered</span></p>
+        <p class="small">Google/CWI produced two different PDFs with identical SHA-1 hashes. Cost: ~$110,000 in cloud compute.</p>
+      </div>
+      <div class="box" style="border-color:rgba(239,68,68,.4);">
+        <p><span class="badge badge-red">2020</span> <span class="small">SHA-mbles</span></p>
+        <p class="small">Chosen-prefix SHA-1 collision for ~$45,000 &mdash; enables PGP key impersonation.</p>
+      </div>
+    </div>
+    <div>
+      <h3>Length Extension Exploits</h3>
+      <div class="box">
+        <p class="small">Many web applications used <span class="mono accent4">H(secret || message)</span> as a MAC.</p>
+        <p class="small">Attackers exploit length extension to forge <span class="mono">H(secret || message || padding || attacker_data)</span> without knowing the secret.</p>
+        <p class="small dim">Affected: Flickr API (2009), numerous custom authentication schemes.</p>
+        <p class="small accent2">Fix: use HMAC, never raw H(key || msg).</p>
+      </div>
+      <h3 style="margin-top:0.5em;">Hash DoS (2011)</h3>
+      <div class="box">
+        <p class="small">Hash table collision attacks: crafted inputs that all hash to the same bucket, degrading O(1) lookup to O(n<sup>2</sup>) total insertion time.</p>
+        <p class="small">Affected: PHP, Java, Python, Ruby, ASP.NET hash tables using non-cryptographic hashes (MurmurHash, DJBX33A).</p>
+        <p class="small accent2">Fix: randomized hash seeds (SipHash), per-process secret keys.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 26: HASH FUNCTION SELECTION GUIDE -->
+<!-- ============================================================ -->
+<section>
+  <h2>Selection Guide</h2>
+  <p class="small">Choosing the right hash function for your application.</p>
+  <table class="clean">
+    <tr><th>Use Case</th><th>Recommended</th><th>Avoid</th><th>Notes</th></tr>
+    <tr>
+      <td>General-purpose hashing</td>
+      <td class="accent2">SHA-256, SHA3-256</td>
+      <td class="accent4">MD5, SHA-1</td>
+      <td class="dim">SHA-256 if hardware accel available</td>
+    </tr>
+    <tr>
+      <td>MAC / authentication</td>
+      <td class="accent2">HMAC-SHA-256, KMAC</td>
+      <td class="accent4">H(K||m), raw hash</td>
+      <td class="dim">KMAC for SHA-3 ecosystem</td>
+    </tr>
+    <tr>
+      <td>Password hashing</td>
+      <td class="accent2">Argon2id</td>
+      <td class="accent4">SHA-256, MD5, bcrypt (if possible)</td>
+      <td class="dim">Memory-hard is essential</td>
+    </tr>
+    <tr>
+      <td>Key derivation</td>
+      <td class="accent2">HKDF-SHA-256</td>
+      <td class="accent4">Raw SHA-256</td>
+      <td class="dim">Extract-then-Expand paradigm</td>
+    </tr>
+    <tr>
+      <td>Digital signatures</td>
+      <td class="accent2">SHA-256, SHA-384, SHA3-256</td>
+      <td class="accent4">SHA-1</td>
+      <td class="dim">Match security level to key size</td>
+    </tr>
+    <tr>
+      <td>XOF / variable output</td>
+      <td class="accent2">SHAKE256, SHAKE128</td>
+      <td class="accent4">Truncated SHA-2</td>
+      <td class="dim">Native XOF is cleaner</td>
+    </tr>
+    <tr>
+      <td>Post-quantum signatures</td>
+      <td class="accent2">SLH-DSA (SPHINCS+)</td>
+      <td class="accent4">RSA, ECDSA alone</td>
+      <td class="dim">Hash-only security assumption</td>
+    </tr>
+    <tr>
+      <td>Hash table / non-crypto</td>
+      <td class="accent2">SipHash, xxHash</td>
+      <td class="accent4">CRC32, DJBX33A</td>
+      <td class="dim">Keyed for DoS resistance</td>
+    </tr>
+  </table>
+  <div class="highlight-box" style="margin-top:0.5em;text-align:center;">
+    <span class="small">When in doubt: <span class="accent">SHA-256</span> for hashing, <span class="accent">HMAC-SHA-256</span> for authentication, <span class="accent2">Argon2id</span> for passwords, <span class="accent3">HKDF</span> for key derivation.</span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 27: QUANTUM IMPACT ON HASH FUNCTIONS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Quantum Impact on Hash Functions</h2>
+  <div class="two-col">
+    <div>
+      <h3>Grover's Algorithm</h3>
+      <div class="box">
+        <p class="small">Provides a quadratic speedup for unstructured search:</p>
+        <p class="small"><span class="accent">Preimage:</span> 2<sup>n</sup> &rarr; 2<sup>n/2</sup> quantum operations</p>
+        <p class="small"><span class="accent">Second preimage:</span> 2<sup>n</sup> &rarr; 2<sup>n/2</sup></p>
+        <p class="small dim">For SHA-256: preimage reduced from 2<sup>256</sup> to 2<sup>128</sup> &mdash; still computationally infeasible.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>BHT Algorithm (Collisions)</h3>
+        <p class="small">Brassard-H&oslash;yer-Tapp (1997): quantum collision search in O(2<sup>n/3</sup>).</p>
+        <p class="small">SHA-256 collision: 2<sup>128</sup> &rarr; 2<sup>85</sup> quantum ops.</p>
+        <p class="small dim">But requires O(2<sup>n/3</sup>) quantum-accessible memory (qRAM), which is a very strong assumption.</p>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--accent2);">Assessment</h3>
+      <div class="box" style="border-color:rgba(16,185,129,.4);">
+        <p class="small accent2">Hash functions are relatively quantum-resistant.</p>
+        <p class="small">Doubling the digest size compensates for Grover's attack. 256-bit hashes provide 128-bit post-quantum security for preimage resistance.</p>
+      </div>
+      <div class="box" style="margin-top:0.3em;">
+        <h3>NIST Guidance</h3>
+        <p class="small"><span class="accent3">SP 800-227 (draft):</span> For 128-bit post-quantum security:</p>
+        <p class="small">&bull; Hash: SHA-256 or SHA3-256 (preimage-safe)</p>
+        <p class="small">&bull; Collision: SHA-384+ (for 128-bit collision resistance against BHT)</p>
+        <p class="small">&bull; HMAC: HMAC-SHA-256 remains secure</p>
+        <p class="small dim">CNSA 2.0 mandates SHA-384 for signatures by 2025.</p>
+      </div>
+    </div>
+  </div>
+  <p class="ref">Grover, "A Fast Quantum Mechanical Algorithm for Database Search" (STOC 1996) &middot; NIST SP 800-227 (draft)</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 28: SUMMARY -->
+<!-- ============================================================ -->
+<section>
+  <h2>Summary</h2>
+  <div class="three-col" style="margin-top:0.5em;">
+    <div class="box" style="text-align:center;">
+      <h3 style="color:var(--accent);">Constructions</h3>
+      <p class="small"><span class="accent">Merkle-Damg&aring;rd</span> &mdash; iterative compression, vulnerable to length extension</p>
+      <p class="small"><span class="accent2">Sponge</span> &mdash; absorb/squeeze, immune to length extension, supports XOFs</p>
+      <p class="small dim">Two fundamentally different paradigms providing cryptographic diversity.</p>
+    </div>
+    <div class="box" style="text-align:center;">
+      <h3 style="color:var(--accent2);">Standards</h3>
+      <p class="small"><span class="accent2">SHA-2</span> (FIPS 180-4) &mdash; workhorse, hardware-accelerated, unbroken</p>
+      <p class="small"><span class="accent3">SHA-3</span> (FIPS 202) &mdash; backup, flexible, sponge-based</p>
+      <p class="small"><span class="accent">HMAC</span> (RFC 2104) &mdash; standard MAC, proven secure</p>
+      <p class="small dim">Both SHA-2 and SHA-3 families remain secure as of 2025.</p>
+    </div>
+    <div class="box" style="text-align:center;">
+      <h3 style="color:var(--accent3);">Applications</h3>
+      <p class="small">Digital signatures, TLS key derivation, Merkle trees, password hashing, commitment schemes, hash-based signatures (SLH-DSA)</p>
+      <p class="small dim">Hash functions are the most ubiquitous primitive in modern cryptography.</p>
+    </div>
+  </div>
+  <div class="highlight-box" style="margin-top:0.5em;text-align:center;">
+    <span class="small">
+      <span class="accent4">Broken:</span> MD5, SHA-1 &emsp;
+      <span class="accent2">Current standard:</span> SHA-256, SHA-384, SHA-512, SHA3-256 &emsp;
+      <span class="accent3">Future:</span> SLH-DSA, KMAC, KangarooTwelve
+    </span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 29: REFERENCES -->
+<!-- ============================================================ -->
+<section>
+  <h2>References</h2>
+  <div class="two-col small">
+    <div>
+      <p><span class="accent">Standards</span></p>
+      <p class="dim">FIPS 180-4 &mdash; Secure Hash Standard (SHA-2), NIST, 2015</p>
+      <p class="dim">FIPS 202 &mdash; SHA-3 Standard, NIST, 2015</p>
+      <p class="dim">FIPS 198-1 &mdash; HMAC, NIST, 2008</p>
+      <p class="dim">NIST SP 800-185 &mdash; SHA-3 Derived Functions, 2016</p>
+      <p class="dim">FIPS 205 &mdash; SLH-DSA (SPHINCS+), NIST, 2024</p>
+      <p class="dim">NIST SP 800-208 &mdash; LMS and XMSS, 2020</p>
+      <p class="dim">RFC 2104 &mdash; HMAC (Krawczyk et al., 1997)</p>
+      <p class="dim">RFC 5869 &mdash; HKDF (Krawczyk &amp; Eronen, 2010)</p>
+      <p class="dim">RFC 8446 &mdash; TLS 1.3 (Rescorla, 2018)</p>
+      <p style="margin-top:0.5em;"><span class="accent">Design &amp; Theory</span></p>
+      <p class="dim">Merkle, "A Digital Signature Based on a Conventional Encryption Function" (CRYPTO 1987)</p>
+      <p class="dim">Damg&aring;rd, "A Design Principle for Hash Functions" (CRYPTO 1989)</p>
+      <p class="dim">Bellare, Canetti &amp; Krawczyk, "Keying Hash Functions for Message Authentication" (CRYPTO 1996)</p>
+    </div>
+    <div>
+      <p><span class="accent">SHA-3 / Keccak</span></p>
+      <p class="dim">Bertoni et al., "Keccak Reference" (2011)</p>
+      <p class="dim">Bertoni et al., "Cryptographic Sponge Functions" (2011)</p>
+      <p class="dim">Bertoni et al., "KangarooTwelve" (2016)</p>
+      <p style="margin-top:0.5em;"><span class="accent">Cryptanalysis</span></p>
+      <p class="dim">Wang et al., "Collisions for Hash Functions MD4, MD5, HAVAL-128" (CRYPTO 2004)</p>
+      <p class="dim">Wang et al., "Finding Collisions in the Full SHA-1" (CRYPTO 2005)</p>
+      <p class="dim">Stevens et al., "The First Collision for Full SHA-1" (CRYPTO 2017)</p>
+      <p class="dim">Leurent &amp; Peyrin, "SHA-1 is a Shambles" (2020)</p>
+      <p style="margin-top:0.5em;"><span class="accent">Password Hashing</span></p>
+      <p class="dim">Biryukov, Dinu &amp; Khovratovich, "Argon2" (PHC, 2015)</p>
+      <p class="dim">Percival, "Stronger Key Derivation via Sequential Memory-Hard Functions" (2009)</p>
+    </div>
+  </div>
+  <p class="tiny dim" style="text-align:center;margin-top:1em;">
+    Part of the <a href="../index.html" style="color:var(--accent);">Modern Cryptography Presentation Series</a>
+  </p>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  showSlideNumber: 'all',
+  transition: 'slide',
+  transitionSpeed: 'default',
+  backgroundTransition: 'fade',
+  center: false,
+  width: 1280,
+  height: 900,
+  margin: 0.02,
+  plugins: [ RevealHighlight ]
+});
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
+</script>
+<!-- Interactive SHA-256 hash widget -->
+<script>
+(function(){
+  var input = document.getElementById('hashInput');
+  var output = document.getElementById('hashOutput');
+  var bitsEl = document.getElementById('bitsChanged');
+  var prevHash = '';
+
+  function hexToBin(hex) {
+    var bin = '';
+    for (var i = 0; i < hex.length; i++) {
+      bin += parseInt(hex[i], 16).toString(2).padStart(4, '0');
+    }
+    return bin;
+  }
+
+  function countDiffBits(a, b) {
+    if (!a || !b || a.length !== b.length) return 0;
+    var binA = hexToBin(a), binB = hexToBin(b);
+    var diff = 0;
+    for (var i = 0; i < binA.length; i++) {
+      if (binA[i] !== binB[i]) diff++;
+    }
+    return diff;
+  }
+
+  async function computeHash(msg) {
+    var encoder = new TextEncoder();
+    var data = encoder.encode(msg);
+    var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    var hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+  }
+
+  async function update() {
+    var msg = input.value;
+    var hash = await computeHash(msg);
+    output.textContent = hash;
+    var diff = countDiffBits(prevHash, hash);
+    if (prevHash) {
+      bitsEl.textContent = diff + ' / 256 (' + (diff/256*100).toFixed(1) + '%)';
+    } else {
+      bitsEl.textContent = '—';
+    }
+    prevHash = hash;
+  }
+
+  if (input) {
+    input.addEventListener('input', update);
+    // Initial computation
+    setTimeout(update, 500);
+  }
+})();
+</script>
+</body>
+</html>
