@@ -999,6 +999,10 @@ Reveal.initialize({
 
   draw();
   window.addEventListener('resize', () => { resize(); draw(); });
+  // Redraw when Reveal.js navigates to this slide (canvas has 0 width while hidden)
+  Reveal.on('slidechanged', event => {
+    if (event.currentSlide.contains(canvas)) { resize(); draw(); }
+  });
 })();
 
 // ==============================
