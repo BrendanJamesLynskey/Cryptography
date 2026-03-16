@@ -38,6 +38,20 @@ Interactive single-page visualisations built with Plotly.js and vanilla HTML/CSS
 | [ODE Phase Portraits](https://github.com/BrendanJamesLynskey/ODE_Phase_Portraits) | Vector fields and trajectories for 2D dynamical systems — Van der Pol, Lotka-Volterra, Duffing, with nullclines and fixed-point classification |
 | [Laplace Pole-Zero Explorer](https://github.com/BrendanJamesLynskey/Laplace_Pole_Zero_Explorer) | Interactive s-plane editor — drag poles and zeros, watch impulse response and Bode plots update live with stability classification |
 
+### Abstract Algebra
+
+| Project | Description |
+|---------|-------------|
+| [Group Theory Visualiser](https://github.com/BrendanJamesLynskey/Group_Theory_Visualiser) | Cayley graphs, multiplication tables, subgroup lattices, and symmetry playground for cyclic, dihedral, symmetric, and quaternion groups |
+
+### Topology & Geometry
+
+| Project | Description |
+|---------|-------------|
+| [Topology & Knot Theory Visualiser](https://github.com/BrendanJamesLynskey/Topology_Knot_Theory_Visualiser) | 3D surfaces (Möbius strip, Klein bottle, torus), Euler characteristic calculator, knot explorer, and fundamental polygon identification |
+| [Differential Geometry](https://github.com/BrendanJamesLynskey/Differential_Geometry) | Gaussian curvature on surfaces, geodesic tracer, parallel transport with holonomy, and interactive Gauss-Bonnet theorem |
+| [Hyperbolic Geometry](https://github.com/BrendanJamesLynskey/Hyperbolic_Geometry) | Poincaré disk and upper half-plane models, hyperbolic tilings {p,q}, isometry explorer, and hyperbolic triangle angle-sum |
+
 ### Number Theory
 
 | Project | Description |
@@ -50,6 +64,25 @@ Interactive single-page visualisations built with Plotly.js and vanilla HTML/CSS
 |---------|-------------|
 | [Central Limit Theorem](https://github.com/BrendanJamesLynskey/Central_Limit_Theorem) | Sample from any distribution and watch the sum converge to a Gaussian — animated histogram, Q-Q plot, and statistics panel |
 | [Random Walk Visualisation](https://github.com/BrendanJamesLynskey/Random_Walk_Visualisation) | 1D and 2D random walks, Brownian motion, and Lévy flights — diffusion envelopes, displacement statistics, and heat equation connection |
+| [Markov Chain Visualisation](https://github.com/BrendanJamesLynskey/Markov_Chain_Visualisation) | State diagram editor, animated simulation, stationary distribution convergence, state classification, and matrix analysis |
+
+### Information Theory
+
+| Project | Description |
+|---------|-------------|
+| [Information Theory](https://github.com/BrendanJamesLynskey/Information_Theory) | Shannon entropy, mutual information Venn diagrams, channel capacity (BSC, BEC), Huffman coding, and KL divergence |
+
+### Numerical Analysis
+
+| Project | Description |
+|---------|-------------|
+| [Numerical Methods](https://github.com/BrendanJamesLynskey/Numerical_Methods) | Root finding (bisection, Newton, secant), numerical integration, ODE solvers (Euler, RK4), and polynomial interpolation — all animated step-by-step |
+
+### Control Theory
+
+| Project | Description |
+|---------|-------------|
+| [Control Theory](https://github.com/BrendanJamesLynskey/Control_Theory) | PID tuning, root locus, Bode plots, Nyquist diagrams, and state-space analysis with real-time simulation |
 
 ---
 
@@ -73,6 +106,9 @@ Interactive slide decks covering modern cryptographic systems end-to-end — fro
 | 08 | Fully Homomorphic Encryption (FHE) | 39 | ✅ Complete |
 | 09 | Side-Channel Attacks & Countermeasures | 22 | ✅ Complete |
 | 10 | Crypto Hardware Accelerator Design | 38 | ✅ Complete |
+| 11 | Zero-Knowledge Proofs | 28 | ✅ Complete |
+| 12 | Secure Multi-Party Computation | 27 | ✅ Complete |
+| 13 | TLS 1.3 Handshake | 25 | ✅ Complete |
 
 ### Slide Controls
 

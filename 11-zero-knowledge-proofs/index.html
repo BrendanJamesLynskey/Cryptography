@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zero-Knowledge Proofs</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --r-background-color: #0a0a0f;
+  --r-main-font: 'DM Sans', sans-serif;
+  --r-heading-font: 'Playfair Display', serif;
+  --r-code-font: 'JetBrains Mono', monospace;
+  --r-main-font-size: 28px;
+  --r-main-color: #e0e0e8;
+  --r-heading-color: #ffffff;
+  --r-link-color: #64ffda;
+  --accent: #64ffda;
+  --accent2: #ff6b9d;
+  --accent3: #ffd93d;
+  --accent4: #6c5ce7;
+  --dim: #6a6a7a;
+  --panel: rgba(255,255,255,0.04);
+  --border: rgba(100,255,218,0.15);
+}
+.reveal { font-family: var(--r-main-font); }
+.reveal h1, .reveal h2, .reveal h3 { font-family: var(--r-heading-font); font-weight: 700; letter-spacing: -0.02em; }
+.reveal h1 { font-size: 2.4em; }
+.reveal h2 { font-size: 1.6em; color: var(--accent); }
+.reveal h3 { font-size: 1.15em; color: var(--accent3); }
+.reveal code { font-family: var(--r-code-font); font-size: 0.72em; }
+.reveal pre { width: 100%; box-shadow: none; }
+.reveal pre code { padding: 18px 22px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); max-height: 520px; }
+.reveal .slide-number { font-family: var(--r-code-font); font-size: 14px; color: var(--dim); background: transparent; }
+.reveal section { text-align: left; overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
+
+/* Custom elements */
+.title-slide { text-align: center !important; }
+.title-slide h1 { font-size: 2.6em; line-height: 1.15; background: linear-gradient(135deg, #64ffda 0%, #6c5ce7 50%, #ff6b9d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.title-slide .subtitle { font-size: 1.1em; color: var(--dim); margin-top: 0.5em; }
+.title-slide .series-tag { display: inline-block; padding: 6px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 0.7em; color: var(--accent); margin-top: 1.5em; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 10px 0; }
+.card h3 { margin-top: 0; }
+.card-row { display: flex; gap: 16px; margin: 12px 0; }
+.card-row .card { flex: 1; }
+
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.65em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 2px; }
+.tag-green { background: rgba(100,255,218,0.15); color: var(--accent); }
+.tag-pink { background: rgba(255,107,157,0.15); color: var(--accent2); }
+.tag-yellow { background: rgba(255,217,61,0.15); color: var(--accent3); }
+.tag-purple { background: rgba(108,92,231,0.15); color: var(--accent4); }
+.tag-dim { background: rgba(255,255,255,0.06); color: var(--dim); }
+
+.metric { text-align: center; padding: 14px; }
+.metric .value { font-size: 2em; font-weight: 900; font-family: var(--r-code-font); color: var(--accent); }
+.metric .label { font-size: 0.6em; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+.pipeline-row { display: flex; align-items: center; gap: 0; margin: 18px 0; }
+.pipeline-stage { background: var(--panel); border: 1px solid var(--border); padding: 10px 16px; text-align: center; font-size: 0.7em; flex: 1; }
+.pipeline-stage:first-child { border-radius: 8px 0 0 8px; }
+.pipeline-stage:last-child { border-radius: 0 8px 8px 0; }
+.pipeline-stage .stage-name { font-weight: 700; color: var(--accent); }
+.pipeline-arrow { color: var(--accent); font-size: 1.4em; margin: 0 -4px; z-index: 1; }
+
+.comparison-table { width: 100%; border-collapse: collapse; font-size: 0.68em; margin: 12px 0; }
+.comparison-table th { background: rgba(100,255,218,0.1); color: var(--accent); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); font-weight: 700; }
+.comparison-table td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.comparison-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+.diagram-box { border: 2px solid var(--accent); border-radius: 8px; padding: 10px 16px; text-align: center; display: inline-block; margin: 4px; font-size: 0.75em; font-weight: 700; }
+.diagram-box.pink { border-color: var(--accent2); color: var(--accent2); }
+.diagram-box.yellow { border-color: var(--accent3); color: var(--accent3); }
+.diagram-box.purple { border-color: var(--accent4); color: var(--accent4); }
+
+.arch-grid { display: grid; gap: 10px; margin: 12px 0; }
+.arch-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.arch-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.arch-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.highlight-box { border-left: 3px solid var(--accent); padding: 12px 18px; background: rgba(100,255,218,0.04); margin: 12px 0; font-size: 0.85em; }
+.highlight-box.pink { border-color: var(--accent2); background: rgba(255,107,157,0.04); }
+.highlight-box.yellow { border-color: var(--accent3); background: rgba(255,217,61,0.04); }
+
+.small { font-size: 0.72em; color: var(--dim); }
+.tiny { font-size: 0.6em; color: var(--dim); }
+em { color: var(--accent); font-style: normal; font-weight: 700; }
+strong { color: #fff; }
+.accent2 { color: var(--accent2); }
+.accent3 { color: var(--accent3); }
+.accent4 { color: var(--accent4); }
+
+/* SVG diagrams */
+svg text { font-family: 'DM Sans', sans-serif; }
+svg .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Interactive elements */
+.interactive-note { text-align: center; font-size: 0.55em; color: var(--dim); margin-top: 20px; font-style: italic; }
+
+/* Section divider */
+.section-divider { text-align: center !important; }
+.section-divider h2 { font-size: 2.2em; background: linear-gradient(135deg, var(--accent), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.section-divider .section-num { font-family: var(--r-code-font); font-size: 0.7em; color: var(--dim); letter-spacing: 0.15em; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================================================ -->
+<section class="title-slide">
+  <div class="series-tag">Modern Cryptography &middot; Module 11</div>
+  <h1>Zero-Knowledge<br>Proofs</h1>
+  <p class="subtitle">From Sigma Protocols to SNARKs and STARKs &mdash;<br>Proving Knowledge Without Revealing It</p>
+  <p class="small" style="margin-top:2em; text-align:center;">
+    <span class="tag tag-green">ZK-SNARKs</span>
+    <span class="tag tag-purple">ZK-STARKs</span>
+    <span class="tag tag-pink">Bulletproofs</span>
+    <span class="tag tag-yellow">PLONK</span>
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: WHAT IS A ZERO-KNOWLEDGE PROOF -->
+<!-- ============================================================ -->
+<section>
+  <h2>What Is a Zero-Knowledge Proof?</h2>
+  <p class="small">A zero-knowledge proof allows a <em>prover</em> (P) to convince a <em>verifier</em> (V) that a statement is true, without revealing any information beyond the truth of the statement itself. Formally, a ZKP for language L must satisfy three properties.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Completeness</h3>
+      <p class="small">If the statement is <em>true</em> and both parties follow the protocol, the verifier always accepts.</p>
+      <p class="small"><code>x &isin; L &rArr; Pr[V accepts] = 1</code></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Soundness</h3>
+      <p class="small">If the statement is <em>false</em>, no cheating prover can convince the verifier, except with negligible probability.</p>
+      <p class="small"><code>x &notin; L &rArr; Pr[V accepts] &le; negl(&lambda;)</code></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent4);">Zero-Knowledge</h3>
+      <p class="small">The verifier learns <em>nothing</em> beyond the statement's validity. There exists a <em>simulator</em> that produces indistinguishable transcripts.</p>
+      <p class="small"><code>View_V[P(w) &harr; V](x) &asymp; Sim(x)</code></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Soundness variants:</strong> <em>Statistical soundness</em> &mdash; no unbounded prover can cheat. <em>Computational soundness</em> (argument) &mdash; no PPT prover can cheat. ZK-SNARKs achieve computational soundness; ZK-STARKs achieve information-theoretic soundness.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: CLASSIC ANALOGIES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Classic Analogies</h2>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>Ali Baba's Cave</h3>
+      <p class="small">A circular cave with a magic door. The prover enters from a random side, the verifier calls out which side to exit from. If the prover knows the secret word, they always emerge correctly. After <em>n</em> rounds, probability of cheating = <em>2<sup>-n</sup></em>.</p>
+      <svg viewBox="0 0 340 220" style="width:100%; margin-top:8px;">
+        <path d="M170,30 Q60,30 60,110 Q60,190 170,190" fill="none" stroke="#64ffda" stroke-width="2"/>
+        <path d="M170,30 Q280,30 280,110 Q280,190 170,190" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+        <rect x="145" y="96" width="50" height="28" rx="4" fill="none" stroke="#ffd93d" stroke-width="2"/>
+        <text x="170" y="115" text-anchor="middle" fill="#ffd93d" font-size="10" font-weight="700">DOOR</text>
+        <text x="90" y="115" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">Path A</text>
+        <text x="250" y="115" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">Path B</text>
+        <circle cx="170" cy="200" r="12" fill="none" stroke="#6c5ce7" stroke-width="2"/>
+        <text x="170" y="204" text-anchor="middle" fill="#6c5ce7" font-size="10" font-weight="700">V</text>
+        <text x="170" y="15" text-anchor="middle" fill="#6a6a7a" font-size="10">Entrance</text>
+      </svg>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Colour-Blind Friend</h3>
+      <p class="small">You have two balls &mdash; one red, one green. Your colour-blind friend cannot tell them apart. You prove they are different by having the friend hide them behind their back, optionally swap, then show you one. You always correctly say whether they swapped. After <em>n</em> rounds, the friend is convinced.</p>
+      <svg viewBox="0 0 340 120" style="width:100%; margin-top:8px;">
+        <circle cx="80" cy="60" r="30" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+        <text x="80" y="65" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">Red</text>
+        <circle cx="260" cy="60" r="30" fill="none" stroke="#64ffda" stroke-width="2"/>
+        <text x="260" y="65" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">Green</text>
+        <text x="170" y="40" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Swap?</text>
+        <path d="M120,50 Q170,20 230,50" fill="none" stroke="#ffd93d" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <path d="M230,70 Q170,100 120,70" fill="none" stroke="#ffd93d" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="170" y="110" text-anchor="middle" fill="#6a6a7a" font-size="10">Prover detects swap with certainty</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Key insight:</strong> In both analogies, each round leaks <em>zero information</em> about the secret (path choice / colour). The verifier only learns that the prover <em>can</em> consistently respond correctly &mdash; which is overwhelming evidence of knowledge.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: INTERACTIVE VS NON-INTERACTIVE -->
+<!-- ============================================================ -->
+<section>
+  <h2>Interactive vs Non-Interactive ZK</h2>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Interactive ZK (IZK)</h3>
+      <p class="small">Multiple rounds of communication between prover and verifier. Verifier sends random <em>challenges</em>; prover responds.</p>
+      <p class="small"><strong>Pros:</strong> Simpler construction, information-theoretic ZK possible<br><strong>Cons:</strong> Requires live interaction, not transferable</p>
+      <p><span class="tag tag-green">Sigma Protocols</span> <span class="tag tag-dim">Schnorr ID</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Non-Interactive ZK (NIZK)</h3>
+      <p class="small">Single message from prover to verifier. No interaction needed. Uses a <em>Common Reference String</em> (CRS) or <em>random oracle</em>.</p>
+      <p class="small"><strong>Pros:</strong> Publicly verifiable, composable, blockchain-friendly<br><strong>Cons:</strong> Stronger assumptions (CRS or ROM)</p>
+      <p><span class="tag tag-pink">SNARKs</span> <span class="tag tag-purple">STARKs</span> <span class="tag tag-yellow">Fiat-Shamir</span></p>
+    </div>
+  </div>
+
+  <svg viewBox="0 0 800 160" style="width:100%; margin:10px 0;">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff6b9d"/></marker>
+    </defs>
+    <!-- Interactive -->
+    <text x="30" y="20" fill="#64ffda" font-size="13" font-weight="700">Interactive</text>
+    <rect x="30" y="35" width="70" height="100" rx="6" fill="none" stroke="#64ffda" stroke-width="1.5"/>
+    <text x="65" y="90" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">P</text>
+    <rect x="280" y="35" width="70" height="100" rx="6" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
+    <text x="315" y="90" text-anchor="middle" fill="#ff6b9d" font-size="12" font-weight="700">V</text>
+    <line x1="100" y1="55" x2="280" y2="55" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arr)"/>
+    <text x="190" y="50" text-anchor="middle" fill="#6a6a7a" font-size="10">commit</text>
+    <line x1="280" y1="80" x2="100" y2="80" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <text x="190" y="75" text-anchor="middle" fill="#6a6a7a" font-size="10">challenge</text>
+    <line x1="100" y1="105" x2="280" y2="105" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arr)"/>
+    <text x="190" y="100" text-anchor="middle" fill="#6a6a7a" font-size="10">response</text>
+    <!-- Non-Interactive -->
+    <text x="440" y="20" fill="#ff6b9d" font-size="13" font-weight="700">Non-Interactive</text>
+    <rect x="440" y="35" width="70" height="100" rx="6" fill="none" stroke="#64ffda" stroke-width="1.5"/>
+    <text x="475" y="90" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">P</text>
+    <rect x="690" y="35" width="70" height="100" rx="6" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
+    <text x="725" y="90" text-anchor="middle" fill="#ff6b9d" font-size="12" font-weight="700">V</text>
+    <line x1="510" y1="80" x2="690" y2="80" stroke="#64ffda" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="600" y="72" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">&pi; (single proof)</text>
+    <rect x="545" y="105" width="110" height="25" rx="4" fill="none" stroke="#6c5ce7" stroke-width="1.5"/>
+    <text x="600" y="122" text-anchor="middle" fill="#6c5ce7" font-size="10" font-weight="700">CRS / Random Oracle</text>
+  </svg>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5: SCHNORR IDENTIFICATION PROTOCOL -->
+<!-- ============================================================ -->
+<section>
+  <h2>Schnorr Identification Protocol</h2>
+  <p class="small">The foundational interactive ZK proof of knowledge of a discrete logarithm. Prover knows <em>x</em> such that <em>h = g<sup>x</sup></em> in group G of order q.</p>
+
+  <svg viewBox="0 0 800 280" style="width:100%; margin:8px 0;">
+    <defs>
+      <marker id="arw" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="arw2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff6b9d"/></marker>
+    </defs>
+    <!-- Prover box -->
+    <rect x="20" y="10" width="250" height="260" rx="8" fill="rgba(100,255,218,0.03)" stroke="#64ffda" stroke-width="1.5"/>
+    <text x="145" y="35" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">Prover (knows x)</text>
+    <!-- Verifier box -->
+    <rect x="530" y="10" width="250" height="260" rx="8" fill="rgba(255,107,157,0.03)" stroke="#ff6b9d" stroke-width="1.5"/>
+    <text x="655" y="35" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">Verifier (knows h)</text>
+    <!-- Step 1: Commit -->
+    <text x="40" y="70" fill="#e0e0e8" font-size="12" class="mono">r &larr; Z_q</text>
+    <text x="40" y="90" fill="#e0e0e8" font-size="12" class="mono">a = g^r</text>
+    <line x1="270" y1="80" x2="530" y2="80" stroke="#64ffda" stroke-width="2" marker-end="url(#arw)"/>
+    <text x="400" y="72" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">a (commitment)</text>
+    <!-- Step 2: Challenge -->
+    <text x="550" y="130" fill="#e0e0e8" font-size="12" class="mono">e &larr; {0,1}^t</text>
+    <line x1="530" y1="140" x2="270" y2="140" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arw2)"/>
+    <text x="400" y="132" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">e (challenge)</text>
+    <!-- Step 3: Response -->
+    <text x="40" y="190" fill="#e0e0e8" font-size="12" class="mono">z = r + e&middot;x (mod q)</text>
+    <line x1="270" y1="200" x2="530" y2="200" stroke="#64ffda" stroke-width="2" marker-end="url(#arw)"/>
+    <text x="400" y="192" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">z (response)</text>
+    <!-- Verify -->
+    <text x="550" y="240" fill="#e0e0e8" font-size="12" class="mono">Check: g^z = a &middot; h^e</text>
+    <text x="550" y="258" fill="#64ffda" font-size="11" font-weight="700">Accept if equal</text>
+  </svg>
+
+  <div class="highlight-box">
+    <strong>Why it is zero-knowledge:</strong> A simulator can produce valid-looking transcripts (a, e, z) by picking z and e first, then computing <code>a = g<sup>z</sup> &middot; h<sup>-e</sup></code>. These are indistinguishable from real transcripts &mdash; so the verifier learns nothing about x.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: SIGMA PROTOCOLS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Sigma Protocols</h2>
+  <p class="small">A Sigma (&Sigma;) protocol is a three-move interactive proof: <em>commit &rarr; challenge &rarr; response</em>. The Schnorr protocol is the canonical example, but the structure generalizes to many relations.</p>
+
+  <div class="pipeline-row">
+    <div class="pipeline-stage"><div class="stage-name">Commit (a)</div><div class="small">Prover picks randomness r, sends a = f(r)</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Challenge (e)</div><div class="small">Verifier sends random e from challenge space</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Response (z)</div><div class="small">Prover computes z = g(r, e, w)</div></div>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Special Soundness</h3>
+      <p class="small">Given two accepting transcripts (a, e, z) and (a, e', z') with e &ne; e', one can extract the witness w. This gives <em>proof of knowledge</em>, not just proof of existence.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Special HVZK</h3>
+      <p class="small"><em>Honest-Verifier Zero-Knowledge:</em> a simulator exists when the verifier picks challenges uniformly at random. Sufficient for Fiat-Shamir transformation.</p>
+    </div>
+  </div>
+
+  <table class="comparison-table">
+    <tr><th>Sigma Protocol</th><th>Relation Proved</th><th>Witness</th><th>Applications</th></tr>
+    <tr><td><strong>Schnorr</strong></td><td>h = g<sup>x</sup></td><td>x (discrete log)</td><td>Digital signatures, authentication</td></tr>
+    <tr><td><strong>Guillou-Quisquater</strong></td><td>y = x<sup>e</sup> mod n</td><td>x (e-th root)</td><td>RSA-based identification</td></tr>
+    <tr><td><strong>Pedersen OR</strong></td><td>DL(h₁) OR DL(h₂)</td><td>One of x₁, x₂</td><td>Ring signatures, deniability</td></tr>
+    <tr><td><strong>Chaum-Pedersen</strong></td><td>DL equality</td><td>x: g<sup>x</sup>=h, f<sup>x</sup>=v</td><td>VRFs, re-encryption proofs</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: FIAT-SHAMIR HEURISTIC -->
+<!-- ============================================================ -->
+<section>
+  <h2>Fiat-Shamir Heuristic</h2>
+  <p class="small">Transforms any Sigma protocol into a non-interactive proof by replacing the verifier's random challenge with a hash of the commitment. Secure in the <em>Random Oracle Model</em> (ROM).</p>
+
+  <svg viewBox="0 0 800 200" style="width:100%; margin:8px 0;">
+    <defs>
+      <marker id="fa" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+    </defs>
+    <!-- Interactive side -->
+    <rect x="20" y="20" width="330" height="160" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <text x="185" y="15" text-anchor="middle" fill="#6a6a7a" font-size="12" font-weight="700">INTERACTIVE</text>
+    <text x="40" y="55" fill="#e0e0e8" font-size="12" class="mono">1. a = g^r</text>
+    <text x="40" y="85" fill="#ff6b9d" font-size="12" class="mono">2. e &larr; Verifier</text>
+    <text x="40" y="115" fill="#e0e0e8" font-size="12" class="mono">3. z = r + e&middot;x</text>
+    <text x="40" y="150" fill="#6a6a7a" font-size="11">Proof = (a, z), verified live</text>
+    <!-- Arrow -->
+    <line x1="370" y1="100" x2="440" y2="100" stroke="#ffd93d" stroke-width="2" marker-end="url(#fa)"/>
+    <text x="405" y="90" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">H()</text>
+    <!-- Non-interactive side -->
+    <rect x="450" y="20" width="330" height="160" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <text x="615" y="15" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">NON-INTERACTIVE</text>
+    <text x="470" y="55" fill="#e0e0e8" font-size="12" class="mono">1. a = g^r</text>
+    <text x="470" y="85" fill="#64ffda" font-size="12" class="mono">2. e = H(g, h, a)</text>
+    <text x="470" y="115" fill="#e0e0e8" font-size="12" class="mono">3. z = r + e&middot;x</text>
+    <text x="470" y="150" fill="#ffd93d" font-size="11" font-weight="700">Proof &pi; = (a, z) &mdash; publicly verifiable</text>
+  </svg>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Security</h3>
+      <p class="small">Provably secure in the <em>ROM</em>. In the standard model, Fiat-Shamir can be insecure for some protocols (Goldwasser-Kalai counterexample). In practice: universally deployed.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Schnorr Signatures</h3>
+      <p class="small">Applying Fiat-Shamir to the Schnorr ID protocol yields the <em>Schnorr signature scheme</em> &mdash; the basis of EdDSA (Ed25519) and BIP-340 (Bitcoin Taproot).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: SECTION DIVIDER - SNARKs -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <div class="section-num">SECTION II</div>
+  <h2>ZK-SNARKs</h2>
+  <p class="small" style="text-align:center;">Succinct Non-interactive ARguments of Knowledge</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 9: ZK-SNARKs OVERVIEW -->
+<!-- ============================================================ -->
+<section>
+  <h2>ZK-SNARKs Overview</h2>
+  <p class="small">A ZK-SNARK is a proof system where the proof is <em>succinct</em> (small and fast to verify), <em>non-interactive</em>, and an <em>argument of knowledge</em> (extractable under computational assumptions).</p>
+
+  <div class="card-row">
+    <div class="card">
+      <div class="metric">
+        <div class="value">~200 B</div>
+        <div class="label">Proof Size (Groth16)</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent2);">~3 ms</div>
+        <div class="label">Verification Time</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent3);">O(1)</div>
+        <div class="label">Verifier complexity</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>The SNARK pipeline:</strong> Every SNARK follows a common compilation chain.
+  </div>
+
+  <div class="pipeline-row">
+    <div class="pipeline-stage"><div class="stage-name">Computation</div><div class="small">Program / circuit</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Arithmetization</div><div class="small">R1CS or AIR</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Polynomial IOP</div><div class="small">QAP / PLONK</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Commitment</div><div class="small">KZG / FRI / IPA</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Proof</div><div class="small">&pi; = (A, B, C)</div></div>
+  </div>
+
+  <p class="small">Assumptions typically required: <em>knowledge-of-exponent</em> (KEA), <em>q-SDH</em> (Strong Diffie-Hellman), and the <em>Generic Group Model</em> (GGM). Relies on elliptic curve pairings (BN254, BLS12-381).</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: ARITHMETIC CIRCUITS AND R1CS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Arithmetic Circuits &amp; R1CS</h2>
+  <p class="small">The first step in building a SNARK is expressing the computation as an <em>arithmetic circuit</em> over a finite field F_p, then converting it to a <em>Rank-1 Constraint System</em> (R1CS).</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Arithmetic Circuit</h3>
+      <svg viewBox="0 0 280 200" style="width:100%; margin:4px 0;">
+        <text x="50" y="25" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">x</text>
+        <text x="150" y="25" text-anchor="middle" fill="#ff6b9d" font-size="12" font-weight="700">y</text>
+        <text x="230" y="25" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">1</text>
+        <!-- Multiply gate -->
+        <circle cx="100" cy="80" r="20" fill="none" stroke="#64ffda" stroke-width="1.5"/>
+        <text x="100" y="85" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">&times;</text>
+        <line x1="50" y1="35" x2="85" y2="62" stroke="#6a6a7a" stroke-width="1"/>
+        <line x1="150" y1="35" x2="115" y2="62" stroke="#6a6a7a" stroke-width="1"/>
+        <!-- Add gate -->
+        <circle cx="160" cy="150" r="20" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
+        <text x="160" y="155" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">+</text>
+        <line x1="100" y1="100" x2="145" y2="132" stroke="#6a6a7a" stroke-width="1"/>
+        <line x1="230" y1="35" x2="175" y2="132" stroke="#6a6a7a" stroke-width="1"/>
+        <!-- Output -->
+        <text x="160" y="195" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">out = x&middot;y + 1</text>
+      </svg>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">R1CS Encoding</h3>
+      <p class="small">Each multiplication gate becomes a constraint:</p>
+      <pre><code class="language-plaintext">  (a_i &middot; s) * (b_i &middot; s) = (c_i &middot; s)
+
+  Variables: s = [1, x, y, v1, out]
+
+  Gate 1 (multiply):
+    a = [0, 1, 0, 0, 0]  (x)
+    b = [0, 0, 1, 0, 0]  (y)
+    c = [0, 0, 0, 1, 0]  (v1 = x*y)
+
+  Gate 2 (add-as-constraint):
+    a = [1, 0, 0, 1, 0]  (1 + v1)
+    b = [1, 0, 0, 0, 0]  (1)
+    c = [0, 0, 0, 0, 1]  (out)</code></pre>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Constraint count matters:</strong> SNARK prover time scales roughly <em>linearly</em> with the number of R1CS constraints. A SHA-256 hash requires ~25,000 constraints; an ECDSA verification ~300,000. Circuit optimization is critical.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: QAP — QUADRATIC ARITHMETIC PROGRAM -->
+<!-- ============================================================ -->
+<section>
+  <h2>QAP: Polynomial Encoding</h2>
+  <p class="small">The Quadratic Arithmetic Program converts R1CS constraints into a polynomial identity check. Instead of verifying m constraints individually, the verifier checks <em>one polynomial equation</em>.</p>
+
+  <div class="card">
+    <h3>R1CS &rarr; QAP Transformation</h3>
+    <p class="small">For m constraints over n variables, interpolate each column of the a, b, c matrices into polynomials using Lagrange interpolation at points {r₁, ..., r_m}:</p>
+    <pre><code class="language-plaintext">  A(x) = &Sigma; s_i &middot; a_i(x)     // left input polynomial
+  B(x) = &Sigma; s_i &middot; b_i(x)     // right input polynomial
+  C(x) = &Sigma; s_i &middot; c_i(x)     // output polynomial
+
+  QAP Satisfaction: A(x) &middot; B(x) - C(x) = H(x) &middot; Z(x)
+
+  where Z(x) = (x - r_1)(x - r_2)...(x - r_m)  (vanishing polynomial)
+  and H(x) = quotient polynomial (exists iff constraints satisfied)</code></pre>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Why Polynomials?</h3>
+      <p class="small">Schwartz-Zippel lemma: two distinct degree-d polynomials agree on at most d points. Checking at a <em>random</em> point &tau; gives soundness error d/|F| &mdash; negligible over large fields.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Succinctness</h3>
+      <p class="small">Instead of checking m constraints, verify <em>one evaluation</em>: A(&tau;)&middot;B(&tau;) - C(&tau;) = H(&tau;)&middot;Z(&tau;). The evaluation point &tau; is hidden in the CRS &mdash; this is where trusted setup enters.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: TRUSTED SETUP -->
+<!-- ============================================================ -->
+<section>
+  <h2>Trusted Setup &amp; Toxic Waste</h2>
+  <p class="small">Pairing-based SNARKs require a <em>structured reference string</em> (SRS) containing encrypted evaluations of secret powers &tau;. If anyone learns &tau;, they can forge proofs.</p>
+
+  <svg viewBox="0 0 800 170" style="width:100%; margin:8px 0;">
+    <defs>
+      <marker id="ts" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+    </defs>
+    <!-- Phase 1 -->
+    <rect x="20" y="20" width="160" height="60" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+    <text x="100" y="45" text-anchor="middle" fill="#ff6b9d" font-size="12" font-weight="700">Participant 1</text>
+    <text x="100" y="65" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">&tau;_1 &larr; random</text>
+    <line x1="180" y1="50" x2="220" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ts)"/>
+    <!-- Phase 2 -->
+    <rect x="220" y="20" width="160" height="60" rx="8" fill="none" stroke="#ffd93d" stroke-width="2"/>
+    <text x="300" y="45" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">Participant 2</text>
+    <text x="300" y="65" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">&tau;_2 &larr; random</text>
+    <line x1="380" y1="50" x2="420" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ts)"/>
+    <!-- Phase N -->
+    <text x="435" y="55" fill="#6a6a7a" font-size="14">...</text>
+    <line x1="455" y1="50" x2="490" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ts)"/>
+    <rect x="490" y="20" width="160" height="60" rx="8" fill="none" stroke="#6c5ce7" stroke-width="2"/>
+    <text x="570" y="45" text-anchor="middle" fill="#6c5ce7" font-size="12" font-weight="700">Participant N</text>
+    <text x="570" y="65" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">&tau;_n &larr; random</text>
+    <line x1="650" y1="50" x2="700" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ts)"/>
+    <!-- SRS -->
+    <rect x="700" y="15" width="80" height="70" rx="8" fill="rgba(100,255,218,0.08)" stroke="#64ffda" stroke-width="2"/>
+    <text x="740" y="45" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">SRS</text>
+    <text x="740" y="62" text-anchor="middle" fill="#6a6a7a" font-size="9" class="mono">[&tau;^i]_1, [&tau;^i]_2</text>
+    <!-- Bottom note -->
+    <text x="400" y="115" text-anchor="middle" fill="#e0e0e8" font-size="12">&tau; = &tau;_1 &middot; &tau;_2 &middot; ... &middot; &tau;_n &mdash; secure if <tspan fill="#64ffda" font-weight="700">at least one</tspan> participant is honest</text>
+    <text x="400" y="140" text-anchor="middle" fill="#ff6b9d" font-size="11">Each participant must destroy their &tau;_i &mdash; the <tspan fill="#ff6b9d" font-weight="700">"toxic waste"</tspan></text>
+    <text x="400" y="162" text-anchor="middle" fill="#6a6a7a" font-size="10">Zcash Sprout (6 participants) &rarr; Zcash Sapling (87) &rarr; Perpetual Powers of Tau (thousands)</text>
+  </svg>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Powers of Tau Ceremony</h3>
+      <p class="small">SRS = {[&tau;<sup>0</sup>]₁, [&tau;<sup>1</sup>]₁, ..., [&tau;<sup>d</sup>]₁, [&tau;<sup>0</sup>]₂, [&tau;<sup>1</sup>]₂, ...} where [x]₁ = x&middot;G₁ (group elements). Each participant contributes randomness multiplicatively. <em>1-of-N honest assumption</em>.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">The Problem</h3>
+      <p class="small">If &tau; is known, an adversary can construct H(&tau;) to satisfy A(&tau;)&middot;B(&tau;) - C(&tau;) = H(&tau;)&middot;Z(&tau;) for <em>any</em> false statement. The entire system collapses. This motivates transparent alternatives (STARKs, Bulletproofs).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: GROTH16 -->
+<!-- ============================================================ -->
+<section>
+  <h2>Groth16: The Gold Standard SNARK</h2>
+  <p class="small">Groth16 (Eurocrypt 2016) achieves the <em>smallest proof size</em> and <em>fastest verification</em> of any known pairing-based SNARK. Used in Zcash Sapling, Filecoin, and most EVM ZK circuits.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <div class="metric">
+        <div class="value">3</div>
+        <div class="label">Group elements in proof</div>
+      </div>
+      <p class="small" style="text-align:center;"><code>&pi; = (A &isin; G₁, B &isin; G₂, C &isin; G₁)</code><br>~192 bytes on BN254, ~288 bytes on BLS12-381</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent2);">3</div>
+        <div class="label">Pairings for verification</div>
+      </div>
+      <p class="small" style="text-align:center;">Verify: <code>e(A, B) = e(&alpha;, &beta;) &middot; e(L, &gamma;) &middot; e(C, &delta;)</code><br>Constant-time regardless of circuit size</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Groth16 Prover Computation</h3>
+    <pre><code class="language-plaintext">  Setup:  Circuit-specific SRS from Powers of Tau
+  Prove:  1. Compute QAP polynomials A(x), B(x), C(x), H(x)
+          2. Multi-scalar multiplication (MSM) on G₁ and G₂
+             A = [&alpha; + A(&tau;) + r&middot;&delta;]₁
+             B = [&beta; + B(&tau;) + s&middot;&delta;]₂
+             C = [H(&tau;)&middot;Z(&tau;)/&delta; + witness terms + ...]₁
+          3. Dominant cost: two MSMs of size |witness|</code></pre>
+  </div>
+
+  <div class="highlight-box pink">
+    <strong>Limitation:</strong> Groth16 requires a <em>circuit-specific</em> trusted setup. Each new circuit needs a new ceremony. This motivates universal SNARKs like PLONK.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 14: SECTION DIVIDER - STARKs -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <div class="section-num">SECTION III</div>
+  <h2>ZK-STARKs</h2>
+  <p class="small" style="text-align:center;">Scalable Transparent ARguments of Knowledge</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 15: ZK-STARKs OVERVIEW -->
+<!-- ============================================================ -->
+<section>
+  <h2>ZK-STARKs Overview</h2>
+  <p class="small">Introduced by Ben-Sasson et al. (2018). STARKs replace elliptic curve pairings with <em>hash functions</em> and <em>Reed-Solomon codes</em>, achieving transparency (no trusted setup) and plausible post-quantum security.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Transparent Setup</h3>
+      <p class="small">No secret parameters. The CRS is just a hash function description. Anyone can verify the setup. <em>No toxic waste</em> to destroy.</p>
+      <p><span class="tag tag-green">Trust-minimized</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Post-Quantum</h3>
+      <p class="small">Security relies only on collision-resistant hashing. No discrete log or pairing assumptions. <em>Survives quantum computers</em> (assuming hash security).</p>
+      <p><span class="tag tag-pink">Quantum-safe</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent4);">Scalable Prover</h3>
+      <p class="small">Prover runs in <em>quasi-linear</em> time O(n &middot; log n). Verifier runs in <em>O(log² n)</em>. Both are polylogarithmic in the computation size.</p>
+      <p><span class="tag tag-purple">Efficient</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box yellow">
+    <strong>The trade-off:</strong> STARK proofs are significantly larger than SNARK proofs &mdash; typically <em>50-200 KB</em> vs ~200 bytes for Groth16. This makes STARKs less suited for on-chain verification where calldata is expensive, but ideal for off-chain validity proofs.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 16: SNARKs vs STARKs COMPARISON -->
+<!-- ============================================================ -->
+<section>
+  <h2>SNARKs vs STARKs</h2>
+
+  <table class="comparison-table">
+    <tr><th>Property</th><th>ZK-SNARKs (Groth16)</th><th>ZK-STARKs</th></tr>
+    <tr><td><strong>Proof Size</strong></td><td><span style="color:var(--accent);">~200 B</span></td><td><span style="color:var(--accent2);">~50-200 KB</span></td></tr>
+    <tr><td><strong>Verification Time</strong></td><td><span style="color:var(--accent);">~3 ms (constant)</span></td><td><span style="color:var(--accent2);">~10-50 ms (log²n)</span></td></tr>
+    <tr><td><strong>Prover Time</strong></td><td>O(n log n) &mdash; MSM-heavy</td><td>O(n log n) &mdash; hash-heavy</td></tr>
+    <tr><td><strong>Trusted Setup</strong></td><td class="accent2">Required (circuit-specific)</td><td style="color:var(--accent);">None (transparent)</td></tr>
+    <tr><td><strong>Post-Quantum</strong></td><td class="accent2">No (pairing-based)</td><td style="color:var(--accent);">Yes (hash-based)</td></tr>
+    <tr><td><strong>Crypto Assumptions</strong></td><td>KEA, q-SDH, pairings</td><td>Collision-resistant hash</td></tr>
+    <tr><td><strong>Arithmetization</strong></td><td>R1CS &rarr; QAP</td><td>AIR (Algebraic Intermediate Rep.)</td></tr>
+    <tr><td><strong>Commitment Scheme</strong></td><td>KZG (pairing-based)</td><td>FRI (hash-based)</td></tr>
+    <tr><td><strong>Notable Users</strong></td><td>Zcash, Filecoin, Tornado Cash</td><td>StarkNet, StarkEx, Polygon Miden</td></tr>
+  </table>
+
+  <div class="highlight-box">
+    <strong>Convergence trend:</strong> Modern systems blur the line. PLONK uses KZG (pairing) but is universal. Plonky2 combines PLONK arithmetization with FRI commitments. Plonky3 pushes further toward STARK-like transparency with SNARK-like flexibility.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 17: FRI PROTOCOL -->
+<!-- ============================================================ -->
+<section>
+  <h2>FRI: Fast Reed-Solomon IOP</h2>
+  <p class="small">FRI (Fast Reed-Solomon Interactive Oracle Proof of Proximity) is the polynomial commitment scheme underlying STARKs. It proves that a function is <em>close to a low-degree polynomial</em> using only hash queries.</p>
+
+  <div class="card">
+    <h3>FRI Protocol — Iterative Degree Reduction</h3>
+    <svg viewBox="0 0 780 180" style="width:100%; margin:4px 0;">
+      <defs>
+        <marker id="fri" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      </defs>
+      <!-- Layer 0 -->
+      <rect x="10" y="30" width="140" height="55" rx="6" fill="none" stroke="#64ffda" stroke-width="1.5"/>
+      <text x="80" y="52" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">f₀(x)</text>
+      <text x="80" y="72" text-anchor="middle" fill="#6a6a7a" font-size="9">degree &lt; d</text>
+      <!-- Arrow -->
+      <line x1="150" y1="57" x2="185" y2="57" stroke="#ffd93d" stroke-width="1.5" marker-end="url(#fri)"/>
+      <text x="168" y="50" text-anchor="middle" fill="#ffd93d" font-size="8">split</text>
+      <!-- Layer 1 -->
+      <rect x="185" y="30" width="140" height="55" rx="6" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
+      <text x="255" y="52" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">f₁(x)</text>
+      <text x="255" y="72" text-anchor="middle" fill="#6a6a7a" font-size="9">degree &lt; d/2</text>
+      <!-- Arrow -->
+      <line x1="325" y1="57" x2="360" y2="57" stroke="#ffd93d" stroke-width="1.5" marker-end="url(#fri)"/>
+      <text x="343" y="50" text-anchor="middle" fill="#ffd93d" font-size="8">split</text>
+      <!-- Layer 2 -->
+      <rect x="360" y="30" width="140" height="55" rx="6" fill="none" stroke="#6c5ce7" stroke-width="1.5"/>
+      <text x="430" y="52" text-anchor="middle" fill="#6c5ce7" font-size="11" font-weight="700">f₂(x)</text>
+      <text x="430" y="72" text-anchor="middle" fill="#6a6a7a" font-size="9">degree &lt; d/4</text>
+      <!-- Dots -->
+      <text x="520" y="57" fill="#6a6a7a" font-size="16">...</text>
+      <!-- Final -->
+      <rect x="560" y="30" width="140" height="55" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
+      <text x="630" y="52" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">f_k = constant</text>
+      <text x="630" y="72" text-anchor="middle" fill="#6a6a7a" font-size="9">degree 0</text>
+      <!-- Bottom explanation -->
+      <text x="80" y="115" fill="#e0e0e8" font-size="11">Each round: f_i(x) = g(x²) + &alpha;_i &middot; h(x²), where f_i(x) = g(x²) + x&middot;h(x²)</text>
+      <text x="80" y="135" fill="#6a6a7a" font-size="10">Verifier challenge &alpha;_i folds the polynomial, halving its degree</text>
+      <text x="80" y="155" fill="#6a6a7a" font-size="10">After log(d) rounds, the polynomial is constant &mdash; verifier checks consistency via Merkle proofs</text>
+    </svg>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Complexity</h3>
+      <p class="small">Prover: <em>O(n log n)</em> hash operations<br>Verifier: <em>O(log² n)</em> hash queries<br>Proof size: <em>O(log² n)</em> field elements + Merkle paths</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Soundness</h3>
+      <p class="small">FRI achieves soundness error <em>(d/|D|)<sup>r</sup></em> where d is the claimed degree, |D| is the domain size, and r is the number of query rounds. Typically 30-80 queries for 128-bit security.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 18: PLONK -->
+<!-- ============================================================ -->
+<section>
+  <h2>PLONK: Universal &amp; Updatable</h2>
+  <p class="small">PLONK (Gabizon, Williamson, Ciobotaru, 2019) introduces a <em>universal</em> SRS &mdash; one trusted setup works for <em>any</em> circuit up to a given size. The SRS is also <em>updatable</em> &mdash; new participants can strengthen it.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Gate Constraints</h3>
+      <p class="small">PLONK uses a custom gate format instead of R1CS:</p>
+      <pre><code class="language-plaintext">  q_L&middot;a + q_R&middot;b + q_O&middot;c
+  + q_M&middot;(a&middot;b) + q_C = 0
+
+  where q_* are selector polynomials
+  and a, b, c are wire values</code></pre>
+      <p class="small">Supports addition and multiplication in a single gate. Custom gates (e.g., Poseidon hash) dramatically reduce constraint count.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Copy Constraints (Permutation)</h3>
+      <p class="small">PLONK connects gates via a <em>permutation argument</em>. Wire values are constrained to be equal across gates using a grand product polynomial:</p>
+      <pre><code class="language-plaintext">  Z(x) = &Pi; (f_i + &beta;&middot;&sigma;(i) + &gamma;)
+          / (f_i + &beta;&middot;i + &gamma;)
+
+  Check Z(&omega;^0) = 1 and Z(&omega;^n) = 1
+  (grand product is identity permutation)</code></pre>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>PLONK variants:</strong> <em>TurboPLONK</em> (custom gates), <em>UltraPLONK</em> (lookup arguments via Plookup), <em>Plonky2</em> (PLONK + FRI, no trusted setup), <em>HyperPLONK</em> (multilinear extension over hypercube). The PLONK framework has become the dominant paradigm for modern proof systems.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 19: BULLETPROOFS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Bulletproofs</h2>
+  <p class="small">Bulletproofs (Bunz et al., 2018) are short non-interactive zero-knowledge proofs that require <em>no trusted setup</em>. Proof size is <em>O(log n)</em> group elements. Optimal for range proofs and small circuits.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <div class="metric">
+        <div class="value">~672 B</div>
+        <div class="label">64-bit range proof</div>
+      </div>
+      <p class="small" style="text-align:center;">vs. ~4 KB for Sigma protocol range proof</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent2);">O(n)</div>
+        <div class="label">Verification time</div>
+      </div>
+      <p class="small" style="text-align:center;">Linear in circuit size &mdash; not succinct for large circuits</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent3);">0</div>
+        <div class="label">Trusted setup</div>
+      </div>
+      <p class="small" style="text-align:center;">Uses Pedersen commitments + discrete log assumption only</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Inner Product Argument (IPA) — Core Technique</h3>
+    <p class="small">Bulletproofs reduce proving an inner product relation <code>&lt;a, b&gt; = c</code> for vectors of length n to a proof of size <em>O(log n)</em> via recursive halving:</p>
+    <pre><code class="language-plaintext">  1. Split vectors: a = (a_L, a_R), b = (b_L, b_R)
+  2. Compute cross-terms: L = &lt;a_L, b_R&gt;, R = &lt;a_R, b_L&gt;
+  3. Verifier sends challenge x
+  4. Fold: a' = a_L&middot;x + a_R&middot;x⁻¹,  b' = b_L&middot;x⁻¹ + b_R&middot;x
+  5. Recurse on half-size vectors until n = 1</code></pre>
+  </div>
+
+  <p class="small">Used in: <em>Monero</em> (confidential transactions), <em>Mimblewimble/Grin</em>, <em>Halo</em> (without trusted setup). Bulletproofs+ reduces proof size by ~16%.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 20: SECTION DIVIDER - APPLICATIONS -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <div class="section-num">SECTION IV</div>
+  <h2>Applications</h2>
+  <p class="small" style="text-align:center;">Blockchain &middot; Identity &middot; Private Computation</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 21: BLOCKCHAIN APPLICATIONS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Blockchain Applications</h2>
+  <p class="small">ZK proofs address two fundamental blockchain problems: <em>privacy</em> (hiding transaction details) and <em>scalability</em> (compressing computation off-chain).</p>
+
+  <div class="arch-grid cols-3">
+    <div class="card">
+      <h3>Zcash</h3>
+      <p class="small">First production deployment of ZK-SNARKs. Shielded transactions hide sender, receiver, and amount. <em>Sprout</em> (2016, Groth16) &rarr; <em>Sapling</em> (2018, optimized) &rarr; <em>Orchard</em> (2022, Halo 2, no trusted setup).</p>
+      <p><span class="tag tag-green">Privacy</span> <span class="tag tag-dim">Groth16 &rarr; Halo 2</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">zkSync / zkRollups</h3>
+      <p class="small">Layer-2 scaling: batch thousands of transactions, generate one proof, verify on Ethereum. <em>zkSync Era</em> uses custom SNARK. <em>Polygon zkEVM</em> proves EVM execution. Reduces gas costs ~100x.</p>
+      <p><span class="tag tag-pink">Scalability</span> <span class="tag tag-yellow">EVM-compatible</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent4);">StarkNet</h3>
+      <p class="small">STARK-based L2 on Ethereum. No trusted setup. Uses Cairo language compiled to AIR. <em>SHARP</em> (Shared Prover) amortizes proving costs across applications. Post-quantum ready.</p>
+      <p><span class="tag tag-purple">STARKs</span> <span class="tag tag-green">Transparent</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>ZK-Rollup economics:</strong> A single Groth16 proof costs ~300K gas to verify on Ethereum. If it attests to 10,000 transactions, the amortized cost is ~30 gas per transaction vs ~21,000 for a native transfer. <em>700x compression</em>.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 22: IDENTITY APPLICATIONS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Identity &amp; Credential Proofs</h2>
+  <p class="small">ZK proofs enable <em>selective disclosure</em>: prove properties about your identity without revealing the identity itself.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Age Verification</h3>
+      <p class="small">Prove "I am over 18" without revealing your birthdate, name, or any other ID field. The ZK circuit checks: <code>current_date - birth_date &ge; 18 years</code> against a signed government credential.</p>
+      <svg viewBox="0 0 300 100" style="width:100%; margin:4px 0;">
+        <rect x="10" y="10" width="100" height="40" rx="6" fill="none" stroke="#64ffda" stroke-width="1.5"/>
+        <text x="60" y="35" text-anchor="middle" fill="#64ffda" font-size="10" font-weight="700">Signed ID</text>
+        <rect x="10" y="55" width="100" height="30" rx="6" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
+        <text x="60" y="75" text-anchor="middle" fill="#ff6b9d" font-size="9">Private witness</text>
+        <line x1="110" y1="40" x2="170" y2="50" stroke="#6a6a7a" stroke-width="1"/>
+        <line x1="110" y1="70" x2="170" y2="55" stroke="#6a6a7a" stroke-width="1"/>
+        <rect x="170" y="30" width="60" height="40" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
+        <text x="200" y="55" text-anchor="middle" fill="#ffd93d" font-size="10" font-weight="700">ZK</text>
+        <line x1="230" y1="50" x2="260" y2="50" stroke="#64ffda" stroke-width="1.5"/>
+        <text x="280" y="55" fill="#64ffda" font-size="10" font-weight="700">&ge; 18</text>
+      </svg>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Verifiable Credentials</h3>
+      <p class="small">W3C Verifiable Credentials + ZK: prove you hold a valid diploma from a specific university without revealing your name, GPA, or student ID. <em>BBS+ signatures</em> enable efficient selective disclosure. <em>Semaphore</em> protocol enables anonymous group membership proofs.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="color:var(--accent4);">ZK Identity Stack</h3>
+    <div class="pipeline-row">
+      <div class="pipeline-stage"><div class="stage-name">Issuer</div><div class="small">Signs credential</div></div>
+      <div class="pipeline-stage"><div class="stage-name">Holder</div><div class="small">Stores privately</div></div>
+      <div class="pipeline-stage"><div class="stage-name">ZK Circuit</div><div class="small">Proves property</div></div>
+      <div class="pipeline-stage"><div class="stage-name">Verifier</div><div class="small">Checks proof only</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 23: PRIVATE COMPUTATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Private Computation &amp; zkML</h2>
+  <p class="small">ZK proofs extend beyond simple identity: they enable <em>verifiable computation</em> where a server proves it executed a program correctly without revealing inputs.</p>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>Verifiable Computation</h3>
+      <p class="small">A weak client delegates computation f(x) to a powerful server. The server returns y = f(x) along with a ZK proof &pi; that y is correct. The client verifies &pi; in <em>O(log |f|)</em> time &mdash; far cheaper than recomputing.</p>
+      <p class="small"><strong>Applications:</strong> Cloud computing, database queries, trustless oracles</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">zkML (Zero-Knowledge Machine Learning)</h3>
+      <p class="small">Prove that a neural network inference was computed correctly on a specific model without revealing model weights or input data.</p>
+      <p class="small"><strong>Use cases:</strong></p>
+      <p class="small">&bull; Prove an AI model produced a specific output<br>&bull; Verify model fairness without exposing training data<br>&bull; On-chain AI inference attestation</p>
+    </div>
+  </div>
+
+  <div class="highlight-box yellow">
+    <strong>zkML challenges:</strong> Neural network circuits are enormous. A modest CNN has millions of constraints. <em>EZKL</em> compiles ONNX models to ZK circuits. <em>ZKML benchmark</em> (2024): proving a MobileNet inference takes ~30 seconds with Halo2, producing a ~5 KB proof.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 24: RECURSIVE COMPOSITION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Recursive Composition</h2>
+  <p class="small">A proof that <em>verifies another proof</em>. Recursive SNARKs enable incrementally verifiable computation (IVC): each step proves "the previous proof was valid AND I did one more step correctly."</p>
+
+  <svg viewBox="0 0 800 160" style="width:100%; margin:8px 0;">
+    <defs>
+      <marker id="rc" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+    </defs>
+    <!-- Step 1 -->
+    <rect x="20" y="30" width="130" height="70" rx="8" fill="none" stroke="#64ffda" stroke-width="1.5"/>
+    <text x="85" y="55" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">Step 1</text>
+    <text x="85" y="75" text-anchor="middle" fill="#6a6a7a" font-size="9">Prove f(x₀)=x₁</text>
+    <text x="85" y="90" text-anchor="middle" fill="#ffd93d" font-size="9">&pi;₁</text>
+    <!-- Arrow -->
+    <line x1="150" y1="65" x2="190" y2="65" stroke="#64ffda" stroke-width="1.5" marker-end="url(#rc)"/>
+    <!-- Step 2 -->
+    <rect x="190" y="30" width="160" height="70" rx="8" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
+    <text x="270" y="50" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">Step 2</text>
+    <text x="270" y="68" text-anchor="middle" fill="#6a6a7a" font-size="9">Verify &pi;₁ inside circuit</text>
+    <text x="270" y="83" text-anchor="middle" fill="#6a6a7a" font-size="9">+ Prove f(x₁)=x₂</text>
+    <text x="270" y="96" text-anchor="middle" fill="#ffd93d" font-size="9">&pi;₂</text>
+    <!-- Arrow -->
+    <line x1="350" y1="65" x2="390" y2="65" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#rc)"/>
+    <!-- Step N -->
+    <text x="405" y="70" fill="#6a6a7a" font-size="14">...</text>
+    <line x1="425" y1="65" x2="465" y2="65" stroke="#6a6a7a" stroke-width="1.5" marker-end="url(#rc)"/>
+    <!-- Final -->
+    <rect x="465" y="30" width="160" height="70" rx="8" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
+    <text x="545" y="50" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Step N</text>
+    <text x="545" y="68" text-anchor="middle" fill="#6a6a7a" font-size="9">Verify &pi;_{N-1} inside circuit</text>
+    <text x="545" y="83" text-anchor="middle" fill="#6a6a7a" font-size="9">+ Prove f(x_{N-1})=x_N</text>
+    <text x="545" y="96" text-anchor="middle" fill="#ffd93d" font-size="9">&pi;_N</text>
+    <!-- Arrow to final proof -->
+    <line x1="625" y1="65" x2="680" y2="65" stroke="#ffd93d" stroke-width="2" marker-end="url(#rc)"/>
+    <rect x="680" y="40" width="100" height="45" rx="8" fill="rgba(100,255,218,0.08)" stroke="#64ffda" stroke-width="2"/>
+    <text x="730" y="60" text-anchor="middle" fill="#64ffda" font-size="10" font-weight="700">Single proof</text>
+    <text x="730" y="75" text-anchor="middle" fill="#6a6a7a" font-size="9">attests N steps</text>
+    <!-- Bottom -->
+    <text x="400" y="130" text-anchor="middle" fill="#e0e0e8" font-size="11">Constant-size proof regardless of N &mdash; <tspan fill="#64ffda" font-weight="700">infinite compression</tspan></text>
+    <text x="400" y="150" text-anchor="middle" fill="#6a6a7a" font-size="10">Key challenge: the verifier circuit must be efficient to embed inside the prover</text>
+  </svg>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Halo / Halo 2</h3>
+      <p class="small">First recursive proof without trusted setup (Bowe, Grigg, Hopwood, 2019). Uses <em>IPA</em> (Bulletproof-style) commitment on Pasta curves. Deployed in Zcash Orchard. Amortizes verification via accumulation.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Nova</h3>
+      <p class="small">Kothapalli, Setty, Tzialla (2022). Uses <em>folding</em> instead of full SNARK verification. Folds two R1CS instances into one without proving. <em>Orders of magnitude faster</em> than recursive SNARKs. Dominant IVC scheme.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent4);">Applications</h3>
+      <p class="small">ZK-rollup state compression, blockchain light clients, verifiable delay functions, incrementally verifiable MapReduce, proof aggregation for batch settlement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 25: PERFORMANCE COMPARISON -->
+<!-- ============================================================ -->
+<section>
+  <h2>Performance Comparison</h2>
+  <p class="small">Benchmarks for proving a SHA-256 preimage (~25K constraints). Times on modern hardware (AMD Ryzen 9 / Apple M2). Real-world performance varies significantly with circuit size and optimization.</p>
+
+  <table class="comparison-table">
+    <tr><th>System</th><th>Proof Size</th><th>Prove Time</th><th>Verify Time</th><th>Setup</th><th>Assumption</th></tr>
+    <tr><td><strong>Groth16</strong></td><td><span style="color:var(--accent);">192 B</span></td><td>~1.5 s</td><td><span style="color:var(--accent);">~3 ms</span></td><td>Circuit-specific</td><td>Pairings</td></tr>
+    <tr><td><strong>PLONK</strong></td><td>~600 B</td><td>~3 s</td><td>~5 ms</td><td>Universal</td><td>Pairings (KZG)</td></tr>
+    <tr><td><strong>Halo 2</strong></td><td>~5 KB</td><td>~4 s</td><td>~15 ms</td><td>None</td><td>DLOG</td></tr>
+    <tr><td><strong>STARK</strong></td><td><span style="color:var(--accent2);">~100 KB</span></td><td>~2 s</td><td>~20 ms</td><td>None</td><td>Hash (PQ-safe)</td></tr>
+    <tr><td><strong>Bulletproofs</strong></td><td>~1.5 KB</td><td>~10 s</td><td><span style="color:var(--accent2);">~1.5 s</span></td><td>None</td><td>DLOG</td></tr>
+    <tr><td><strong>Plonky2</strong></td><td>~45 KB</td><td>~0.5 s</td><td>~3 ms</td><td>None</td><td>Hash (PQ-safe)</td></tr>
+    <tr><td><strong>Nova (folding)</strong></td><td>~10 KB*</td><td>~20 ms/step</td><td>~50 ms*</td><td>None</td><td>DLOG</td></tr>
+  </table>
+
+  <p class="tiny">*Nova proof requires a final SNARK compression step for succinctness. Per-step cost is amortized.</p>
+
+  <div class="highlight-box">
+    <strong>Choosing a proof system:</strong> <em>Groth16</em> for minimal on-chain cost. <em>PLONK</em> for flexibility without per-circuit ceremonies. <em>STARKs</em> for transparency and post-quantum. <em>Nova</em> for incremental computation. No single system dominates all axes.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 26: CODE EXAMPLE -->
+<!-- ============================================================ -->
+<section>
+  <h2>ZK Proof Construction</h2>
+  <p class="small">A simplified Schnorr-style ZK proof of discrete log knowledge, showing the Fiat-Shamir transformation. This is real cryptographic structure, not abstraction.</p>
+
+  <div class="card">
+    <h3>Pseudocode: NIZK Proof of DLog Knowledge</h3>
+    <pre><code class="language-python">def prove_dlog(G, H, x, q):
+    """Prove knowledge of x such that H = x*G (elliptic curve)"""
+    # 1. Commit: pick random nonce
+    r = random_scalar(q)          # r ← Z_q
+    A = r * G                      # commitment A = r·G
+
+    # 2. Challenge: Fiat-Shamir hash
+    e = H_to_scalar(G, H, A)      # e = Hash(G || H || A) mod q
+
+    # 3. Response
+    z = (r + e * x) % q           # z = r + e·x mod q
+
+    return Proof(A, z)             # π = (A, z)
+
+def verify_dlog(G, H, proof, q):
+    """Verify proof that prover knows x with H = x*G"""
+    A, z = proof.A, proof.z
+
+    # Recompute challenge
+    e = H_to_scalar(G, H, A)      # e = Hash(G || H || A) mod q
+
+    # Verification equation: z·G == A + e·H
+    lhs = z * G                    # z·G
+    rhs = A + e * H                # A + e·H = r·G + e·x·G
+    return lhs == rhs              # True iff prover knows x</code></pre>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Correctness:</strong> <code>z&middot;G = (r + e&middot;x)&middot;G = r&middot;G + e&middot;x&middot;G = A + e&middot;H</code>. The simulator picks z, e randomly, computes <code>A = z&middot;G - e&middot;H</code> &mdash; indistinguishable from a real proof. This is the foundation on which Ed25519 and Taproot signatures are built.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 27: ADVANCED CODE EXAMPLE — CIRCUIT -->
+<!-- ============================================================ -->
+<section>
+  <h2>Arithmetic Circuit Definition</h2>
+  <p class="small">How a modern ZK framework (e.g., Circom, Halo2, Noir) defines constraints. This example proves knowledge of two numbers whose product equals a public output.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Circom (R1CS)</h3>
+      <pre><code class="language-javascript">pragma circom 2.1.0;
+
+template Multiply() {
+    signal input a;   // private
+    signal input b;   // private
+    signal output c;  // public
+
+    // R1CS constraint: a * b === c
+    c <== a * b;
+}
+
+// Range proof (a is n bits)
+template RangeProof(n) {
+    signal input a;
+    signal bits[n];
+    var sum = 0;
+    for (var i = 0; i < n; i++) {
+        bits[i] <-- (a >> i) & 1;
+        bits[i] * (1 - bits[i]) === 0;
+        sum += bits[i] * (1 << i);
+    }
+    sum === a;
+}</code></pre>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Noir (ACIR)</h3>
+      <pre><code class="language-rust">// Aztec's Noir language
+fn main(
+    a: Field,      // private
+    b: Field,      // private
+    c: pub Field   // public
+) {
+    // Constraint: a * b == c
+    assert(a * b == c);
+}
+
+// SHA-256 membership proof
+fn verify_membership(
+    leaf: Field,
+    path: [Field; 32],
+    root: pub Field
+) {
+    let computed = merkle_root(
+        leaf, path
+    );
+    assert(computed == root);
+}</code></pre>
+    </div>
+  </div>
+
+  <p class="small">Compilation: Circom &rarr; R1CS &rarr; Groth16/PLONK proof. Noir &rarr; ACIR &rarr; Barretenberg backend. Both produce a binary proof file and a verification key.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 28: CURRENT RESEARCH -->
+<!-- ============================================================ -->
+<section>
+  <h2>Current Research Directions</h2>
+  <p class="small">The ZK proof landscape is evolving rapidly. Key research threads in 2025-2026 focus on efficiency, expressiveness, and new paradigms.</p>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>Folding Schemes</h3>
+      <p class="small">Nova, SuperNova, HyperNova, ProtoStar. Replace expensive recursive SNARK verification with <em>cheap folding</em> of relaxed R1CS instances. Nova folds in ~10ms vs ~seconds for recursive Groth16. <em>Sangria</em> extends folding to PLONK.</p>
+      <p><span class="tag tag-green">IVC</span> <span class="tag tag-dim">Dominant paradigm</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent2);">Lookup Arguments</h3>
+      <p class="small"><em>Plookup</em>, <em>Caulk</em>, <em>Baloo</em>, <em>Lasso</em>. Prove that values appear in a lookup table without expanding into binary constraints. Critical for efficient hash functions (Poseidon, Keccak) and VM execution.</p>
+      <p><span class="tag tag-pink">Expressiveness</span> <span class="tag tag-yellow">10-100x gains</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent4);">CCS &amp; Customizable Constraint Systems</h3>
+      <p class="small">Generalization of R1CS, PLONK, and AIR into a single framework. Enables folding schemes to work across different arithmetizations. <em>HyperNova</em> folds CCS instances directly.</p>
+      <p><span class="tag tag-purple">Unification</span></p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent3);">Hardware Acceleration</h3>
+      <p class="small">MSM and NTT are the bottlenecks. GPU provers (Icicle, cuZK) achieve 10-50x speedup. FPGA designs target real-time proving. ASICs for ZK (Cysic, Ingonyama) target 100x+ improvement over CPU.</p>
+      <p><span class="tag tag-yellow">Performance</span> <span class="tag tag-dim">GPU/FPGA/ASIC</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Emerging frontiers:</strong> <em>Proof aggregation</em> (combining proofs from different systems), <em>MPC-in-the-head</em> (Ligero, Brakedown &mdash; VOLE-based), <em>lattice-based SNARKs</em> (post-quantum SNARKs without hash overhead), and <em>formal verification</em> of ZK circuit correctness.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 29: SUMMARY -->
+<!-- ============================================================ -->
+<section class="title-slide">
+  <h1>Summary</h1>
+  <div style="text-align:left; max-width:700px; margin:0 auto;">
+    <p class="small">
+      <em>Foundations</em> &mdash; Zero-knowledge proofs satisfy completeness, soundness, and zero-knowledge. Sigma protocols provide the three-move (commit, challenge, response) interactive framework. Fiat-Shamir heuristic converts interactive proofs to non-interactive via hashing.
+    </p>
+    <p class="small">
+      <em>SNARKs</em> &mdash; Arithmetic circuits compiled to R1CS, encoded as QAP polynomials, committed via KZG pairings. Groth16 achieves 192-byte proofs with 3ms verification. Requires circuit-specific trusted setup (toxic waste, Powers of Tau ceremonies).
+    </p>
+    <p class="small">
+      <em>STARKs &amp; alternatives</em> &mdash; Hash-based, transparent, post-quantum. FRI protocol for polynomial commitment. Larger proofs (~100KB) but no trust assumptions. PLONK provides universal setup. Bulletproofs offer logarithmic proof size without setup.
+    </p>
+    <p class="small">
+      <em>Applications</em> &mdash; Blockchain privacy (Zcash) and scalability (zkRollups, StarkNet). Identity (selective disclosure, age proofs). Verifiable computation and zkML. Recursive composition enables infinite proof compression.
+    </p>
+    <p class="small">
+      <em>Frontier</em> &mdash; Folding schemes (Nova, HyperNova) transform IVC. Lookup arguments accelerate complex operations. Hardware acceleration (GPU/FPGA/ASIC) targets real-time proving. The field converges toward unified, efficient, transparent proof systems.
+    </p>
+  </div>
+  <div class="series-tag" style="margin-top:1em;">Modern Cryptography Series &middot; Module 11</div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  width: 1100,
+  height: 900,
+  margin: 0.02,
+  transition: 'slide',
+  transitionSpeed: 'default',
+  backgroundTransition: 'fade',
+  plugins: [ RevealHighlight ],
+  highlight: { highlightOnLoad: true }
+});
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
+</script>
+</body>
+</html>

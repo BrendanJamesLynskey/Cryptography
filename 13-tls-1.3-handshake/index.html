@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TLS 1.3 Handshake</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --r-background-color: #0a0a0f;
+  --r-main-font: 'DM Sans', sans-serif;
+  --r-heading-font: 'Playfair Display', serif;
+  --r-code-font: 'JetBrains Mono', monospace;
+  --r-main-font-size: 28px;
+  --r-main-color: #e0e0e8;
+  --r-heading-color: #ffffff;
+  --r-link-color: #64ffda;
+  --accent: #64ffda;
+  --accent2: #ff6b9d;
+  --accent3: #ffd93d;
+  --accent4: #6c5ce7;
+  --dim: #6a6a7a;
+  --panel: rgba(255,255,255,0.04);
+  --border: rgba(100,255,218,0.15);
+}
+.reveal { font-family: var(--r-main-font); }
+.reveal h1, .reveal h2, .reveal h3 { font-family: var(--r-heading-font); font-weight: 700; letter-spacing: -0.02em; }
+.reveal h1 { font-size: 2.4em; }
+.reveal h2 { font-size: 1.6em; color: var(--accent); }
+.reveal h3 { font-size: 1.15em; color: var(--accent3); }
+.reveal code { font-family: var(--r-code-font); font-size: 0.72em; }
+.reveal pre { width: 100%; box-shadow: none; }
+.reveal pre code { padding: 18px 22px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); max-height: 520px; }
+.reveal .slide-number { font-family: var(--r-code-font); font-size: 14px; color: var(--dim); background: transparent; }
+.reveal section { text-align: left; overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
+
+/* Custom elements */
+.title-slide { text-align: center !important; }
+.title-slide h1 { font-size: 2.6em; line-height: 1.15; background: linear-gradient(135deg, #64ffda 0%, #6c5ce7 50%, #ff6b9d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.title-slide .subtitle { font-size: 1.1em; color: var(--dim); margin-top: 0.5em; }
+.title-slide .series-tag { display: inline-block; padding: 6px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 0.7em; color: var(--accent); margin-top: 1.5em; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 10px 0; }
+.card h3 { margin-top: 0; }
+.card-row { display: flex; gap: 16px; margin: 12px 0; }
+.card-row .card { flex: 1; }
+
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.65em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 2px; }
+.tag-green { background: rgba(100,255,218,0.15); color: var(--accent); }
+.tag-pink { background: rgba(255,107,157,0.15); color: var(--accent2); }
+.tag-yellow { background: rgba(255,217,61,0.15); color: var(--accent3); }
+.tag-purple { background: rgba(108,92,231,0.15); color: var(--accent4); }
+.tag-dim { background: rgba(255,255,255,0.06); color: var(--dim); }
+
+.metric { text-align: center; padding: 14px; }
+.metric .value { font-size: 2em; font-weight: 900; font-family: var(--r-code-font); color: var(--accent); }
+.metric .label { font-size: 0.6em; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+.pipeline-row { display: flex; align-items: center; gap: 0; margin: 18px 0; }
+.pipeline-stage { background: var(--panel); border: 1px solid var(--border); padding: 10px 16px; text-align: center; font-size: 0.7em; flex: 1; }
+.pipeline-stage:first-child { border-radius: 8px 0 0 8px; }
+.pipeline-stage:last-child { border-radius: 0 8px 8px 0; }
+.pipeline-stage .stage-name { font-weight: 700; color: var(--accent); }
+.pipeline-arrow { color: var(--accent); font-size: 1.4em; margin: 0 -4px; z-index: 1; }
+
+.comparison-table { width: 100%; border-collapse: collapse; font-size: 0.68em; margin: 12px 0; }
+.comparison-table th { background: rgba(100,255,218,0.1); color: var(--accent); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); font-weight: 700; }
+.comparison-table td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.comparison-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+.diagram-box { border: 2px solid var(--accent); border-radius: 8px; padding: 10px 16px; text-align: center; display: inline-block; margin: 4px; font-size: 0.75em; font-weight: 700; }
+.diagram-box.pink { border-color: var(--accent2); color: var(--accent2); }
+.diagram-box.yellow { border-color: var(--accent3); color: var(--accent3); }
+.diagram-box.purple { border-color: var(--accent4); color: var(--accent4); }
+
+.arch-grid { display: grid; gap: 10px; margin: 12px 0; }
+.arch-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.arch-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.arch-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.highlight-box { border-left: 3px solid var(--accent); padding: 12px 18px; background: rgba(100,255,218,0.04); margin: 12px 0; font-size: 0.85em; }
+.highlight-box.pink { border-color: var(--accent2); background: rgba(255,107,157,0.04); }
+.highlight-box.yellow { border-color: var(--accent3); background: rgba(255,217,61,0.04); }
+
+.small { font-size: 0.72em; color: var(--dim); }
+.tiny { font-size: 0.6em; color: var(--dim); }
+em { color: var(--accent); font-style: normal; font-weight: 700; }
+strong { color: #fff; }
+.accent2 { color: var(--accent2); }
+.accent3 { color: var(--accent3); }
+.accent4 { color: var(--accent4); }
+
+/* SVG diagrams */
+svg text { font-family: 'DM Sans', sans-serif; }
+svg .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Interactive elements */
+.interactive-note { text-align: center; font-size: 0.55em; color: var(--dim); margin-top: 20px; font-style: italic; }
+
+/* Section divider */
+.section-divider { text-align: center !important; }
+.section-divider h2 { font-size: 2.2em; background: linear-gradient(135deg, var(--accent), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.section-divider .section-num { font-family: var(--r-code-font); font-size: 0.7em; color: var(--dim); letter-spacing: 0.15em; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================================================ -->
+<section class="title-slide">
+  <div class="series-tag">Modern Cryptography &middot; Module 13</div>
+  <h1>TLS 1.3<br>Handshake</h1>
+  <p class="subtitle">From ClientHello to Application Data &mdash;<br>The Protocol That Secures the Internet</p>
+  <p class="small" style="margin-top:2em; text-align:center;">
+    <span class="tag tag-green">ECDHE</span>
+    <span class="tag tag-purple">AEAD</span>
+    <span class="tag tag-pink">X.509</span>
+    <span class="tag tag-yellow">RFC 8446</span>
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: WHY TLS MATTERS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Why TLS Matters</h2>
+  <p class="small">Transport Layer Security is the most widely deployed cryptographic protocol on Earth. Every HTTPS connection, every email transmission, every API call depends on it.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <div class="metric">
+        <div class="value">95%+</div>
+        <div class="label">Web traffic encrypted</div>
+      </div>
+      <p class="small" style="text-align:center;">Chrome reports over 95% of pages<br>loaded over HTTPS as of 2025</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent2);">~4.5B</div>
+        <div class="label">TLS handshakes/day</div>
+      </div>
+      <p class="small" style="text-align:center;">Cloudflare alone handles billions<br>of connections daily</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent3);">1-RTT</div>
+        <div class="label">TLS 1.3 handshake</div>
+      </div>
+      <p class="small" style="text-align:center;">Down from 2-RTT in TLS 1.2 &mdash;<br>faster, simpler, more secure</p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>TLS is the integration point:</strong> It combines <em>key exchange</em> (Module 02), <em>symmetric encryption</em> (Module 03/04), <em>hash functions</em> (Module 05), and <em>digital signatures</em> (Module 06) into a single coherent protocol.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: TLS EVOLUTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>TLS Evolution</h2>
+  <p class="small">Two decades of protocol refinement, driven by real-world attacks and performance demands.</p>
+
+  <table class="comparison-table">
+    <tr><th>Version</th><th>Year</th><th>RFC</th><th>Key Changes</th><th>Status</th></tr>
+    <tr><td><strong>SSL 3.0</strong></td><td>1996</td><td>RFC 6101</td><td>First practical deployment</td><td class="accent2">Deprecated (POODLE)</td></tr>
+    <tr><td><strong>TLS 1.0</strong></td><td>1999</td><td>RFC 2246</td><td>SSL renamed, minor fixes</td><td class="accent2">Deprecated (BEAST)</td></tr>
+    <tr><td><strong>TLS 1.1</strong></td><td>2006</td><td>RFC 4346</td><td>Explicit IV for CBC</td><td class="accent2">Deprecated</td></tr>
+    <tr><td><strong>TLS 1.2</strong></td><td>2008</td><td>RFC 5246</td><td>AEAD ciphers, SHA-256, configurable PRF</td><td style="color:var(--accent3);">Legacy (still ~20%)</td></tr>
+    <tr><td><strong>TLS 1.3</strong></td><td>2018</td><td>RFC 8446</td><td>1-RTT, ECDHE-only, AEAD-only, encrypted handshake</td><td style="color:var(--accent);">Current standard</td></tr>
+  </table>
+
+  <div class="highlight-box">
+    <strong>28 drafts over 4 years:</strong> TLS 1.3 went through extensive review. The IETF process eliminated features that had caused vulnerabilities &mdash; the result is a radically simplified protocol compared to TLS 1.2's 37 cipher suites and negotiable options.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: WHAT TLS 1.3 REMOVED -->
+<!-- ============================================================ -->
+<section>
+  <h2>What TLS 1.3 Removed</h2>
+  <p class="small">The most important design decision in TLS 1.3 was <strong>what to delete</strong>. Every removed feature had been the source of real-world attacks.</p>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>Removed Algorithms</h3>
+      <p class="small">
+        <span class="tag tag-pink">RSA key exchange</span> No forward secrecy<br>
+        <span class="tag tag-pink">CBC mode ciphers</span> BEAST, Lucky13, POODLE<br>
+        <span class="tag tag-pink">RC4</span> Statistical biases<br>
+        <span class="tag tag-pink">SHA-1</span> Collision attacks (SHAttered)<br>
+        <span class="tag tag-pink">3DES</span> Sweet32 birthday attack<br>
+        <span class="tag tag-pink">MD5</span> Broken since 2004
+      </p>
+    </div>
+    <div class="card">
+      <h3>Removed Features</h3>
+      <p class="small">
+        <span class="tag tag-yellow">Renegotiation</span> Triple Handshake attack<br>
+        <span class="tag tag-yellow">Compression</span> CRIME/BREACH attacks<br>
+        <span class="tag tag-yellow">Static DH/ECDH</span> No forward secrecy<br>
+        <span class="tag tag-yellow">ChangeCipherSpec</span> Simplified state machine<br>
+        <span class="tag tag-yellow">Custom DHE groups</span> Logjam attack vector<br>
+        <span class="tag tag-yellow">Export ciphers</span> FREAK/Logjam
+      </p>
+    </div>
+  </div>
+
+  <div class="highlight-box pink">
+    <strong>Forward secrecy is mandatory:</strong> By removing RSA key exchange entirely, TLS 1.3 guarantees that a compromised server private key cannot decrypt past sessions. Every connection uses ephemeral ECDHE.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5: CIPHER SUITES -->
+<!-- ============================================================ -->
+<section>
+  <h2>TLS 1.3 Cipher Suites</h2>
+  <p class="small">TLS 1.2 had 37+ cipher suites with complex negotiation. TLS 1.3 has exactly <em>5</em>, all AEAD-only. Key exchange and authentication are negotiated separately.</p>
+
+  <table class="comparison-table">
+    <tr><th>Cipher Suite</th><th>AEAD</th><th>HKDF Hash</th><th>Key Size</th><th>Notes</th></tr>
+    <tr><td><strong>TLS_AES_128_GCM_SHA256</strong></td><td>AES-128-GCM</td><td>SHA-256</td><td>128-bit</td><td>Most common; mandatory to implement</td></tr>
+    <tr><td><strong>TLS_AES_256_GCM_SHA384</strong></td><td>AES-256-GCM</td><td>SHA-384</td><td>256-bit</td><td>Higher security margin</td></tr>
+    <tr><td><strong>TLS_CHACHA20_POLY1305_SHA256</strong></td><td>ChaCha20-Poly1305</td><td>SHA-256</td><td>256-bit</td><td>Fast on devices without AES-NI</td></tr>
+    <tr><td><strong>TLS_AES_128_CCM_SHA256</strong></td><td>AES-128-CCM</td><td>SHA-256</td><td>128-bit</td><td>IoT / constrained environments</td></tr>
+    <tr><td><strong>TLS_AES_128_CCM_8_SHA256</strong></td><td>AES-128-CCM-8</td><td>SHA-256</td><td>128-bit</td><td>8-byte tag; IoT only</td></tr>
+  </table>
+
+  <div class="highlight-box">
+    <strong>Separation of concerns:</strong> In TLS 1.3, the cipher suite specifies <em>only</em> the AEAD algorithm and hash. Key exchange (ECDHE group) and signature algorithm are negotiated via extensions &mdash; a cleaner, more modular design from Module 03 (AES) and Module 04 (ChaCha20).
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: FULL HANDSHAKE — 1-RTT -->
+<!-- ============================================================ -->
+<section>
+  <h2>The Full Handshake &mdash; 1-RTT</h2>
+  <p class="small">TLS 1.3 completes the handshake in a single round trip. The client sends key shares speculatively, enabling encrypted data after just one flight.</p>
+
+  <svg viewBox="0 0 800 520" style="width:100%; margin:8px 0;">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff6b9d"/></marker>
+      <marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ffd93d"/></marker>
+    </defs>
+    <!-- Client / Server labels -->
+    <text x="120" y="25" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Client</text>
+    <text x="680" y="25" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Server</text>
+    <line x1="120" y1="35" x2="120" y2="510" stroke="#6a6a7a" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <line x1="680" y1="35" x2="680" y2="510" stroke="#6a6a7a" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+    <!-- ClientHello -->
+    <line x1="130" y1="60" x2="670" y2="90" stroke="#64ffda" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="400" y="55" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">ClientHello</text>
+    <text x="400" y="70" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">+ key_share + supported_versions + sig_algs</text>
+
+    <!-- Plaintext bracket -->
+    <rect x="30" y="45" width="6" height="55" rx="2" fill="#6a6a7a"/>
+    <text x="20" y="75" text-anchor="end" fill="#6a6a7a" font-size="9" transform="rotate(-90,20,75)">PLAIN</text>
+
+    <!-- ServerHello -->
+    <line x1="670" y1="120" x2="130" y2="150" stroke="#64ffda" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="400" y="115" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">ServerHello</text>
+    <text x="400" y="130" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">+ key_share + supported_versions</text>
+
+    <!-- Encrypted separator -->
+    <line x1="60" y1="170" x2="740" y2="170" stroke="var(--accent2)" stroke-width="1" stroke-dasharray="6,4"/>
+    <rect x="330" y="162" width="140" height="16" rx="4" fill="#0a0a0f"/>
+    <text x="400" y="174" text-anchor="middle" fill="var(--accent2)" font-size="10" font-weight="700">ENCRYPTED FROM HERE</text>
+
+    <!-- EncryptedExtensions -->
+    <line x1="670" y1="200" x2="130" y2="220" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arr2)"/>
+    <text x="400" y="195" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">{EncryptedExtensions}</text>
+
+    <!-- Certificate -->
+    <line x1="670" y1="250" x2="130" y2="270" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arr2)"/>
+    <text x="400" y="245" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">{Certificate}</text>
+
+    <!-- CertificateVerify -->
+    <line x1="670" y1="300" x2="130" y2="320" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arr2)"/>
+    <text x="400" y="295" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">{CertificateVerify}</text>
+
+    <!-- Server Finished -->
+    <line x1="670" y1="350" x2="130" y2="370" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arr2)"/>
+    <text x="400" y="345" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">{Finished}</text>
+
+    <!-- RTT bracket -->
+    <rect x="760" y="60" width="6" height="310" rx="2" fill="var(--accent3)"/>
+    <text x="780" y="215" text-anchor="middle" fill="var(--accent3)" font-size="11" font-weight="700">1-RTT</text>
+
+    <!-- Client Finished -->
+    <line x1="130" y1="410" x2="670" y2="430" stroke="#ffd93d" stroke-width="2" marker-end="url(#arr3)"/>
+    <text x="400" y="405" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">{Finished}</text>
+
+    <!-- Application Data -->
+    <line x1="130" y1="470" x2="670" y2="480" stroke="#6c5ce7" stroke-width="2" marker-end="url(#arr)"/>
+    <line x1="670" y1="490" x2="130" y2="500" stroke="#6c5ce7" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="400" y="465" text-anchor="middle" fill="#6c5ce7" font-size="11" font-weight="700">[Application Data]</text>
+  </svg>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: CLIENTHELLO -->
+<!-- ============================================================ -->
+<section>
+  <h2>ClientHello in Detail</h2>
+  <p class="small">The ClientHello is the only unencrypted message from the client. It must contain enough information for the server to complete key exchange in a single round trip.</p>
+
+  <div class="card">
+    <h3>ClientHello Structure</h3>
+    <pre><code class="language-plaintext">ClientHello {
+    legacy_version:           0x0303        // TLS 1.2 for middlebox compat
+    random:                   32 bytes      // Client random nonce
+    legacy_session_id:        32 bytes      // Compatibility mode
+    cipher_suites:            [0x1301, 0x1302, 0x1303]
+    legacy_compression:       [0x00]        // Null only
+    extensions: {
+        supported_versions:   [0x0304]      // TLS 1.3
+        key_share:            X25519 pubkey (32 bytes)
+                              P-256 pubkey  (65 bytes)
+        signature_algorithms: [ed25519, ecdsa_secp256r1_sha256,
+                               rsa_pss_rsae_sha256, ...]
+        server_name (SNI):    "example.com"
+        psk_key_exchange_modes: [psk_dhe_ke]
+    }
+}</code></pre>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Speculative key shares:</strong> The client sends public keys for its preferred groups (often both X25519 and P-256). If the server supports neither, it responds with <em>HelloRetryRequest</em> &mdash; adding one extra round trip.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: SERVERHELLO + ENCRYPTED EXTENSIONS -->
+<!-- ============================================================ -->
+<section>
+  <h2>ServerHello + EncryptedExtensions</h2>
+  <p class="small">The server selects one cipher suite, one key share group, and sends its ephemeral public key. Everything after ServerHello is encrypted.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>ServerHello</h3>
+      <p class="small">Sent in plaintext (last unencrypted server message):</p>
+      <pre><code class="language-plaintext">ServerHello {
+  legacy_version: 0x0303
+  random:         32 bytes
+  cipher_suite:   0x1301
+                  (AES_128_GCM_SHA256)
+  extensions: {
+    supported_versions: 0x0304
+    key_share: X25519 pubkey
+  }
+}</code></pre>
+    </div>
+    <div class="card">
+      <h3>{EncryptedExtensions}</h3>
+      <p class="small">First encrypted message &mdash; uses <em>handshake traffic keys</em>:</p>
+      <pre><code class="language-plaintext">{EncryptedExtensions} {
+  server_name:          ack
+  max_fragment_length:  ...
+  alpn:                 "h2"
+  // No key-exchange or
+  // auth-related extensions
+  // (those stay in ServerHello)
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Why encrypt extensions?</strong> In TLS 1.2, all extensions were plaintext &mdash; leaking ALPN negotiation, supported features, and other metadata. TLS 1.3 encrypts everything except what's strictly needed for key agreement.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 9: ECDHE KEY EXCHANGE -->
+<!-- ============================================================ -->
+<section>
+  <h2>ECDHE Key Exchange</h2>
+  <p class="small">The core of TLS 1.3 security &mdash; ephemeral Elliptic Curve Diffie-Hellman. Connects directly to <em>Module 02 (ECC)</em>.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>X25519 (Curve25519)</h3>
+      <p class="small">
+        <strong>Field:</strong> GF(2<sup>255</sup> - 19)<br>
+        <strong>Key size:</strong> 32 bytes public, 32 bytes private<br>
+        <strong>Speed:</strong> ~50,000 ops/sec on modern CPU<br>
+        <strong>Properties:</strong> Constant-time by design, no invalid-curve attacks, Montgomery ladder
+      </p>
+      <p><span class="tag tag-green">Preferred</span> <span class="tag tag-dim">~70% of connections</span></p>
+    </div>
+    <div class="card">
+      <h3>P-256 (secp256r1)</h3>
+      <p class="small">
+        <strong>Field:</strong> GF(p) where p = 2<sup>256</sup> - 2<sup>224</sup> + ...<br>
+        <strong>Key size:</strong> 65 bytes public (uncompressed)<br>
+        <strong>Speed:</strong> ~20,000 ops/sec on modern CPU<br>
+        <strong>Properties:</strong> NIST standard, HSM support, FIPS validated
+      </p>
+      <p><span class="tag tag-purple">NIST</span> <span class="tag tag-dim">Compliance required</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Shared secret derivation:</strong> Both parties compute <code>shared_secret = ECDH(my_private, peer_public)</code>. The result is a 32-byte value fed into the HKDF key schedule. New ephemeral keys are generated for <em>every single connection</em> &mdash; guaranteeing forward secrecy.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: KEY SCHEDULE -->
+<!-- ============================================================ -->
+<section>
+  <h2>Key Schedule &mdash; HKDF Derivation</h2>
+  <p class="small">TLS 1.3 derives all keys through a structured HKDF pipeline. Two primitives from Module 05 (Hashing): <em>HKDF-Extract</em> (combine entropy) and <em>HKDF-Expand</em> (derive keys).</p>
+
+  <svg viewBox="0 0 800 420" style="width:100%; margin:8px 0;">
+    <defs>
+      <marker id="ka" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+    </defs>
+    <!-- PSK input -->
+    <rect x="20" y="10" width="120" height="36" rx="6" fill="none" stroke="#6a6a7a" stroke-width="1.5"/>
+    <text x="80" y="33" text-anchor="middle" fill="#6a6a7a" font-size="11" font-weight="700">PSK (or 0s)</text>
+    <line x1="140" y1="28" x2="180" y2="28" stroke="#6a6a7a" stroke-width="1.5" marker-end="url(#ka)"/>
+
+    <!-- Extract 1 -->
+    <rect x="180" y="10" width="160" height="36" rx="6" fill="rgba(100,255,218,0.1)" stroke="#64ffda" stroke-width="2"/>
+    <text x="260" y="33" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">HKDF-Extract</text>
+    <line x1="260" y1="46" x2="260" y2="76" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ka)"/>
+
+    <!-- Early Secret -->
+    <rect x="190" y="76" width="140" height="32" rx="6" fill="rgba(255,107,157,0.1)" stroke="#ff6b9d" stroke-width="1.5"/>
+    <text x="260" y="97" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">Early Secret</text>
+
+    <!-- Derive arrows from Early Secret -->
+    <line x1="330" y1="92" x2="420" y2="72" stroke="#ff6b9d" stroke-width="1" marker-end="url(#ka)"/>
+    <text x="500" y="67" text-anchor="middle" fill="#ff6b9d" font-size="10" class="mono">client_early_traffic_secret (0-RTT)</text>
+    <line x1="330" y1="92" x2="420" y2="92" stroke="#ff6b9d" stroke-width="1" marker-end="url(#ka)"/>
+    <text x="530" y="97" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">early_exporter_master_secret</text>
+
+    <!-- Derive-Secret + ECDHE -->
+    <line x1="260" y1="108" x2="260" y2="148" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ka)"/>
+    <text x="245" y="133" text-anchor="end" fill="#6a6a7a" font-size="9">Derive-Secret</text>
+
+    <!-- ECDHE input -->
+    <rect x="20" y="148" width="120" height="36" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
+    <text x="80" y="171" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">(EC)DHE</text>
+    <line x1="140" y1="166" x2="180" y2="166" stroke="#ffd93d" stroke-width="1.5" marker-end="url(#ka)"/>
+
+    <!-- Extract 2 -->
+    <rect x="180" y="148" width="160" height="36" rx="6" fill="rgba(100,255,218,0.1)" stroke="#64ffda" stroke-width="2"/>
+    <text x="260" y="171" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">HKDF-Extract</text>
+    <line x1="260" y1="184" x2="260" y2="214" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ka)"/>
+
+    <!-- Handshake Secret -->
+    <rect x="175" y="214" width="170" height="32" rx="6" fill="rgba(255,217,61,0.1)" stroke="#ffd93d" stroke-width="1.5"/>
+    <text x="260" y="235" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Handshake Secret</text>
+
+    <!-- Derive arrows from Handshake Secret -->
+    <line x1="345" y1="230" x2="420" y2="215" stroke="#ffd93d" stroke-width="1" marker-end="url(#ka)"/>
+    <text x="570" y="210" text-anchor="middle" fill="#ffd93d" font-size="10" class="mono">client_handshake_traffic_secret</text>
+    <line x1="345" y1="230" x2="420" y2="240" stroke="#ffd93d" stroke-width="1" marker-end="url(#ka)"/>
+    <text x="570" y="245" text-anchor="middle" fill="#ffd93d" font-size="10" class="mono">server_handshake_traffic_secret</text>
+
+    <!-- Down to Master -->
+    <line x1="260" y1="246" x2="260" y2="290" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ka)"/>
+    <text x="245" y="273" text-anchor="end" fill="#6a6a7a" font-size="9">Derive-Secret</text>
+
+    <!-- 0s input -->
+    <rect x="20" y="290" width="120" height="36" rx="6" fill="none" stroke="#6a6a7a" stroke-width="1.5"/>
+    <text x="80" y="313" text-anchor="middle" fill="#6a6a7a" font-size="11" font-weight="700">0 (no input)</text>
+    <line x1="140" y1="308" x2="180" y2="308" stroke="#6a6a7a" stroke-width="1.5" marker-end="url(#ka)"/>
+
+    <!-- Extract 3 -->
+    <rect x="180" y="290" width="160" height="36" rx="6" fill="rgba(100,255,218,0.1)" stroke="#64ffda" stroke-width="2"/>
+    <text x="260" y="313" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">HKDF-Extract</text>
+    <line x1="260" y1="326" x2="260" y2="356" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ka)"/>
+
+    <!-- Master Secret -->
+    <rect x="185" y="356" width="150" height="32" rx="6" fill="rgba(108,92,231,0.15)" stroke="#6c5ce7" stroke-width="2"/>
+    <text x="260" y="377" text-anchor="middle" fill="#6c5ce7" font-size="11" font-weight="700">Master Secret</text>
+
+    <!-- Derive arrows from Master Secret -->
+    <line x1="335" y1="372" x2="420" y2="357" stroke="#6c5ce7" stroke-width="1" marker-end="url(#ka)"/>
+    <text x="570" y="352" text-anchor="middle" fill="#6c5ce7" font-size="10" class="mono">client_application_traffic_secret</text>
+    <line x1="335" y1="372" x2="420" y2="377" stroke="#6c5ce7" stroke-width="1" marker-end="url(#ka)"/>
+    <text x="570" y="382" text-anchor="middle" fill="#6c5ce7" font-size="10" class="mono">server_application_traffic_secret</text>
+    <line x1="335" y1="372" x2="420" y2="400" stroke="#6c5ce7" stroke-width="1" marker-end="url(#ka)"/>
+    <text x="540" y="407" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">resumption_master_secret</text>
+  </svg>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: SERVER AUTHENTICATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Server Authentication</h2>
+  <p class="small">After key exchange, the server proves its identity with three encrypted messages. All sent under <em>handshake traffic keys</em>.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Certificate</h3>
+      <p class="small">X.509 certificate chain sent to client. Contains server's public key, signed by a Certificate Authority. Encoded as a sequence of <code>CertificateEntry</code> structures with optional per-certificate extensions (OCSP, SCT).</p>
+      <p><span class="tag tag-green">Identity</span></p>
+    </div>
+    <div class="card">
+      <h3>CertificateVerify</h3>
+      <p class="small">Digital signature over the handshake transcript hash using the server's private key. Proves the server possesses the private key matching the certificate. Uses signature algorithms from <em>Module 06</em>.</p>
+      <p><span class="tag tag-pink">Proof of possession</span></p>
+    </div>
+    <div class="card">
+      <h3>Finished</h3>
+      <p class="small">HMAC over the entire handshake transcript using a key derived from the handshake secret. Provides <em>key confirmation</em> and <em>transcript integrity</em> &mdash; proves the handshake was not tampered with.</p>
+      <p><span class="tag tag-yellow">Integrity</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Transcript binding:</strong> CertificateVerify signs <code>Hash(Handshake Context || messages)</code>. This binds the server's identity to the specific key exchange that occurred &mdash; preventing mismatch attacks where an attacker substitutes a different server's response.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: CLIENT FINISHED -->
+<!-- ============================================================ -->
+<section>
+  <h2>Client Finished &mdash; Handshake Complete</h2>
+  <p class="small">The client verifies the server's Certificate, CertificateVerify, and Finished. Then it sends its own Finished message to complete the handshake.</p>
+
+  <div class="card">
+    <h3>Client-Side Verification Steps</h3>
+    <div class="pipeline-row">
+      <div class="pipeline-stage"><div class="stage-name">Verify Chain</div><div class="small">X.509 path validation<br>to trusted root CA</div></div>
+      <div class="pipeline-stage"><div class="stage-name" style="color:var(--accent2);">Check Signature</div><div class="small">CertificateVerify<br>over transcript hash</div></div>
+      <div class="pipeline-stage"><div class="stage-name" style="color:var(--accent3);">Verify Finished</div><div class="small">HMAC matches<br>expected value</div></div>
+      <div class="pipeline-stage"><div class="stage-name" style="color:var(--accent4);">Send Finished</div><div class="small">Client's HMAC<br>over full transcript</div></div>
+    </div>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <div class="metric">
+        <div class="value">1-RTT</div>
+        <div class="label">Handshake latency</div>
+      </div>
+      <p class="small" style="text-align:center;">Application data can flow immediately<br>after client sends Finished</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent2);">~1ms</div>
+        <div class="label">Crypto computation</div>
+      </div>
+      <p class="small" style="text-align:center;">ECDHE + signature verification<br>dominates CPU time</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent3);">3</div>
+        <div class="label">Key phases</div>
+      </div>
+      <p class="small" style="text-align:center;">Early &rarr; Handshake &rarr; Application<br>each with separate traffic keys</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: 0-RTT RESUMPTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>0-RTT Resumption</h2>
+  <p class="small">Returning clients can send encrypted application data in the very first flight &mdash; zero round trips before data. But this comes with significant security trade-offs.</p>
+
+  <svg viewBox="0 0 800 280" style="width:100%; margin:8px 0;">
+    <defs>
+      <marker id="a0" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="a0p" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#6c5ce7"/></marker>
+    </defs>
+    <text x="120" y="20" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Client</text>
+    <text x="680" y="20" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Server</text>
+    <line x1="120" y1="30" x2="120" y2="270" stroke="#6a6a7a" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <line x1="680" y1="30" x2="680" y2="270" stroke="#6a6a7a" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+    <!-- ClientHello + early data -->
+    <line x1="130" y1="50" x2="670" y2="80" stroke="#64ffda" stroke-width="2" marker-end="url(#a0)"/>
+    <text x="400" y="45" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">ClientHello + PSK identity + key_share</text>
+    <line x1="130" y1="100" x2="670" y2="120" stroke="#6c5ce7" stroke-width="2" marker-end="url(#a0p)"/>
+    <text x="400" y="95" text-anchor="middle" fill="#6c5ce7" font-size="12" font-weight="700">[0-RTT Application Data]</text>
+    <text x="400" y="112" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">Encrypted with early_traffic_secret</text>
+
+    <!-- 0-RTT bracket -->
+    <rect x="30" y="40" width="6" height="90" rx="2" fill="var(--accent3)"/>
+    <text x="22" y="85" text-anchor="end" fill="var(--accent3)" font-size="10" font-weight="700">0-RTT</text>
+
+    <!-- ServerHello + Finished -->
+    <line x1="670" y1="160" x2="130" y2="180" stroke="#ff6b9d" stroke-width="2" marker-end="url(#a0)"/>
+    <text x="400" y="155" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">ServerHello ... Finished</text>
+
+    <!-- Application data -->
+    <line x1="130" y1="220" x2="670" y2="230" stroke="#6c5ce7" stroke-width="2" marker-end="url(#a0p)"/>
+    <line x1="670" y1="245" x2="130" y2="255" stroke="#6c5ce7" stroke-width="2" marker-end="url(#a0p)"/>
+    <text x="400" y="218" text-anchor="middle" fill="#6c5ce7" font-size="11" font-weight="700">[Application Data - full 1-RTT keys]</text>
+  </svg>
+
+  <div class="highlight-box pink">
+    <strong>Replay risk:</strong> 0-RTT data is <em>not replay-protected</em>. An attacker who captures the ClientHello + early data can replay it. Servers must implement application-layer replay protection (e.g., idempotency tokens). 0-RTT also lacks forward secrecy against PSK compromise.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 14: PSK MODES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Pre-Shared Key Modes</h2>
+  <p class="small">TLS 1.3 supports two PSK modes for resumption and external PSK use cases.</p>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>PSK-Only (psk_ke)</h3>
+      <p class="small">
+        Key derived solely from the pre-shared key. No ephemeral key exchange is performed.<br><br>
+        <strong>Forward secrecy:</strong> <span class="accent2">None</span> &mdash; if the PSK is compromised, all sessions using it are exposed.<br>
+        <strong>Use case:</strong> IoT devices with pre-provisioned keys, constrained environments where ECDHE is too expensive.
+      </p>
+      <p><span class="tag tag-pink">No forward secrecy</span> <span class="tag tag-dim">Constrained only</span></p>
+    </div>
+    <div class="card">
+      <h3>PSK with (EC)DHE (psk_dhe_ke)</h3>
+      <p class="small">
+        PSK combined with ephemeral ECDHE exchange. Both the PSK and ECDHE shared secret feed into HKDF-Extract.<br><br>
+        <strong>Forward secrecy:</strong> <span style="color:var(--accent);">Yes</span> &mdash; even if PSK is later compromised, past sessions are safe.<br>
+        <strong>Use case:</strong> Normal TLS 1.3 session resumption. This is the <em>recommended</em> mode.
+      </p>
+      <p><span class="tag tag-green">Forward secrecy</span> <span class="tag tag-green">Recommended</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Key schedule integration:</strong> In PSK + (EC)DHE mode, the Early Secret comes from the PSK, but the Handshake Secret additionally incorporates the ECDHE shared secret. This provides dual protection &mdash; an attacker must compromise <em>both</em> the PSK and solve the discrete log problem.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 15: SESSION TICKETS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Session Tickets</h2>
+  <p class="small">After the handshake completes, the server sends <code>NewSessionTicket</code> messages enabling future resumption without server-side state.</p>
+
+  <div class="card">
+    <h3>NewSessionTicket Structure</h3>
+    <pre><code class="language-plaintext">NewSessionTicket {
+    ticket_lifetime:    7200                // Max 604800s (7 days)
+    ticket_age_add:     0x4a2bc8e1          // Obfuscate ticket age
+    ticket_nonce:       0x0000000000000001  // Unique per ticket
+    ticket:             &lt;encrypted blob&gt;    // Server-encrypted state
+    extensions: {
+        early_data:     max_early_data_size: 16384
+    }
+}</code></pre>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Stateless Servers</h3>
+      <p class="small">The ticket is an <em>encrypted container</em> holding the resumption secret, cipher suite, and expiry. The server encrypts with a ticket encryption key (STEK) known only to the server cluster &mdash; no session database needed.</p>
+    </div>
+    <div class="card">
+      <h3>Ticket Age Obfuscation</h3>
+      <p class="small">The client reports <code>obfuscated_age = (age_ms + ticket_age_add) mod 2^32</code>. This prevents observers from correlating ticket reuse across connections &mdash; a privacy improvement over TLS 1.2 session IDs.</p>
+    </div>
+  </div>
+
+  <div class="highlight-box yellow">
+    <strong>STEK rotation:</strong> Session Ticket Encryption Keys must be rotated regularly (every few hours). If an STEK is compromised, an attacker can decrypt all tickets encrypted with it, deriving resumption secrets and decrypting 0-RTT data.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 16: CERTIFICATE HANDLING -->
+<!-- ============================================================ -->
+<section>
+  <h2>Certificate Handling</h2>
+  <p class="small">TLS 1.3 carries X.509 certificate chains with inline extensions for revocation checking and certificate transparency.</p>
+
+  <div class="arch-grid cols-3">
+    <div class="card">
+      <h3>X.509 Chain</h3>
+      <p class="small">Server sends its leaf certificate plus intermediates. The client validates the chain to a trusted root CA. Chain is typically 2-3 certificates, ~3-5 KB total.</p>
+      <p><span class="tag tag-green">Identity binding</span></p>
+    </div>
+    <div class="card">
+      <h3>OCSP Stapling</h3>
+      <p class="small">Server includes a signed OCSP response in the <code>CertificateEntry</code> extension. Client verifies revocation status without contacting the CA &mdash; reduces latency and improves privacy.</p>
+      <p><span class="tag tag-yellow">Revocation</span></p>
+    </div>
+    <div class="card">
+      <h3>SCTs (CT Logs)</h3>
+      <p class="small">Signed Certificate Timestamps prove the certificate was logged in a public Certificate Transparency log. Detects misissued certificates. Required by Chrome since 2018.</p>
+      <p><span class="tag tag-purple">Transparency</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Certificate compression (RFC 8879):</strong> TLS 1.3 supports Brotli/zlib compression of certificate chains via the <code>compress_certificate</code> extension. This reduces certificate data by ~60%, saving ~2-3 KB per handshake &mdash; significant at scale.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 17: SIGNATURE SCHEMES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Signature Schemes</h2>
+  <p class="small">TLS 1.3 defines specific signature algorithms for CertificateVerify. Connecting to <em>Module 06 (Digital Signatures)</em>.</p>
+
+  <table class="comparison-table">
+    <tr><th>Scheme</th><th>Algorithm</th><th>Hash</th><th>Key Size</th><th>Notes</th></tr>
+    <tr><td><strong>ecdsa_secp256r1_sha256</strong></td><td>ECDSA over P-256</td><td>SHA-256</td><td>256-bit</td><td>Most widely deployed</td></tr>
+    <tr><td><strong>ecdsa_secp384r1_sha384</strong></td><td>ECDSA over P-384</td><td>SHA-384</td><td>384-bit</td><td>Higher security level</td></tr>
+    <tr><td><strong>ed25519</strong></td><td>EdDSA / Curve25519</td><td>SHA-512</td><td>256-bit</td><td>Deterministic, fast; from Module 06</td></tr>
+    <tr><td><strong>ed448</strong></td><td>EdDSA / Ed448</td><td>SHAKE256</td><td>448-bit</td><td>~224-bit security</td></tr>
+    <tr><td><strong>rsa_pss_rsae_sha256</strong></td><td>RSA-PSS (RSAE)</td><td>SHA-256</td><td>2048+ bit</td><td>PSS padding mandatory</td></tr>
+    <tr><td><strong>rsa_pss_rsae_sha384</strong></td><td>RSA-PSS (RSAE)</td><td>SHA-384</td><td>2048+ bit</td><td>RSA-PSS only; no PKCS#1 v1.5</td></tr>
+    <tr><td><strong>rsa_pss_pss_sha256</strong></td><td>RSA-PSS (PSS key)</td><td>SHA-256</td><td>2048+ bit</td><td>Key restricted to PSS</td></tr>
+  </table>
+
+  <div class="highlight-box">
+    <strong>No PKCS#1 v1.5 for handshake:</strong> TLS 1.3 requires RSA-PSS for CertificateVerify signatures. PKCS#1 v1.5 is only allowed in certificate chain signatures (for compatibility with existing CA infrastructure). This eliminates Bleichenbacher-style padding oracle attacks.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 18: RECORD PROTOCOL -->
+<!-- ============================================================ -->
+<section>
+  <h2>Record Protocol &mdash; AEAD Encryption</h2>
+  <p class="small">All application data (and handshake messages after ServerHello) is encrypted using the AEAD cipher from the negotiated suite. Connects to <em>Module 03 (AES-GCM)</em> and <em>Module 04 (ChaCha20-Poly1305)</em>.</p>
+
+  <div class="card">
+    <h3>TLSCiphertext Record</h3>
+    <pre><code class="language-plaintext">TLSCiphertext {
+    opaque_type:     0x17 (application_data)  // Always 0x17!
+    legacy_version:  0x0303                    // Always TLS 1.2
+    length:          uint16                    // Encrypted payload length
+    encrypted_record:
+        AEAD-Encrypt(
+            key:   write_key,
+            nonce: write_iv XOR sequence_number,
+            aad:   TLSCiphertext header (5 bytes),
+            plaintext: content || ContentType || zeros
+        )
+}</code></pre>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Content Type Hiding</h3>
+      <p class="small">The <em>real</em> content type (handshake, alert, application_data) is encrypted inside the record. The outer header always says <code>0x17</code>. This prevents traffic analysis that distinguishes handshake from data.</p>
+    </div>
+    <div class="card">
+      <h3>Nonce Construction</h3>
+      <p class="small">Each record uses <code>nonce = write_iv XOR padded_sequence_number</code>. The sequence number is implicit (not sent on wire), incrementing from 0. This guarantees nonce uniqueness without transmitting it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 19: MIDDLEBOX COMPATIBILITY -->
+<!-- ============================================================ -->
+<section>
+  <h2>Middlebox Compatibility Mode</h2>
+  <p class="small">The most pragmatic hack in TLS 1.3: it disguises itself as TLS 1.2 on the wire to avoid being broken by enterprise middleboxes.</p>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>The Problem</h3>
+      <p class="small">
+        Enterprise firewalls, load balancers, and inspection devices parse TLS headers. When TLS 1.3 was first deployed, many middleboxes:<br><br>
+        &bull; Dropped connections with unknown version numbers<br>
+        &bull; Expected ChangeCipherSpec messages<br>
+        &bull; Failed on missing session IDs<br>
+        &bull; Caused ~3-8% connection failures in field trials
+      </p>
+    </div>
+    <div class="card">
+      <h3>The Solution</h3>
+      <p class="small">
+        TLS 1.3 includes deliberate <em>lies</em> for compatibility:<br><br>
+        &bull; <code>legacy_version = 0x0303</code> (claims TLS 1.2)<br>
+        &bull; Sends a dummy <code>ChangeCipherSpec</code> message<br>
+        &bull; Includes a random <code>legacy_session_id</code><br>
+        &bull; Real version negotiated in <code>supported_versions</code> extension
+      </p>
+    </div>
+  </div>
+
+  <div class="highlight-box yellow">
+    <strong>Lesson for protocol design:</strong> The internet ossifies around deployed behavior. Even a clean, well-designed protocol must accommodate broken implementations. TLS 1.3's compatibility mode adds ~100 bytes of waste per handshake but saved the protocol from deployment failure.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 20: SECURITY ANALYSIS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Security Analysis</h2>
+  <p class="small">TLS 1.3 is the most formally analyzed cryptographic protocol in history. Multiple independent verification efforts proved its security properties.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Formal Verification</h3>
+      <p class="small">
+        <strong>Tamarin Prover</strong> &mdash; Symbolic analysis of the handshake state machine. Proved authentication, secrecy, and forward secrecy properties.<br><br>
+        <strong>ProVerif</strong> &mdash; Automated Dolev-Yao model verification. Confirmed no protocol-level attacks on the 1-RTT and 0-RTT modes.<br><br>
+        <strong>miTLS (F*)</strong> &mdash; Verified reference implementation in F* language. Crypto proofs composed with code correctness proofs.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Attacks Prevented</h3>
+      <p class="small">
+        <span class="tag tag-green">BEAST</span> CBC IV predictability &rarr; no CBC<br>
+        <span class="tag tag-green">CRIME</span> Compression oracle &rarr; no compression<br>
+        <span class="tag tag-green">Lucky13</span> CBC padding oracle &rarr; no CBC<br>
+        <span class="tag tag-green">POODLE</span> SSL 3.0 downgrade &rarr; no fallback<br>
+        <span class="tag tag-green">FREAK</span> Export cipher downgrade &rarr; no export<br>
+        <span class="tag tag-green">Logjam</span> Weak DH groups &rarr; no custom groups<br>
+        <span class="tag tag-green">ROBOT</span> RSA padding oracle &rarr; no RSA KE<br>
+        <span class="tag tag-green">Triple HS</span> Renegotiation &rarr; no renegotiation
+      </p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Downgrade protection:</strong> The server random includes a sentinel value (<code>44 4F 57 4E 47 52 44 01</code> = "DOWNGRD\x01") when negotiating TLS 1.2. If a client sees this sentinel while expecting 1.3, it detects a downgrade attack and aborts.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 21: TLS 1.3 vs 1.2 COMPARISON -->
+<!-- ============================================================ -->
+<section>
+  <h2>TLS 1.3 vs TLS 1.2</h2>
+  <p class="small">A side-by-side comparison of the two protocol generations.</p>
+
+  <svg viewBox="0 0 800 380" style="width:100%; margin:8px 0;">
+    <!-- TLS 1.2 column -->
+    <rect x="30" y="10" width="350" height="40" rx="6" fill="rgba(255,107,157,0.15)" stroke="#ff6b9d" stroke-width="1.5"/>
+    <text x="205" y="35" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">TLS 1.2</text>
+
+    <rect x="30" y="60" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="79" fill="#e0e0e8" font-size="11">Handshake: <tspan fill="#ff6b9d" font-weight="700">2-RTT</tspan></text>
+
+    <rect x="30" y="95" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="114" fill="#e0e0e8" font-size="11">Key exchange: RSA, DHE, ECDHE (optional)</text>
+
+    <rect x="30" y="130" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="149" fill="#e0e0e8" font-size="11">Cipher suites: <tspan fill="#ff6b9d">37+</tspan> (CBC, RC4, AEAD mixed)</text>
+
+    <rect x="30" y="165" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="184" fill="#e0e0e8" font-size="11">Handshake encryption: <tspan fill="#ff6b9d">None</tspan> (all plaintext)</text>
+
+    <rect x="30" y="200" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="219" fill="#e0e0e8" font-size="11">Forward secrecy: <tspan fill="#ff6b9d">Optional</tspan> (only with DHE/ECDHE)</text>
+
+    <rect x="30" y="235" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="254" fill="#e0e0e8" font-size="11">Resumption: Session ID / Session Ticket</text>
+
+    <rect x="30" y="270" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="289" fill="#e0e0e8" font-size="11">Signature: RSA PKCS#1 v1.5, ECDSA</text>
+
+    <rect x="30" y="305" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="324" fill="#e0e0e8" font-size="11">Renegotiation: <tspan fill="#ff6b9d">Supported</tspan></text>
+
+    <rect x="30" y="340" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="45" y="359" fill="#e0e0e8" font-size="11">Messages: 6-10 in full handshake</text>
+
+    <!-- TLS 1.3 column -->
+    <rect x="420" y="10" width="350" height="40" rx="6" fill="rgba(100,255,218,0.15)" stroke="#64ffda" stroke-width="1.5"/>
+    <text x="595" y="35" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">TLS 1.3</text>
+
+    <rect x="420" y="60" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="79" fill="#e0e0e8" font-size="11">Handshake: <tspan fill="#64ffda" font-weight="700">1-RTT</tspan> (0-RTT resumption)</text>
+
+    <rect x="420" y="95" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="114" fill="#e0e0e8" font-size="11">Key exchange: <tspan fill="#64ffda">ECDHE only</tspan> (mandatory)</text>
+
+    <rect x="420" y="130" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="149" fill="#e0e0e8" font-size="11">Cipher suites: <tspan fill="#64ffda">5</tspan> (AEAD-only)</text>
+
+    <rect x="420" y="165" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="184" fill="#e0e0e8" font-size="11">Handshake encryption: <tspan fill="#64ffda">After ServerHello</tspan></text>
+
+    <rect x="420" y="200" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="219" fill="#e0e0e8" font-size="11">Forward secrecy: <tspan fill="#64ffda">Always</tspan> (ephemeral ECDHE)</text>
+
+    <rect x="420" y="235" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="254" fill="#e0e0e8" font-size="11">Resumption: PSK + (EC)DHE tickets</text>
+
+    <rect x="420" y="270" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="289" fill="#e0e0e8" font-size="11">Signature: RSA-PSS, EdDSA, ECDSA</text>
+
+    <rect x="420" y="305" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="324" fill="#e0e0e8" font-size="11">Renegotiation: <tspan fill="#64ffda">Removed</tspan></text>
+
+    <rect x="420" y="340" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
+    <text x="435" y="359" fill="#e0e0e8" font-size="11">Messages: 4-5 in full handshake</text>
+  </svg>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 22: POST-QUANTUM TLS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Post-Quantum TLS</h2>
+  <p class="small">Quantum computers threaten ECDHE key exchange. The transition to post-quantum TLS is already underway. Connecting to <em>Module 07 (Post-Quantum Cryptography)</em>.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Hybrid Key Exchange</h3>
+      <p class="small">
+        Combines classical ECDHE with a PQ KEM in a single key_share. The shared secret is derived from <em>both</em> &mdash; secure even if one scheme is broken.<br><br>
+        <code>shared_secret = HKDF(ECDHE_secret || ML-KEM_secret)</code>
+      </p>
+      <p><span class="tag tag-green">Chrome since M131</span></p>
+    </div>
+    <div class="card">
+      <h3>ML-KEM (Kyber) Integration</h3>
+      <p class="small">
+        <strong>X25519MLKEM768</strong> &mdash; X25519 + ML-KEM-768 hybrid. Now the most common PQ key exchange on the web.<br><br>
+        <strong>ClientHello size:</strong> Grows from ~300 bytes to ~1100 bytes (ML-KEM public key is 1184 bytes for level 3).
+      </p>
+      <p><span class="tag tag-purple">FIPS 203</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Deployment reality (2026):</strong> Cloudflare and Google report that >30% of TLS connections now use hybrid PQ key exchange. The main challenge is not cryptography but <em>packet size</em> &mdash; ML-KEM key shares can cause ClientHello fragmentation, triggering middlebox failures similar to the early TLS 1.3 deployment.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 23: WIRESHARK WALKTHROUGH -->
+<!-- ============================================================ -->
+<section>
+  <h2>On the Wire &mdash; What Wireshark Sees</h2>
+  <p class="small">A TLS 1.3 handshake as captured in a packet trace. Note how everything after ServerHello appears as opaque <code>Application Data</code>.</p>
+
+  <pre><code class="language-plaintext">Frame 1: ClientHello (227 bytes)
+  16 03 01 00 e0        # Record: Handshake, TLS 1.0 (compat!)
+  01 00 00 dc           # ClientHello, length 220
+  03 03                 # legacy_version: TLS 1.2
+  [32 bytes random]
+  20 [32 bytes session_id]     # Compatibility mode
+  00 06 13 01 13 02 13 03      # 3 cipher suites
+  01 00                        # Compression: null
+  00 91                        # Extensions length
+    00 2b 00 03 02 03 04       # supported_versions: TLS 1.3
+    00 33 00 47 00 45          # key_share: X25519
+      00 1d 00 20 [32 bytes pubkey]
+    00 0d 00 14 ...            # signature_algorithms
+    00 00 00 0f ...            # server_name: example.com
+
+Frame 2: ServerHello (155 bytes)
+  16 03 03 00 97        # Record: Handshake, TLS 1.2 (compat!)
+  02 00 00 93           # ServerHello
+  03 03 [32 bytes random]
+  20 [32 bytes session_id]     # Echo client's session_id
+  13 01                        # Selected: TLS_AES_128_GCM_SHA256
+    00 2b 00 02 03 04          # supported_versions: TLS 1.3
+    00 33 00 24 00 1d 00 20    # key_share: X25519
+      [32 bytes server pubkey]
+
+Frame 3: Change Cipher Spec (6 bytes)  # Fake! Compatibility mode
+  14 03 03 00 01 01
+
+Frame 4-7: Application Data (opaque)   # All encrypted from here
+  17 03 03 [len] [encrypted EncryptedExtensions]
+  17 03 03 [len] [encrypted Certificate]
+  17 03 03 [len] [encrypted CertificateVerify]
+  17 03 03 [len] [encrypted Finished]</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 24: IMPLEMENTATIONS -->
+<!-- ============================================================ -->
+<section>
+  <h2>TLS 1.3 Implementations</h2>
+  <p class="small">Major implementations with different design philosophies and security profiles.</p>
+
+  <table class="comparison-table">
+    <tr><th>Library</th><th>Language</th><th>0-RTT</th><th>PQ Hybrid</th><th>Notes</th></tr>
+    <tr><td><strong>OpenSSL 3.x</strong></td><td>C</td><td>Yes</td><td>Yes (3.5+)</td><td>Most widely deployed; provider architecture</td></tr>
+    <tr><td><strong>BoringSSL</strong></td><td>C++</td><td>Yes</td><td>Yes</td><td>Google's fork; Chrome, Android; first PQ deploy</td></tr>
+    <tr><td><strong>rustls</strong></td><td>Rust</td><td>Yes</td><td>Yes</td><td>Memory-safe; no C code; ~10K LoC</td></tr>
+    <tr><td><strong>Go crypto/tls</strong></td><td>Go</td><td>Yes</td><td>Yes</td><td>Standard library; simple API</td></tr>
+    <tr><td><strong>mbedTLS</strong></td><td>C</td><td>Yes</td><td>Partial</td><td>Embedded/IoT focus; ARM-maintained</td></tr>
+    <tr><td><strong>wolfSSL</strong></td><td>C</td><td>Yes</td><td>Yes</td><td>Embedded + FIPS 140-3 certified</td></tr>
+    <tr><td><strong>NSS</strong></td><td>C</td><td>Yes</td><td>Yes</td><td>Mozilla/Firefox; PKCS#11 based</td></tr>
+    <tr><td><strong>s2n-tls</strong></td><td>C</td><td>Yes</td><td>Yes</td><td>AWS; minimal code footprint</td></tr>
+  </table>
+
+  <div class="highlight-box">
+    <strong>rustls momentum:</strong> Memory-safe TLS is gaining traction. rustls is now used by Cloudflare (Pingora), the curl project, and the Apache httpd mod_tls module. Its ~10K lines of Rust replace ~500K lines of OpenSSL C, eliminating entire classes of vulnerabilities (buffer overflows, use-after-free).
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 25: SECTION DIVIDER — DEEP DIVES -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <div class="section-num">DEEP DIVE</div>
+  <h2>Protocol Internals</h2>
+  <p class="small" style="text-align:center;">HKDF details &middot; Finished computation &middot; Key update</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 26: HKDF INTERNALS -->
+<!-- ============================================================ -->
+<section>
+  <h2>HKDF Internals</h2>
+  <p class="small">HKDF (HMAC-based Key Derivation Function, RFC 5869) is the engine behind TLS 1.3's key schedule. Two operations, each a single HMAC call.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>HKDF-Extract(salt, IKM)</h3>
+      <pre><code class="language-plaintext">PRK = HMAC-Hash(salt, IKM)
+// Extracts entropy from input
+// keying material (IKM) into a
+// fixed-length pseudorandom key
+// salt = previous Derive-Secret
+// IKM = PSK or ECDHE secret</code></pre>
+    </div>
+    <div class="card">
+      <h3>HKDF-Expand-Label</h3>
+      <pre><code class="language-plaintext">HKDF-Expand-Label(Secret, Label,
+                   Context, Length)
+= HKDF-Expand(Secret,
+    HkdfLabel, Length)
+
+HkdfLabel = Length ||
+  "tls13 " || Label ||
+  Hash(Context)</code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Derive-Secret</h3>
+    <pre><code class="language-plaintext">Derive-Secret(Secret, Label, Messages)
+    = HKDF-Expand-Label(Secret, Label, Transcript-Hash(Messages), Hash.length)
+
+// Example: deriving handshake traffic secret
+client_handshake_traffic_secret =
+    Derive-Secret(Handshake Secret, "c hs traffic", ClientHello...ServerHello)</code></pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 27: FINISHED AND KEY UPDATE -->
+<!-- ============================================================ -->
+<section>
+  <h2>Finished Message &amp; Key Update</h2>
+
+  <div class="card">
+    <h3>Finished Computation</h3>
+    <pre><code class="language-plaintext">finished_key = HKDF-Expand-Label(
+    base_key,           // {client,server}_handshake_traffic_secret
+    "finished", "", Hash.length
+)
+
+verify_data = HMAC(finished_key, Transcript-Hash(
+    Handshake Context ... last message before Finished
+))</code></pre>
+    <p class="small">The Finished message is a MAC over the entire transcript, keyed with a value derived from the handshake secret. It provides <em>key confirmation</em> &mdash; both parties prove they computed the same keys.</p>
+  </div>
+
+  <div class="card">
+    <h3>Post-Handshake Key Update</h3>
+    <pre><code class="language-plaintext">application_traffic_secret_N+1 =
+    HKDF-Expand-Label(application_traffic_secret_N,
+                       "traffic upd", "", Hash.length)
+
+// New write key and IV derived from new secret
+// Triggered via KeyUpdate message (encrypted)
+// Provides key rotation without new handshake</code></pre>
+    <p class="small">Key update allows rekeying application traffic keys without a new handshake. This limits the amount of data encrypted under a single key, mitigating potential nonce-reuse issues.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 28: REFERENCES -->
+<!-- ============================================================ -->
+<section>
+  <h2>References &amp; Standards</h2>
+  <div class="arch-grid cols-2">
+    <div>
+      <h3 style="font-size:0.9em;">Core RFCs</h3>
+      <p class="tiny">
+        RFC 8446 &mdash; TLS 1.3 Protocol<br>
+        RFC 8447 &mdash; IANA Registry Updates for TLS<br>
+        RFC 8448 &mdash; Example TLS 1.3 Handshake Traces<br>
+        RFC 8449 &mdash; Record Size Limit Extension<br>
+        RFC 8879 &mdash; Certificate Compression<br>
+        RFC 5869 &mdash; HKDF (HMAC-based KDF)<br>
+        RFC 9001 &mdash; QUIC uses TLS 1.3<br>
+        RFC 8998 &mdash; ShangMi Cipher Suites for TLS 1.3
+      </p>
+      <h3 style="font-size:0.9em;">Post-Quantum</h3>
+      <p class="tiny">
+        draft-ietf-tls-hybrid-design &mdash; Hybrid Key Exchange<br>
+        FIPS 203 &mdash; ML-KEM (Kyber)<br>
+        Chrome: X25519MLKEM768 deployment<br>
+        Cloudflare: PQ key exchange telemetry
+      </p>
+    </div>
+    <div>
+      <h3 style="font-size:0.9em;">Formal Analysis</h3>
+      <p class="tiny">
+        Cremers et al., "A Comprehensive Symbolic Analysis of TLS 1.3" (CCS 2017)<br>
+        Bhargavan et al., "miTLS: Verified Reference Implementation" (S&amp;P 2017)<br>
+        Dowling &amp; Paterson, "A Cryptographic Analysis of TLS 1.3" (JoC 2021)<br>
+        Delignat-Lavaud et al., "Implementing TLS with Verified Cryptographic Security" (S&amp;P 2014)
+      </p>
+      <h3 style="font-size:0.9em;">Implementations</h3>
+      <p class="tiny">
+        OpenSSL &mdash; openssl.org<br>
+        BoringSSL &mdash; boringssl.googlesource.com<br>
+        rustls &mdash; github.com/rustls/rustls<br>
+        s2n-tls &mdash; github.com/aws/s2n-tls<br>
+        wolfSSL &mdash; wolfssl.com
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 29: SUMMARY -->
+<!-- ============================================================ -->
+<section class="title-slide">
+  <h1>Summary</h1>
+  <div style="text-align:left; max-width:700px; margin:0 auto;">
+    <p class="small">
+      <em>Protocol design</em> &mdash; TLS 1.3 achieves 1-RTT handshakes by removing legacy features, mandating ECDHE forward secrecy, and encrypting the handshake after ServerHello. Only 5 AEAD-only cipher suites remain.
+    </p>
+    <p class="small">
+      <em>Key exchange (Module 02)</em> &mdash; Ephemeral ECDHE with X25519 or P-256 provides the shared secret. Post-quantum hybrid key exchange with ML-KEM is actively deploying.
+    </p>
+    <p class="small">
+      <em>Symmetric encryption (Modules 03/04)</em> &mdash; AES-128-GCM, AES-256-GCM, and ChaCha20-Poly1305 protect all application data via AEAD. Content type hiding prevents traffic analysis.
+    </p>
+    <p class="small">
+      <em>Hash functions (Module 05)</em> &mdash; HKDF-Extract and HKDF-Expand (built on HMAC-SHA256/384) drive the three-stage key schedule from Early Secret through Master Secret.
+    </p>
+    <p class="small">
+      <em>Digital signatures (Module 06)</em> &mdash; RSA-PSS, Ed25519, and ECDSA authenticate servers in CertificateVerify. PKCS#1 v1.5 is banned for handshake signatures.
+    </p>
+  </div>
+  <div class="series-tag" style="margin-top:1em;">Modern Cryptography &middot; Module 13</div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  width: 1100,
+  height: 900,
+  margin: 0.02,
+  transition: 'slide',
+  transitionSpeed: 'default',
+  backgroundTransition: 'fade',
+  plugins: [ RevealHighlight ],
+  highlight: { highlightOnLoad: true }
+});
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
+</script>
+</body>
+</html>

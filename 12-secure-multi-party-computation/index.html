@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Multi-Party Computation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --r-background-color: #0a0a0f;
+  --r-main-font: 'DM Sans', sans-serif;
+  --r-heading-font: 'Playfair Display', serif;
+  --r-code-font: 'JetBrains Mono', monospace;
+  --r-main-font-size: 28px;
+  --r-main-color: #e0e0e8;
+  --r-heading-color: #ffffff;
+  --r-link-color: #64ffda;
+  --accent: #64ffda;
+  --accent2: #ff6b9d;
+  --accent3: #ffd93d;
+  --accent4: #6c5ce7;
+  --dim: #6a6a7a;
+  --panel: rgba(255,255,255,0.04);
+  --border: rgba(100,255,218,0.15);
+}
+.reveal { font-family: var(--r-main-font); }
+.reveal h1, .reveal h2, .reveal h3 { font-family: var(--r-heading-font); font-weight: 700; letter-spacing: -0.02em; }
+.reveal h1 { font-size: 2.4em; }
+.reveal h2 { font-size: 1.6em; color: var(--accent); }
+.reveal h3 { font-size: 1.15em; color: var(--accent3); }
+.reveal code { font-family: var(--r-code-font); font-size: 0.72em; }
+.reveal pre { width: 100%; box-shadow: none; }
+.reveal pre code { padding: 18px 22px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); max-height: 520px; }
+.reveal .slide-number { font-family: var(--r-code-font); font-size: 14px; color: var(--dim); background: transparent; }
+.reveal section { text-align: left; overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
+
+/* Custom elements */
+.title-slide { text-align: center !important; }
+.title-slide h1 { font-size: 2.6em; line-height: 1.15; background: linear-gradient(135deg, #64ffda 0%, #6c5ce7 50%, #ff6b9d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.title-slide .subtitle { font-size: 1.1em; color: var(--dim); margin-top: 0.5em; }
+.title-slide .series-tag { display: inline-block; padding: 6px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 0.7em; color: var(--accent); margin-top: 1.5em; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 10px 0; }
+.card h3 { margin-top: 0; }
+.card-row { display: flex; gap: 16px; margin: 12px 0; }
+.card-row .card { flex: 1; }
+
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.65em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 2px; }
+.tag-green { background: rgba(100,255,218,0.15); color: var(--accent); }
+.tag-pink { background: rgba(255,107,157,0.15); color: var(--accent2); }
+.tag-yellow { background: rgba(255,217,61,0.15); color: var(--accent3); }
+.tag-purple { background: rgba(108,92,231,0.15); color: var(--accent4); }
+.tag-dim { background: rgba(255,255,255,0.06); color: var(--dim); }
+
+.metric { text-align: center; padding: 14px; }
+.metric .value { font-size: 2em; font-weight: 900; font-family: var(--r-code-font); color: var(--accent); }
+.metric .label { font-size: 0.6em; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+.pipeline-row { display: flex; align-items: center; gap: 0; margin: 18px 0; }
+.pipeline-stage { background: var(--panel); border: 1px solid var(--border); padding: 10px 16px; text-align: center; font-size: 0.7em; flex: 1; }
+.pipeline-stage:first-child { border-radius: 8px 0 0 8px; }
+.pipeline-stage:last-child { border-radius: 0 8px 8px 0; }
+.pipeline-stage .stage-name { font-weight: 700; color: var(--accent); }
+.pipeline-arrow { color: var(--accent); font-size: 1.4em; margin: 0 -4px; z-index: 1; }
+
+.comparison-table { width: 100%; border-collapse: collapse; font-size: 0.68em; margin: 12px 0; }
+.comparison-table th { background: rgba(100,255,218,0.1); color: var(--accent); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); font-weight: 700; }
+.comparison-table td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.comparison-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+.diagram-box { border: 2px solid var(--accent); border-radius: 8px; padding: 10px 16px; text-align: center; display: inline-block; margin: 4px; font-size: 0.75em; font-weight: 700; }
+.diagram-box.pink { border-color: var(--accent2); color: var(--accent2); }
+.diagram-box.yellow { border-color: var(--accent3); color: var(--accent3); }
+.diagram-box.purple { border-color: var(--accent4); color: var(--accent4); }
+
+.arch-grid { display: grid; gap: 10px; margin: 12px 0; }
+.arch-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.arch-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.arch-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.highlight-box { border-left: 3px solid var(--accent); padding: 12px 18px; background: rgba(100,255,218,0.04); margin: 12px 0; font-size: 0.85em; }
+.highlight-box.pink { border-color: var(--accent2); background: rgba(255,107,157,0.04); }
+.highlight-box.yellow { border-color: var(--accent3); background: rgba(255,217,61,0.04); }
+
+.small { font-size: 0.72em; color: var(--dim); }
+.tiny { font-size: 0.6em; color: var(--dim); }
+em { color: var(--accent); font-style: normal; font-weight: 700; }
+strong { color: #fff; }
+.accent2 { color: var(--accent2); }
+.accent3 { color: var(--accent3); }
+.accent4 { color: var(--accent4); }
+
+/* SVG diagrams */
+svg text { font-family: 'DM Sans', sans-serif; }
+svg .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Interactive elements */
+.interactive-note { text-align: center; font-size: 0.55em; color: var(--dim); margin-top: 20px; font-style: italic; }
+
+/* Section divider */
+.section-divider { text-align: center !important; }
+.section-divider h2 { font-size: 2.2em; background: linear-gradient(135deg, var(--accent), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.section-divider .section-num { font-family: var(--r-code-font); font-size: 0.7em; color: var(--dim); letter-spacing: 0.15em; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================================================ -->
+<section class="title-slide">
+  <div class="series-tag">Modern Cryptography &middot; Module 12</div>
+  <h1>Secure Multi-Party<br>Computation</h1>
+  <p class="subtitle">From Yao's Millionaires to Privacy-Preserving ML &mdash;<br>Protocols, Secret Sharing &amp; Real-World Deployment</p>
+  <p class="small" style="margin-top:2em; text-align:center;">
+    <span class="tag tag-green">Secret Sharing</span>
+    <span class="tag tag-purple">Garbled Circuits</span>
+    <span class="tag tag-pink">Oblivious Transfer</span>
+    <span class="tag tag-yellow">Malicious Security</span>
+  </p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: THE MILLIONAIRES' PROBLEM -->
+<!-- ============================================================ -->
+<section>
+  <h2>The Millionaires' Problem</h2>
+  <p class="small">Andrew Yao, 1982: Two millionaires want to know who is richer without revealing their actual wealth to each other. This deceptively simple problem launched the field of secure computation.</p>
+
+  <svg viewBox="0 0 800 220" style="width:100%; margin:10px 0;">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+    </defs>
+    <!-- Alice -->
+    <rect x="30" y="30" width="180" height="90" rx="8" fill="none" stroke="#64ffda" stroke-width="2"/>
+    <text x="120" y="60" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">Alice</text>
+    <text x="120" y="82" text-anchor="middle" fill="#6a6a7a" font-size="12" class="mono">wealth = x</text>
+    <text x="120" y="105" text-anchor="middle" fill="#e0e0e8" font-size="11">Wants: x &gt; y ?</text>
+    <!-- Bob -->
+    <rect x="590" y="30" width="180" height="90" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+    <text x="680" y="60" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">Bob</text>
+    <text x="680" y="82" text-anchor="middle" fill="#6a6a7a" font-size="12" class="mono">wealth = y</text>
+    <text x="680" y="105" text-anchor="middle" fill="#e0e0e8" font-size="11">Wants: x &gt; y ?</text>
+    <!-- Protocol arrows -->
+    <line x1="210" y1="55" x2="590" y2="55" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arr)"/>
+    <text x="400" y="48" text-anchor="middle" fill="#64ffda" font-size="11">Encrypted comparison protocol</text>
+    <line x1="590" y1="80" x2="210" y2="80" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#arr)"/>
+    <text x="400" y="100" text-anchor="middle" fill="#ff6b9d" font-size="11">Encrypted response</text>
+    <!-- Result -->
+    <rect x="280" y="150" width="240" height="50" rx="8" fill="rgba(255,217,61,0.08)" stroke="#ffd93d" stroke-width="1.5"/>
+    <text x="400" y="170" text-anchor="middle" fill="#ffd93d" font-size="13" font-weight="700">Output: x &gt; y (1-bit)</text>
+    <text x="400" y="188" text-anchor="middle" fill="#6a6a7a" font-size="10">Neither party learns the other's actual wealth</text>
+  </svg>
+
+  <div class="highlight-box">
+    <strong>Key insight:</strong> Yao showed this is solvable using <em>garbled circuits</em> and <em>oblivious transfer</em>. The result generalizes: <em>any function</em> computable by a Boolean circuit can be securely evaluated by two parties. This became the foundation of all MPC.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: MPC DEFINITION -->
+<!-- ============================================================ -->
+<section>
+  <h2>MPC: Formal Definition</h2>
+  <p class="small">n parties P<sub>1</sub>, ..., P<sub>n</sub> each hold private input x<sub>i</sub>. They wish to jointly compute y = f(x<sub>1</sub>, ..., x<sub>n</sub>) such that each party learns only y (and nothing else about others' inputs).</p>
+
+  <div class="card">
+    <h3>Ideal vs. Real World Paradigm</h3>
+    <p class="small">Security is defined by comparison to an <em>ideal world</em> where a trusted third party (TTP) collects all inputs, computes f, and distributes outputs. A protocol is secure if no adversary can distinguish the real execution from the ideal one.</p>
+    <pre><code class="language-plaintext">  IDEAL WORLD:                    REAL WORLD:
+  P1 --x1--> [TTP] --y--> P1     P1 <----protocol----> P2
+  P2 --x2--> [TTP] --y--> P2         (no trusted party)
+  ...                             ...
+  Pn --xn--> [TTP] --y--> Pn     Pn <----protocol----> P1</code></pre>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Privacy</h3>
+      <p class="small">No party learns anything beyond its prescribed output. Formally: the <em>view</em> of each party can be <em>simulated</em> from its input and output alone.</p>
+    </div>
+    <div class="card">
+      <h3>Correctness</h3>
+      <p class="small">The output is guaranteed to be the correct evaluation of f, even if some parties deviate from the protocol.</p>
+    </div>
+    <div class="card">
+      <h3>Independence</h3>
+      <p class="small">Corrupt parties must choose their inputs <em>independently</em> of honest parties' inputs (no adaptive input selection).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: SECURITY MODELS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Security Models</h2>
+  <p class="small">The strength of an MPC protocol depends on what adversary it resists. Two orthogonal axes: adversary behavior and corruption threshold.</p>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>Semi-Honest (Passive)</h3>
+      <p class="small">Corrupted parties follow the protocol faithfully but try to extract extra information from their <em>transcript</em> (messages received + internal state).</p>
+      <p class="small"><strong>Assumption:</strong> Parties are "honest but curious"<br><strong>Advantage:</strong> Simpler, faster protocols<br><strong>Use:</strong> Trusted corporate environments</p>
+      <p><span class="tag tag-green">Efficient</span> <span class="tag tag-dim">Weaker guarantee</span></p>
+    </div>
+    <div class="card">
+      <h3>Malicious (Active)</h3>
+      <p class="small">Corrupted parties can <em>arbitrarily deviate</em> from the protocol: send wrong messages, abort early, use inconsistent inputs.</p>
+      <p class="small"><strong>Assumption:</strong> Worst-case adversary<br><strong>Cost:</strong> 10-1000x overhead vs. semi-honest<br><strong>Use:</strong> Adversarial / regulatory settings</p>
+      <p><span class="tag tag-pink">Robust</span> <span class="tag tag-yellow">Expensive</span></p>
+    </div>
+    <div class="card">
+      <h3>Honest Majority (t &lt; n/2)</h3>
+      <p class="small">Assumes more than half the parties are honest. Enables information-theoretic security (no computational assumptions) and efficient protocols over arithmetic circuits.</p>
+      <p><span class="tag tag-purple">IT-secure</span> <span class="tag tag-green">Efficient</span></p>
+    </div>
+    <div class="card">
+      <h3>Dishonest Majority (t &lt; n)</h3>
+      <p class="small">Up to n-1 parties may be corrupt. Requires computational assumptions (OT, public-key crypto). Security with abort is achievable; guaranteed output delivery is not.</p>
+      <p><span class="tag tag-pink">Strongest threat</span> <span class="tag tag-dim">Comp. assumptions</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5: SECTION DIVIDER — SECRET SHARING -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <div class="section-num">SECTION I</div>
+  <h2>Secret Sharing Foundations</h2>
+  <p class="small" style="text-align:center;">Splitting secrets so no single party learns anything</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: SHAMIR'S SECRET SHARING -->
+<!-- ============================================================ -->
+<section>
+  <h2>Shamir's Secret Sharing</h2>
+  <p class="small">Adi Shamir (1979): A (t, n)-threshold scheme where any t+1 shares reconstruct the secret, but t or fewer shares reveal nothing. Based on polynomial interpolation over a finite field.</p>
+
+  <div class="card">
+    <h3>Construction</h3>
+    <pre><code class="language-plaintext">  Share(s, t, n):
+    1. Choose random a₁, a₂, ..., aₜ ∈ F_p
+    2. Define polynomial: f(x) = s + a₁x + a₂x² + ... + aₜxᵗ
+    3. Give party Pᵢ the share: (i, f(i))
+
+  Reconstruct(shares):
+    Given t+1 points (xᵢ, yᵢ), use Lagrange interpolation:
+    s = f(0) = Σᵢ yᵢ · Πⱼ≠ᵢ (xⱼ / (xⱼ - xᵢ))  mod p</code></pre>
+  </div>
+
+  <svg viewBox="0 0 800 200" style="width:100%; margin:10px 0;">
+    <!-- Polynomial curve -->
+    <text x="50" y="20" fill="#6a6a7a" font-size="11">f(x) = s + a₁x + a₂x² (degree t=2, threshold t+1=3)</text>
+    <path d="M80,160 Q200,20 400,80 Q550,120 720,40" fill="none" stroke="#64ffda" stroke-width="2" stroke-dasharray="6,4"/>
+    <!-- Points -->
+    <circle cx="80" cy="160" r="6" fill="#ffd93d" stroke="#ffd93d" stroke-width="2"/>
+    <text x="75" y="180" fill="#ffd93d" font-size="11" font-weight="700">f(0)=s</text>
+    <circle cx="200" cy="62" r="6" fill="#ff6b9d"/>
+    <text x="190" y="52" fill="#ff6b9d" font-size="10">P₁: f(1)</text>
+    <circle cx="320" cy="58" r="6" fill="#ff6b9d"/>
+    <text x="310" y="48" fill="#ff6b9d" font-size="10">P₂: f(2)</text>
+    <circle cx="440" cy="86" r="6" fill="#ff6b9d"/>
+    <text x="430" y="76" fill="#ff6b9d" font-size="10">P₃: f(3)</text>
+    <circle cx="560" cy="104" r="6" fill="#6c5ce7"/>
+    <text x="550" y="125" fill="#6c5ce7" font-size="10">P₄: f(4)</text>
+    <circle cx="680" cy="48" r="6" fill="#6c5ce7"/>
+    <text x="670" y="40" fill="#6c5ce7" font-size="10">P₅: f(5)</text>
+    <!-- Labels -->
+    <rect x="500" y="140" width="280" height="50" rx="6" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <text x="520" y="160" fill="#e0e0e8" font-size="11"><tspan fill="#64ffda">Any 3 points</tspan> uniquely determine f(x)</text>
+    <text x="520" y="178" fill="#6a6a7a" font-size="10">2 or fewer points → infinite possible secrets</text>
+  </svg>
+
+  <div class="highlight-box">
+    <strong>Information-theoretic security:</strong> With t or fewer shares, every possible secret is equally likely. No computational power helps the adversary — Shamir's scheme is <em>perfectly secure</em> against unbounded adversaries.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: ADDITIVE SECRET SHARING -->
+<!-- ============================================================ -->
+<section>
+  <h2>Additive Secret Sharing</h2>
+  <p class="small">The simplest form of secret sharing: split a value into n random shares that sum (or XOR) to the secret. Every party must participate in reconstruction — a (n, n)-threshold scheme.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>XOR-Based (Boolean)</h3>
+      <pre><code class="language-plaintext">  Share(s):
+    r₁, ..., rₙ₋₁ ← random bits
+    rₙ = s ⊕ r₁ ⊕ ... ⊕ rₙ₋₁
+
+  Reconstruct:
+    s = r₁ ⊕ r₂ ⊕ ... ⊕ rₙ</code></pre>
+      <p class="small">Natural for Boolean circuits. XOR is free in garbled circuits. Each share is uniformly random.</p>
+      <p><span class="tag tag-green">Boolean circuits</span></p>
+    </div>
+    <div class="card">
+      <h3>Arithmetic (mod p)</h3>
+      <pre><code class="language-plaintext">  Share(s):
+    r₁, ..., rₙ₋₁ ← random in F_p
+    rₙ = s - r₁ - ... - rₙ₋₁ mod p
+
+  Reconstruct:
+    s = r₁ + r₂ + ... + rₙ mod p</code></pre>
+      <p class="small">Natural for arithmetic circuits. Addition of shared values is <em>local</em> — no communication needed.</p>
+      <p><span class="tag tag-purple">Arithmetic circuits</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>The addition-is-free principle:</strong> If [x] = (x₁, ..., xₙ) and [y] = (y₁, ..., yₙ) are additive shares, then [x+y] = (x₁+y₁, ..., xₙ+yₙ). Each party adds locally — <em>zero communication</em>. Multiplication is the hard part and requires interaction.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: BEAVER TRIPLES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Beaver Triples</h2>
+  <p class="small">Donald Beaver (1991): Precompute random multiplication triples (a, b, c) where c = a&middot;b in an offline phase. Use them to multiply shared values in the online phase with only 2 rounds of communication.</p>
+
+  <div class="card">
+    <h3>Beaver's Multiplication Protocol</h3>
+    <pre><code class="language-plaintext">  Given: shares [x], [y], and precomputed triple ([a], [b], [c]) where c = a·b
+
+  1. Each party computes and opens:
+     [d] = [x] - [a]  →  reveal d = x - a
+     [e] = [y] - [b]  →  reveal e = y - b
+
+  2. Each party locally computes:
+     [x·y] = d·e + d·[b] + e·[a] + [c]
+
+  Correctness: d·e + d·b + e·a + c
+             = (x-a)(y-b) + (x-a)b + (y-b)a + ab
+             = xy - ay - xb + ab + xb - ab + ay - ab + ab = xy  ✓</code></pre>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <div class="metric">
+        <div class="value">2</div>
+        <div class="label">Rounds per multiply</div>
+      </div>
+      <p class="small" style="text-align:center;">Open d and e simultaneously<br>then compute locally</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent2);">O(n)</div>
+        <div class="label">Communication per multiply</div>
+      </div>
+      <p class="small" style="text-align:center;">Each party broadcasts<br>two field elements</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent3);">Offline</div>
+        <div class="label">Triple generation</div>
+      </div>
+      <p class="small" style="text-align:center;">Expensive part done<br>before inputs are known</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 9: SECTION DIVIDER — TWO-PARTY PROTOCOLS -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <div class="section-num">SECTION II</div>
+  <h2>Two-Party Protocols</h2>
+  <p class="small" style="text-align:center;">Garbled circuits &middot; Oblivious transfer &middot; Gate-by-gate evaluation</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: GMW PROTOCOL -->
+<!-- ============================================================ -->
+<section>
+  <h2>GMW Protocol</h2>
+  <p class="small">Goldreich, Micali, Wigderson (1987): Evaluate a Boolean circuit gate-by-gate using XOR secret shares. XOR gates are free; AND gates require oblivious transfer.</p>
+
+  <div class="card">
+    <h3>Gate-by-Gate Evaluation</h3>
+    <p class="small">Each wire w carries a secret-shared bit: w = w<sub>A</sub> &oplus; w<sub>B</sub> (Alice holds w<sub>A</sub>, Bob holds w<sub>B</sub>).</p>
+    <pre><code class="language-plaintext">  XOR gate (z = x ⊕ y):
+    Alice: z_A = x_A ⊕ y_A     (local computation — FREE)
+    Bob:   z_B = x_B ⊕ y_B
+
+  AND gate (z = x ∧ y):
+    z = (x_A ⊕ x_B) ∧ (y_A ⊕ y_B)
+      = x_A·y_A ⊕ x_A·y_B ⊕ x_B·y_A ⊕ x_B·y_B
+    Alice knows x_A·y_A, Bob knows x_B·y_B
+    Cross-terms x_A·y_B and x_B·y_A require 1-out-of-4 OT</code></pre>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Rounds vs. computation:</strong> GMW requires <em>O(depth)</em> rounds of interaction — one round per AND-gate layer. For shallow circuits this is efficient; for deep circuits (e.g., AES), Yao's garbled circuits (constant rounds) may be preferable.
+  </div>
+
+  <div class="highlight-box pink">
+    <strong>Multi-party extension:</strong> GMW generalizes naturally to n parties. Each AND gate requires n-choose-2 pairwise OTs. The protocol scales to arbitrary numbers of parties, unlike Yao's original 2-party scheme.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: OBLIVIOUS TRANSFER -->
+<!-- ============================================================ -->
+<section>
+  <h2>Oblivious Transfer (OT)</h2>
+  <p class="small">The fundamental primitive of two-party computation. In 1-out-of-2 OT, a sender holds two messages (m<sub>0</sub>, m<sub>1</sub>). The receiver with choice bit b learns m<sub>b</sub> and nothing about m<sub>1-b</sub>. The sender learns nothing about b.</p>
+
+  <svg viewBox="0 0 800 200" style="width:100%; margin:10px 0;">
+    <defs>
+      <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff6b9d"/></marker>
+    </defs>
+    <!-- Sender -->
+    <rect x="30" y="30" width="160" height="80" rx="8" fill="none" stroke="#64ffda" stroke-width="2"/>
+    <text x="110" y="55" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">Sender</text>
+    <text x="110" y="75" text-anchor="middle" fill="#6a6a7a" font-size="11" class="mono">m₀, m₁</text>
+    <text x="110" y="95" text-anchor="middle" fill="#6a6a7a" font-size="10">Learns nothing about b</text>
+    <!-- Receiver -->
+    <rect x="610" y="30" width="160" height="80" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+    <text x="690" y="55" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">Receiver</text>
+    <text x="690" y="75" text-anchor="middle" fill="#6a6a7a" font-size="11" class="mono">choice bit b</text>
+    <text x="690" y="95" text-anchor="middle" fill="#6a6a7a" font-size="10">Learns m_b only</text>
+    <!-- Protocol -->
+    <line x1="190" y1="50" x2="610" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <line x1="610" y1="75" x2="190" y2="75" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#arr3)"/>
+    <text x="400" y="42" text-anchor="middle" fill="#64ffda" font-size="10">Public-key based exchange</text>
+    <text x="400" y="93" text-anchor="middle" fill="#ff6b9d" font-size="10">Encrypted selection</text>
+    <!-- Result -->
+    <rect x="280" y="140" width="240" height="45" rx="8" fill="rgba(255,217,61,0.08)" stroke="#ffd93d" stroke-width="1.5"/>
+    <text x="400" y="163" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">Receiver obtains m_b, learns nothing about m_{1-b}</text>
+    <text x="400" y="178" text-anchor="middle" fill="#6a6a7a" font-size="10">Sender learns nothing about b</text>
+  </svg>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Base OT</h3>
+      <p class="small">Uses public-key crypto (RSA, ECC, or lattice-based). Costly: ~milliseconds per OT. Naor-Pinkas protocol is standard.</p>
+      <p><span class="tag tag-pink">Expensive</span> <span class="tag tag-dim">~128 base OTs</span></p>
+    </div>
+    <div class="card">
+      <h3>OT Extension</h3>
+      <p class="small">IKNP (2003): Use ~128 base OTs to generate <em>millions</em> of OTs using only symmetric crypto (hash + XOR). Amortized cost: microseconds per OT.</p>
+      <p><span class="tag tag-green">Efficient</span> <span class="tag tag-yellow">Key technique</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: GARBLED CIRCUITS — YAO'S PROTOCOL -->
+<!-- ============================================================ -->
+<section>
+  <h2>Garbled Circuits</h2>
+  <p class="small">Yao's garbled circuit protocol (1986): The garbler encrypts a Boolean circuit gate-by-gate. The evaluator decrypts exactly one output per gate without learning intermediate wire values.</p>
+
+  <svg viewBox="0 0 800 260" style="width:100%; margin:10px 0;">
+    <defs>
+      <marker id="arr4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+    </defs>
+    <!-- Garbler -->
+    <rect x="20" y="10" width="200" height="100" rx="8" fill="none" stroke="#64ffda" stroke-width="2"/>
+    <text x="120" y="35" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">Garbler (Alice)</text>
+    <text x="120" y="55" text-anchor="middle" fill="#e0e0e8" font-size="11">1. Assign random labels</text>
+    <text x="120" y="70" text-anchor="middle" fill="#e0e0e8" font-size="11">   k⁰_w, k¹_w per wire</text>
+    <text x="120" y="88" text-anchor="middle" fill="#e0e0e8" font-size="11">2. Encrypt truth tables</text>
+    <text x="120" y="103" text-anchor="middle" fill="#e0e0e8" font-size="11">3. Send garbled circuit</text>
+    <!-- Evaluator -->
+    <rect x="580" y="10" width="200" height="100" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+    <text x="680" y="35" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">Evaluator (Bob)</text>
+    <text x="680" y="55" text-anchor="middle" fill="#e0e0e8" font-size="11">1. Receive garbled circuit</text>
+    <text x="680" y="70" text-anchor="middle" fill="#e0e0e8" font-size="11">2. Get input labels via OT</text>
+    <text x="680" y="88" text-anchor="middle" fill="#e0e0e8" font-size="11">3. Decrypt gate-by-gate</text>
+    <text x="680" y="103" text-anchor="middle" fill="#e0e0e8" font-size="11">4. Output final labels</text>
+    <!-- Arrows -->
+    <line x1="220" y1="40" x2="580" y2="40" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arr4)"/>
+    <text x="400" y="33" text-anchor="middle" fill="#6a6a7a" font-size="10">Garbled circuit + Alice's input labels</text>
+    <line x1="580" y1="70" x2="220" y2="70" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#arr4)"/>
+    <text x="400" y="85" text-anchor="middle" fill="#6a6a7a" font-size="10">OT for Bob's input labels</text>
+    <!-- Gate detail -->
+    <rect x="150" y="140" width="500" height="105" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <text x="170" y="162" fill="#ffd93d" font-size="13" font-weight="700">Garbled AND Gate (wire a, wire b → wire c):</text>
+    <text x="170" y="182" fill="#e0e0e8" font-size="11" class="mono">Enc(k⁰_a, k⁰_b, k⁰_c)  →  garbled row 0</text>
+    <text x="170" y="198" fill="#e0e0e8" font-size="11" class="mono">Enc(k⁰_a, k¹_b, k⁰_c)  →  garbled row 1</text>
+    <text x="170" y="214" fill="#e0e0e8" font-size="11" class="mono">Enc(k¹_a, k⁰_b, k⁰_c)  →  garbled row 2</text>
+    <text x="170" y="230" fill="#e0e0e8" font-size="11" class="mono">Enc(k¹_a, k¹_b, k¹_c)  →  garbled row 3</text>
+    <text x="505" y="182" fill="#6a6a7a" font-size="10">(0 AND 0 = 0)</text>
+    <text x="505" y="198" fill="#6a6a7a" font-size="10">(0 AND 1 = 0)</text>
+    <text x="505" y="214" fill="#6a6a7a" font-size="10">(1 AND 0 = 0)</text>
+    <text x="505" y="230" fill="#6a6a7a" font-size="10">(1 AND 1 = 1)</text>
+  </svg>
+
+  <div class="highlight-box">
+    <strong>Constant rounds:</strong> Yao's protocol requires only <em>O(1) rounds</em> of interaction (send circuit + OT), regardless of circuit depth. Communication is O(|C|&middot;k) where |C| is the number of gates and k is the security parameter.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: POINT-AND-PERMUTE + HALF-GATES -->
+<!-- ============================================================ -->
+<section>
+  <h2>Garbled Circuit Optimizations</h2>
+  <p class="small">Decades of research have reduced the cost of garbled circuits from 4 ciphertexts per gate to as low as 1.5.</p>
+
+  <table class="comparison-table">
+    <tr><th>Optimization</th><th>Ciphertexts/Gate</th><th>Key Idea</th><th>Year</th></tr>
+    <tr><td><strong>Naive</strong></td><td>4</td><td>Encrypt all 4 truth table rows</td><td>1986</td></tr>
+    <tr><td><strong>Point-and-Permute</strong></td><td>4</td><td>Append permute bit to labels; evaluator decrypts only 1 row</td><td>1990</td></tr>
+    <tr><td><strong>Row Reduction (GRR3)</strong></td><td>3</td><td>Set one output label so one ciphertext is all-zeros</td><td>1999</td></tr>
+    <tr><td><strong>Free XOR</strong></td><td>0 (XOR)</td><td>Global offset R: k<sup>1</sup><sub>w</sub> = k<sup>0</sup><sub>w</sub> &oplus; R for all wires</td><td>2008</td></tr>
+    <tr><td><strong>Half-Gates</strong></td><td class="accent2">2 (AND)</td><td>Split AND into garbler-half + evaluator-half</td><td>2015</td></tr>
+    <tr><td><strong>Three Halves</strong></td><td style="color:var(--accent);">1.5 (AND)</td><td>Slicing technique, amortized across gates</td><td>2021</td></tr>
+  </table>
+
+  <div class="card">
+    <h3>Half-Gates Technique (Zahur, Rosulek, Evans 2015)</h3>
+    <p class="small">Key insight: decompose AND(a, b) into two "half-gates" — one where the garbler knows one input, one where the evaluator knows one input. Each half-gate costs 1 ciphertext, totaling <em>2 ciphertexts per AND gate</em>. Combined with Free XOR, this is optimal for a class of linear garbling schemes.</p>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Practical impact:</strong> For AES-128 (6,800 AND gates), half-gates reduces garbled circuit size from 6,800 &times; 4 &times; 16B = <em>435 KB</em> (naive) to 6,800 &times; 2 &times; 16B = <em>218 KB</em>. With Free XOR, the ~25,000 XOR gates are truly free.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 14: BMR PROTOCOL -->
+<!-- ============================================================ -->
+<section>
+  <h2>BMR Protocol</h2>
+  <p class="small">Beaver, Micali, Rogaway (1990): Extends garbled circuits to n parties while maintaining <em>constant rounds</em>. All parties jointly generate one garbled circuit, then evaluate it non-interactively.</p>
+
+  <svg viewBox="0 0 800 200" style="width:100%; margin:10px 0;">
+    <!-- Phase boxes -->
+    <rect x="20" y="20" width="230" height="80" rx="8" fill="none" stroke="#64ffda" stroke-width="2"/>
+    <text x="135" y="45" text-anchor="middle" fill="#64ffda" font-size="13" font-weight="700">Phase 1: Joint Garbling</text>
+    <text x="135" y="65" text-anchor="middle" fill="#e0e0e8" font-size="10">Each party contributes</text>
+    <text x="135" y="80" text-anchor="middle" fill="#e0e0e8" font-size="10">partial labels k^b_{w,i}</text>
+    <text x="135" y="95" text-anchor="middle" fill="#6a6a7a" font-size="10">Interactive (O(depth) rounds)</text>
+    <line x1="250" y1="60" x2="290" y2="60" stroke="#64ffda" stroke-width="2" marker-end="url(#arr4)"/>
+    <rect x="290" y="20" width="230" height="80" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+    <text x="405" y="45" text-anchor="middle" fill="#ff6b9d" font-size="13" font-weight="700">Phase 2: Input Sharing</text>
+    <text x="405" y="65" text-anchor="middle" fill="#e0e0e8" font-size="10">Each Pᵢ reveals labels</text>
+    <text x="405" y="80" text-anchor="middle" fill="#e0e0e8" font-size="10">for their input wires</text>
+    <text x="405" y="95" text-anchor="middle" fill="#6a6a7a" font-size="10">1 round broadcast</text>
+    <line x1="520" y1="60" x2="560" y2="60" stroke="#64ffda" stroke-width="2" marker-end="url(#arr4)"/>
+    <rect x="560" y="20" width="220" height="80" rx="8" fill="none" stroke="#ffd93d" stroke-width="2"/>
+    <text x="670" y="45" text-anchor="middle" fill="#ffd93d" font-size="13" font-weight="700">Phase 3: Evaluation</text>
+    <text x="670" y="65" text-anchor="middle" fill="#e0e0e8" font-size="10">Every party evaluates</text>
+    <text x="670" y="80" text-anchor="middle" fill="#e0e0e8" font-size="10">the garbled circuit locally</text>
+    <text x="670" y="95" text-anchor="middle" fill="#6a6a7a" font-size="10">No interaction needed</text>
+    <!-- Key difference note -->
+    <rect x="120" y="120" width="560" height="65" rx="8" fill="rgba(108,92,231,0.08)" stroke="#6c5ce7" stroke-width="1.5"/>
+    <text x="400" y="145" text-anchor="middle" fill="#6c5ce7" font-size="12" font-weight="700">Key: Wire label = k^b_w = k^b_{w,1} ⊕ k^b_{w,2} ⊕ ... ⊕ k^b_{w,n}</text>
+    <text x="400" y="170" text-anchor="middle" fill="#6a6a7a" font-size="11">Each party contributes one share; garbled table uses the combined label</text>
+  </svg>
+
+  <div class="highlight-box">
+    <strong>Trade-off:</strong> BMR achieves <em>constant online rounds</em> for n parties but requires O(n) ciphertexts per gate (each party contributes a label share). Communication per gate scales as O(n&middot;k) vs. O(k) in two-party Yao. Best for small n with deep circuits.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 15: SECTION DIVIDER — MALICIOUS SECURITY -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <div class="section-num">SECTION III</div>
+  <h2>Malicious Security</h2>
+  <p class="small" style="text-align:center;">SPDZ &middot; Shamir-based MPC &middot; MAC verification</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 16: SPDZ PROTOCOL -->
+<!-- ============================================================ -->
+<section>
+  <h2>SPDZ Protocol</h2>
+  <p class="small">Damgard, Pastro, Smart, Zakarias (2012): Achieves malicious security with dishonest majority using information-theoretic MACs on all shared values. Name pronounced "Speedz."</p>
+
+  <div class="card">
+    <h3>SPDZ Architecture: Offline + Online</h3>
+    <pre><code class="language-plaintext">  Each shared value x has MAC:  [x] = (x₁,...,xₙ)  with  [α·x] = MAC shares
+  Global MAC key α is itself secret-shared: α = α₁ + ... + αₙ
+
+  OFFLINE PHASE (expensive):
+    Generate Beaver triples with MACs using Somewhat HE or OT
+    All triples: ([a], [b], [c]) with [α·a], [α·b], [α·c]
+
+  ONLINE PHASE (fast):
+    Addition: [x+y] = [x] + [y], MACs add locally
+    Multiplication: Beaver's protocol using precomputed triples
+    Output: Open value, then MAC-check to detect cheating
+
+  MAC CHECK: Verify α·x = Σᵢ m_i where m_i are MAC shares
+    → Any deviation by malicious party detected with prob 1 - 2⁻ˢ</code></pre>
+  </div>
+
+  <div class="card-row">
+    <div class="card">
+      <div class="metric">
+        <div class="value">IT</div>
+        <div class="label">Online Security</div>
+      </div>
+      <p class="small" style="text-align:center;">Information-theoretic MAC<br>cannot be forged</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent2);">n-1</div>
+        <div class="label">Corruption threshold</div>
+      </div>
+      <p class="small" style="text-align:center;">Tolerates up to n-1<br>malicious parties</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent3);">~2x</div>
+        <div class="label">vs. Semi-Honest</div>
+      </div>
+      <p class="small" style="text-align:center;">Online phase is only<br>~2x slower than passive</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 17: SHAMIR-BASED MPC -->
+<!-- ============================================================ -->
+<section>
+  <h2>Shamir-Based MPC (Honest Majority)</h2>
+  <p class="small">When t &lt; n/2 parties are corrupt, Shamir secret sharing enables highly efficient MPC over arithmetic circuits with information-theoretic security. The BGW protocol (1988) is the foundation.</p>
+
+  <div class="card">
+    <h3>BGW Protocol</h3>
+    <pre><code class="language-plaintext">  Share inputs: Each Pᵢ shares xᵢ with degree-t Shamir sharing
+
+  Addition gate:  [x+y]ᵢ = [x]ᵢ + [y]ᵢ           (local, free)
+  Constant mult:  [c·x]ᵢ = c · [x]ᵢ               (local, free)
+
+  Multiplication gate (the hard part):
+    1. Local multiply: hᵢ = [x]ᵢ · [y]ᵢ            (degree 2t polynomial!)
+    2. Degree reduction: Reshare hᵢ with degree t
+       → Each party sends shares to all others        (O(n²) communication)
+       → Recombine using Lagrange on degree-2t points
+    3. Result: degree-t sharing of x·y</code></pre>
+  </div>
+
+  <div class="highlight-box">
+    <strong>The degree-reduction problem:</strong> Multiplying two degree-t Shamir shares yields a degree-2t polynomial. With n &ge; 2t+1 parties, we have enough points to interpolate and re-share at degree t. This is why <em>honest majority (t &lt; n/2)</em> is required.
+  </div>
+
+  <div class="highlight-box yellow">
+    <strong>Communication complexity:</strong> Each multiplication gate costs O(n<sup>2</sup>) field elements. Optimizations like DN07 (Damgard-Nielsen) and Goyal-Song reduce this to O(n) per gate amortized, making Shamir-based MPC competitive for many parties.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 18: SECTION DIVIDER — APPLICATIONS -->
+<!-- ============================================================ -->
+<section class="section-divider">
+  <div class="section-num">SECTION IV</div>
+  <h2>Applications</h2>
+  <p class="small" style="text-align:center;">Private set intersection &middot; ML &middot; Auctions &middot; Key management</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 19: PRIVATE SET INTERSECTION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Private Set Intersection (PSI)</h2>
+  <p class="small">Two parties hold sets X and Y. They want to learn X &cap; Y without revealing elements not in the intersection. A flagship MPC application with major real-world deployments.</p>
+
+  <svg viewBox="0 0 800 180" style="width:100%; margin:10px 0;">
+    <!-- Alice's set -->
+    <ellipse cx="250" cy="90" rx="150" ry="75" fill="none" stroke="#64ffda" stroke-width="2"/>
+    <text x="170" y="60" fill="#64ffda" font-size="13" font-weight="700">Alice's Set X</text>
+    <text x="160" y="80" fill="#6a6a7a" font-size="11" class="mono">{a, b, c, d, e}</text>
+    <!-- Bob's set -->
+    <ellipse cx="400" cy="90" rx="150" ry="75" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+    <text x="440" y="60" fill="#ff6b9d" font-size="13" font-weight="700">Bob's Set Y</text>
+    <text x="430" y="80" fill="#6a6a7a" font-size="11" class="mono">{c, d, f, g, h}</text>
+    <!-- Intersection -->
+    <text x="325" y="100" text-anchor="middle" fill="#ffd93d" font-size="13" font-weight="700">X ∩ Y</text>
+    <text x="325" y="118" text-anchor="middle" fill="#ffd93d" font-size="11" class="mono">{c, d}</text>
+    <!-- Approaches -->
+    <rect x="580" y="15" width="200" height="150" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <text x="680" y="38" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">PSI Approaches</text>
+    <text x="600" y="58" fill="#64ffda" font-size="10" font-weight="700">OT-based</text>
+    <text x="600" y="72" fill="#6a6a7a" font-size="10">KKRT (2016): O(n) OTs</text>
+    <text x="600" y="90" fill="#ff6b9d" font-size="10" font-weight="700">DH-based</text>
+    <text x="600" y="104" fill="#6a6a7a" font-size="10">OPRF via Diffie-Hellman</text>
+    <text x="600" y="122" fill="#ffd93d" font-size="10" font-weight="700">Circuit-based</text>
+    <text x="600" y="136" fill="#6a6a7a" font-size="10">Sort-Compare-Shuffle</text>
+    <text x="600" y="154" fill="#6c5ce7" font-size="10" font-weight="700">FHE-based</text>
+    <text x="600" y="168" fill="#6a6a7a" font-size="10">Chen-Laine-Rindal (2017)</text>
+  </svg>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>Scale</h3>
+      <p class="small">Modern OT-based PSI handles <em>2<sup>28</sup> elements</em> (268M) in under 100 seconds. Communication: ~1 byte per element with cuckoo hashing.</p>
+    </div>
+    <div class="card">
+      <h3>Variants</h3>
+      <p class="small"><em>PSI-Cardinality:</em> learn only |X &cap; Y|<br><em>PSI-Sum:</em> learn sum of associated values<br><em>Labeled PSI:</em> retrieve payloads for matched items</p>
+    </div>
+    <div class="card">
+      <h3>Deployments</h3>
+      <p class="small"><em>Google:</em> Private ad measurement<br><em>Apple:</em> CSAM detection (NeuralHash + PSI)<br><em>Meta:</em> Private ad attribution</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 20: PRIVACY-PRESERVING ML -->
+<!-- ============================================================ -->
+<section>
+  <h2>Privacy-Preserving Machine Learning</h2>
+  <p class="small">MPC enables training and inference on joint datasets without revealing raw data. Critical for healthcare, finance, and cross-organizational collaboration.</p>
+
+  <div class="pipeline-row">
+    <div class="pipeline-stage"><div class="stage-name">Secret Share</div><div class="small">Data &rarr; shares</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Linear Layers</div><div class="small">Matmul (Beaver)</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Activation</div><div class="small">ReLU via GC</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Aggregation</div><div class="small">Secret shares</div></div>
+    <div class="pipeline-stage"><div class="stage-name">Output</div><div class="small">Reveal result</div></div>
+  </div>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>Inference (2PC/3PC)</h3>
+      <p class="small">Server holds model weights, client holds data. Evaluate neural network using mixed protocols:</p>
+      <p class="small"><em>Linear layers:</em> Arithmetic SS (Beaver triples)<br><em>ReLU/comparisons:</em> Garbled circuits or OT<br><em>Softmax:</em> Approximation via polynomials</p>
+      <p class="small">CrypTFlow2: ResNet-50 inference in <em>4.1 seconds</em> (LAN)</p>
+    </div>
+    <div class="card">
+      <h3>Training</h3>
+      <p class="small">Multiple parties hold different training data partitions. Run SGD with secret-shared gradients:</p>
+      <p class="small"><em>Forward pass:</em> Arithmetic + Boolean SS<br><em>Backprop:</em> Fixed-point arithmetic in SS<br><em>Gradient update:</em> Local after aggregation</p>
+      <p class="small">SecureML: Training logistic regression on MNIST in <em>~40 minutes</em> (2PC, WAN)</p>
+    </div>
+  </div>
+
+  <div class="highlight-box pink">
+    <strong>Mixed-protocol optimization:</strong> ABY (Arithmetic-Boolean-Yao) framework seamlessly converts between sharing types to use the cheapest protocol for each operation. Linear ops in arithmetic, comparisons in Boolean/Yao.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 21: SECURE AUCTIONS, VOTING, KEY MANAGEMENT -->
+<!-- ============================================================ -->
+<section>
+  <h2>More MPC Applications</h2>
+
+  <div class="arch-grid cols-3">
+    <div class="card">
+      <h3>Secure Auctions</h3>
+      <p class="small">Sealed-bid auctions where bids remain private. Compute the winning bid and winner without revealing losing bids.</p>
+      <p class="small"><em>Danish sugar beet auction</em> (2008): First large-scale MPC deployment. 1,229 farmers submitted bids through a 3-server MPC system. Computed market-clearing price in ~30 minutes.</p>
+      <p><span class="tag tag-green">Deployed</span></p>
+    </div>
+    <div class="card">
+      <h3>E-Voting</h3>
+      <p class="small">Voters submit encrypted ballots. MPC tallies votes without revealing individual choices. Enables <em>universal verifiability</em>.</p>
+      <p class="small"><em>Helios &amp; Estonia:</em> Threshold decryption of homomorphic ballots. <em>ADDER:</em> Secret-shared tallying protocol. Protects ballot secrecy even if some servers are compromised.</p>
+      <p><span class="tag tag-purple">Critical</span></p>
+    </div>
+    <div class="card">
+      <h3>Key Management</h3>
+      <p class="small">Threshold signatures: t-of-n parties must collaborate to sign. No single point of compromise for private keys.</p>
+      <p class="small"><em>Fireblocks:</em> MPC-based custody for $6T+ in digital assets. <em>Threshold ECDSA:</em> GG18/GG20 protocols for Bitcoin/Ethereum. Eliminates single key storage risk.</p>
+      <p><span class="tag tag-pink">Production</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Pattern:</strong> MPC excels when multiple parties must collaborate on a sensitive computation, no party should have unilateral access to all data, and a trusted third party is impractical or undesirable.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 22: MPC + FHE -->
+<!-- ============================================================ -->
+<section>
+  <h2>MPC + FHE: Combining Approaches</h2>
+  <p class="small">Fully Homomorphic Encryption and MPC are complementary. FHE enables non-interactive computation on encrypted data; MPC distributes trust. Combining them yields powerful hybrid protocols.</p>
+
+  <div class="card-row">
+    <div class="card">
+      <h3>FHE for Offline Phase</h3>
+      <p class="small">SPDZ originally used <em>Somewhat HE</em> (Brakerski-Fan-Vercauteren) to generate Beaver triples. Each party encrypts random values under FHE, then jointly compute c = a&middot;b homomorphically.</p>
+      <p class="small">Advantage: fewer rounds than OT-based triple generation. Modern SPDZ variants (Overdrive, MASCOT) offer OT-based alternatives.</p>
+    </div>
+    <div class="card">
+      <h3>MPC for FHE Bootstrapping</h3>
+      <p class="small">Threshold FHE: distribute the FHE secret key among n parties. Decryption requires MPC (threshold decryption). Bootstrapping can be distributed to avoid any single party seeing plaintext.</p>
+      <p class="small">Application: cloud computation where the cloud runs FHE, and multiple clients collaboratively decrypt results.</p>
+    </div>
+  </div>
+
+  <table class="comparison-table">
+    <tr><th>Approach</th><th>Interaction</th><th>Trust Model</th><th>Best For</th></tr>
+    <tr><td><strong>Pure MPC</strong></td><td>High (rounds per gate)</td><td>Distributed</td><td>Low-latency LAN settings</td></tr>
+    <tr><td><strong>Pure FHE</strong></td><td>None (non-interactive)</td><td>Key holder</td><td>Outsourced computation</td></tr>
+    <tr><td><strong>MPC + FHE</strong></td><td>Minimal</td><td>Distributed</td><td>WAN / high-latency settings</td></tr>
+    <tr><td><strong>MPC + FHE + ZK</strong></td><td>Moderate</td><td>Distributed + verifiable</td><td>Regulatory compliance</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 23: COMMUNICATION COMPLEXITY -->
+<!-- ============================================================ -->
+<section>
+  <h2>Communication Complexity &amp; Rounds</h2>
+  <p class="small">Communication is the dominant bottleneck in MPC. Understanding the cost structure is essential for choosing the right protocol.</p>
+
+  <table class="comparison-table">
+    <tr><th>Protocol</th><th>Setting</th><th>Rounds</th><th>Comm. per AND gate</th><th>Corruption</th></tr>
+    <tr><td><strong>Yao's GC</strong></td><td>2PC</td><td>O(1)</td><td>2&kappa; bits (half-gates)</td><td>Semi-honest</td></tr>
+    <tr><td><strong>GMW</strong></td><td>2PC/nPC</td><td>O(depth)</td><td>O(n<sup>2</sup>&kappa;) bits</td><td>Semi-honest</td></tr>
+    <tr><td><strong>BMR</strong></td><td>nPC</td><td>O(1)</td><td>O(n&kappa;) bits per gate</td><td>Semi-honest</td></tr>
+    <tr><td><strong>BGW</strong></td><td>nPC</td><td>O(depth)</td><td>O(n<sup>2</sup>) field elements</td><td>t &lt; n/2</td></tr>
+    <tr><td><strong>SPDZ</strong></td><td>nPC</td><td>O(depth)</td><td>O(n) field elements</td><td>Malicious</td></tr>
+    <tr><td><strong>Cut-and-Choose GC</strong></td><td>2PC</td><td>O(1)</td><td>s&middot;2&kappa; bits (s copies)</td><td>Malicious</td></tr>
+    <tr><td><strong>Authenticated GC</strong></td><td>2PC</td><td>O(1)</td><td>~4&kappa; bits</td><td>Malicious</td></tr>
+  </table>
+
+  <div class="card-row">
+    <div class="card">
+      <div class="metric">
+        <div class="value">LAN</div>
+        <div class="label">10 Gbps, 0.1ms RTT</div>
+      </div>
+      <p class="small" style="text-align:center;">High bandwidth compensates<br>for large messages. Deep circuits OK.</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent2);">WAN</div>
+        <div class="label">100 Mbps, 50ms RTT</div>
+      </div>
+      <p class="small" style="text-align:center;">Latency dominates. Constant-round<br>protocols (Yao, BMR) preferred.</p>
+    </div>
+    <div class="card">
+      <div class="metric">
+        <div class="value" style="color:var(--accent3);">Mobile</div>
+        <div class="label">10 Mbps, 100ms RTT</div>
+      </div>
+      <p class="small" style="text-align:center;">Bandwidth-constrained. Silent OT<br>and compact protocols critical.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 24: IMPLEMENTATION FRAMEWORKS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Implementation Frameworks</h2>
+  <p class="small">Several mature open-source frameworks make MPC accessible to practitioners. Each targets different protocol families and security models.</p>
+
+  <table class="comparison-table">
+    <tr><th>Framework</th><th>Protocols</th><th>Security</th><th>Language</th><th>Key Feature</th></tr>
+    <tr><td><strong>MP-SPDZ</strong></td><td>SPDZ, MASCOT, Shamir, BMR, Yao</td><td>Both</td><td>Python-like DSL / C++</td><td>30+ protocol variants; most comprehensive</td></tr>
+    <tr><td><strong>EMP-toolkit</strong></td><td>Garbled circuits, OT, authenticated GC</td><td>Both</td><td>C++</td><td>Fastest 2PC garbled circuits</td></tr>
+    <tr><td><strong>ABY / ABY3</strong></td><td>Arithmetic, Boolean, Yao (mixed)</td><td>Semi-honest</td><td>C++</td><td>Mixed-protocol optimization</td></tr>
+    <tr><td><strong>MOTION</strong></td><td>GMW, BMR, arithmetic SS</td><td>Semi-honest</td><td>C++</td><td>Multi-party, extensible</td></tr>
+    <tr><td><strong>CrypTen</strong></td><td>Arithmetic SS, Beaver triples</td><td>Semi-honest</td><td>Python (PyTorch)</td><td>ML-focused, PyTorch integration</td></tr>
+    <tr><td><strong>SCALE-MAMBA</strong></td><td>SPDZ</td><td>Malicious</td><td>Python-like / Rust</td><td>Full malicious security, MAMBA lang</td></tr>
+  </table>
+
+  <div class="card">
+    <h3>MP-SPDZ Example: Millionaires' Problem</h3>
+    <pre><code class="language-python">  # MP-SPDZ program — each party inputs their wealth privately
+  wealth_alice = sint.get_input_from(0)    # Party 0's private input
+  wealth_bob = sint.get_input_from(1)      # Party 1's private input
+
+  result = (wealth_alice > wealth_bob)      # Secure comparison
+  print_ln("Alice is richer: %s", result.reveal())  # Open result only</code></pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 25: REAL-WORLD DEPLOYMENTS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Real-World Deployments</h2>
+  <p class="small">MPC has moved from theory to production. Major technology companies deploy MPC at scale for privacy-critical applications.</p>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>Google: Private Ad Measurement</h3>
+      <p class="small">Google's <em>Privacy Sandbox</em> uses MPC (attribution reporting API) for measuring ad effectiveness without tracking individual users. Two non-colluding servers compute aggregate reports via secret sharing.</p>
+      <p><span class="tag tag-green">Production</span> <span class="tag tag-dim">Billions of events</span></p>
+    </div>
+    <div class="card">
+      <h3>Apple: Private Relay &amp; CSAM</h3>
+      <p class="small">iCloud Private Relay: Two-server architecture where neither server sees both user identity and destination. Threshold PSI used for CSAM detection (later paused).</p>
+      <p><span class="tag tag-pink">Production</span> <span class="tag tag-dim">Millions of users</span></p>
+    </div>
+    <div class="card">
+      <h3>Signal: Private Contact Discovery</h3>
+      <p class="small">Signal uses SGX-based PIR/PSI to discover which contacts are on Signal without revealing the user's full contact list to Signal's servers. SGX + cryptographic protocol for defense-in-depth.</p>
+      <p><span class="tag tag-purple">Production</span> <span class="tag tag-dim">100M+ users</span></p>
+    </div>
+    <div class="card">
+      <h3>Financial: Inter-Bank Analytics</h3>
+      <p class="small"><em>Boston Fed + MIT:</em> MPC for cross-bank regulatory reporting. <em>Unbound/Sepior (Coinbase):</em> Threshold ECDSA for custody. <em>ING:</em> MPC-based money laundering detection across banks.</p>
+      <p><span class="tag tag-yellow">Production</span> <span class="tag tag-dim">Regulatory</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 26: PERFORMANCE BENCHMARKS -->
+<!-- ============================================================ -->
+<section>
+  <h2>Performance Benchmarks</h2>
+  <p class="small">Practical performance of MPC protocols on representative computations. All numbers assume 128-bit security.</p>
+
+  <table class="comparison-table">
+    <tr><th>Computation</th><th>Protocol</th><th>Parties</th><th>LAN Time</th><th>WAN Time</th><th>Comm.</th></tr>
+    <tr><td><strong>AES-128</strong></td><td>Yao (half-gates)</td><td>2</td><td>0.5 ms</td><td>55 ms</td><td>218 KB</td></tr>
+    <tr><td><strong>AES-128</strong></td><td>SPDZ (malicious)</td><td>3</td><td>3 ms</td><td>180 ms</td><td>~1 MB</td></tr>
+    <tr><td><strong>SHA-256</strong></td><td>Yao (half-gates)</td><td>2</td><td>2.1 ms</td><td>110 ms</td><td>850 KB</td></tr>
+    <tr><td><strong>PSI (2<sup>20</sup> items)</strong></td><td>KKRT + OT ext.</td><td>2</td><td>2.8 s</td><td>12 s</td><td>42 MB</td></tr>
+    <tr><td><strong>PSI (2<sup>24</sup> items)</strong></td><td>KKRT + OT ext.</td><td>2</td><td>38 s</td><td>145 s</td><td>672 MB</td></tr>
+    <tr><td><strong>Logistic Reg. (MNIST)</strong></td><td>ABY (mixed)</td><td>2</td><td>0.3 s/epoch</td><td>8 s/epoch</td><td>~50 MB</td></tr>
+    <tr><td><strong>ResNet-50 Inference</strong></td><td>CrypTFlow2</td><td>2</td><td>4.1 s</td><td>~60 s</td><td>~600 MB</td></tr>
+    <tr><td><strong>Sorting (10<sup>6</sup>)</strong></td><td>3PC Shamir</td><td>3</td><td>12 s</td><td>~90 s</td><td>~2 GB</td></tr>
+  </table>
+
+  <div class="highlight-box">
+    <strong>Orders of magnitude:</strong> MPC is typically <em>10<sup>3</sup>-10<sup>6</sup>x slower</em> than plaintext computation, with communication as the primary bottleneck. LAN vs. WAN can differ by 10-50x due to round-trip latency. Protocol choice heavily depends on network conditions.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 27: CODE EXAMPLE — SECRET SHARING -->
+<!-- ============================================================ -->
+<section>
+  <h2>Code: Shamir Secret Sharing</h2>
+  <p class="small">A complete implementation of Shamir's (t, n)-threshold secret sharing over a prime field.</p>
+
+  <div class="card">
+    <pre><code class="language-python">  import secrets
+
+  def shamir_share(secret: int, t: int, n: int, p: int) -> list:
+      """Split secret into n shares with threshold t+1."""
+      # Random polynomial: f(x) = secret + a1*x + a2*x^2 + ... + at*x^t
+      coeffs = [secret] + [secrets.randbelow(p) for _ in range(t)]
+
+      def eval_poly(x):
+          return sum(c * pow(x, i, p) for i, c in enumerate(coeffs)) % p
+
+      return [(i, eval_poly(i)) for i in range(1, n + 1)]
+
+  def lagrange_interpolate(shares: list, p: int) -> int:
+      """Reconstruct secret from t+1 shares using Lagrange interpolation."""
+      secret = 0
+      for i, (xi, yi) in enumerate(shares):
+          num, den = 1, 1
+          for j, (xj, _) in enumerate(shares):
+              if i != j:
+                  num = (num * (-xj)) % p
+                  den = (den * (xi - xj)) % p
+          secret = (secret + yi * num * pow(den, -1, p)) % p
+      return secret
+
+  # Example: (2, 5)-threshold sharing — need 3 of 5 shares
+  p = 2**127 - 1  # Mersenne prime
+  shares = shamir_share(42, t=2, n=5, p=p)
+  assert lagrange_interpolate(shares[:3], p) == 42   # Any 3 suffice
+  assert lagrange_interpolate(shares[2:5], p) == 42   # Any 3 suffice</code></pre>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Production considerations:</strong> Use constant-time modular arithmetic. The prime p must be larger than the secret space. For MPC, use a field compatible with the computation (e.g., F<sub>2<sup>61</sup>-1</sub> for 64-bit arithmetic). Secret sharing alone does not provide integrity — combine with MACs for malicious security.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 28: CODE EXAMPLE — BEAVER TRIPLE MULTIPLICATION -->
+<!-- ============================================================ -->
+<section>
+  <h2>Code: Beaver Triple Multiplication</h2>
+  <p class="small">Two-party secure multiplication using precomputed Beaver triples over additive secret sharing.</p>
+
+  <div class="card">
+    <pre><code class="language-python">  class Party:
+      def __init__(self, x_share, a_share, b_share, c_share, p):
+          self.x = x_share; self.a = a_share
+          self.b = b_share; self.c = c_share; self.p = p
+
+      def compute_masked(self, y_share):
+          """Step 1: Compute and broadcast masked values."""
+          self.d_share = (self.x - self.a) % self.p   # [d] = [x] - [a]
+          self.e_share = (y_share - self.b) % self.p   # [e] = [y] - [b]
+          return self.d_share, self.e_share
+
+      def compute_product(self, d, e, is_party_1=False):
+          """Step 2: Compute share of x*y from opened d, e."""
+          # [x*y] = d*e + d*[b] + e*[a] + [c]
+          result = (d * self.b + e * self.a + self.c) % self.p
+          if is_party_1:
+              result = (result + d * e) % self.p  # Only P1 adds d*e
+          return result
+
+  # Simulation: x=7, y=13, a=3, b=5, c=15 (c = a*b), p=97
+  p = 97
+  # Additive shares: x=7 → (2, 5), y=13 → (8, 5), etc.
+  p1 = Party(2, 1, 3, 10, p)   # Party 1 shares
+  p2 = Party(5, 2, 2, 5,  p)   # Party 2 shares
+  d1, e1 = p1.compute_masked(8); d2, e2 = p2.compute_masked(5)
+  d, e = (d1 + d2) % p, (e1 + e2) % p     # Open d=4, e=6
+  z1 = p1.compute_product(d, e, True); z2 = p2.compute_product(d, e)
+  assert (z1 + z2) % p == (7 * 13) % p     # 91 mod 97 = 91 ✓</code></pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 29: CURRENT RESEARCH -->
+<!-- ============================================================ -->
+<section>
+  <h2>Current Research Frontiers</h2>
+  <p class="small">MPC research remains extremely active, pushing boundaries in efficiency, functionality, and new computational models.</p>
+
+  <div class="arch-grid cols-2">
+    <div class="card">
+      <h3>Function-Hiding MPC</h3>
+      <p class="small">Standard MPC reveals the function f to all parties. <em>Function-hiding MPC</em> keeps f private too — only one party knows what is being computed. Built on garbled circuits + universal circuits or indistinguishability obfuscation.</p>
+      <p class="small">Application: proprietary algorithms on outsourced data</p>
+      <p><span class="tag tag-purple">Theoretical</span></p>
+    </div>
+    <div class="card">
+      <h3>Constant-Overhead MPC</h3>
+      <p class="small">Goal: MPC with communication overhead approaching O(|C|) — proportional to circuit size with constant factor. Recent breakthroughs:</p>
+      <p class="small"><em>Boyle et al. (2019):</em> Pseudorandom correlation generators (PCG) — generate correlated randomness from short seeds using LPN assumptions. <em>Silent OT:</em> Near-zero communication OT extension.</p>
+      <p><span class="tag tag-green">Breakthrough</span></p>
+    </div>
+    <div class="card">
+      <h3>Fluid MPC</h3>
+      <p class="small">Parties can dynamically join and leave the computation. Eliminates the requirement for a fixed set of participants. Uses committee rotation and handoff protocols.</p>
+      <p class="small">Motivated by blockchain / decentralized settings where participants change over time.</p>
+      <p><span class="tag tag-yellow">Emerging</span></p>
+    </div>
+    <div class="card">
+      <h3>MPC-in-the-Head</h3>
+      <p class="small">Simulate an MPC protocol "in your head" to construct zero-knowledge proofs. IKOS paradigm (2007) → BBQ, Limbo, SDitH. Foundation of the <em>NIST PQC signature candidate SDitH</em> (based on MPC-in-the-Head of syndrome decoding).</p>
+      <p><span class="tag tag-pink">Cross-domain</span></p>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Pseudorandom Correlation Generators (PCG):</strong> The most impactful recent development. Generate Beaver triples, OT correlations, and other precomputation from <em>sublinear-size seeds</em>. Reduces offline communication from O(|C|&middot;k) to O(|C|) with only local computation. Based on LPN/Ring-LPN assumptions.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SLIDE 30: SUMMARY -->
+<!-- ============================================================ -->
+<section class="title-slide">
+  <h1>Summary</h1>
+  <div style="text-align:left; max-width:700px; margin:0 auto;">
+    <p class="small">
+      <em>Foundations</em> — Yao's Millionaires' Problem, ideal/real world paradigm, semi-honest vs. malicious security models, honest vs. dishonest majority thresholds.
+    </p>
+    <p class="small">
+      <em>Secret sharing</em> — Shamir's polynomial-based (t, n)-threshold scheme, additive sharing (XOR and arithmetic), Beaver triples for multiplication with 2-round online phase.
+    </p>
+    <p class="small">
+      <em>Two-party protocols</em> — Garbled circuits (Yao) with half-gates optimization (2 ciphertexts/AND), GMW gate-by-gate evaluation, oblivious transfer and OT extension (IKNP).
+    </p>
+    <p class="small">
+      <em>Multi-party protocols</em> — BMR for constant-round n-party garbled circuits, BGW for Shamir-based honest majority, SPDZ for malicious security with information-theoretic MACs.
+    </p>
+    <p class="small">
+      <em>Applications</em> — Private set intersection at scale (268M elements), privacy-preserving ML (ResNet-50 in 4.1s), secure auctions, threshold key management, ad measurement.
+    </p>
+    <p class="small">
+      <em>Frontiers</em> — Pseudorandom correlation generators, silent OT, constant-overhead MPC, fluid MPC for dynamic participants, MPC-in-the-Head for zero-knowledge proofs.
+    </p>
+  </div>
+  <div class="series-tag" style="margin-top:1em;">Modern Cryptography Series &middot; Module 12</div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: 'c/t',
+  width: 1100,
+  height: 900,
+  margin: 0.02,
+  transition: 'slide',
+  transitionSpeed: 'default',
+  backgroundTransition: 'fade',
+  plugins: [ RevealHighlight ],
+  highlight: { highlightOnLoad: true }
+});
+</script>
+<script>
+(function(){
+  var h = Reveal.getConfig().height || 900;
+  var m = Reveal.getConfig().margin || 0.02;
+  var maxH = Math.floor(h * (1 - 2 * m)) + 'px';
+  function fixSlides(){
+    document.querySelectorAll('.reveal .slides>section,.reveal .slides>section>section').forEach(function(s){
+      s.style.display = 'block';
+      s.style.maxHeight = maxH;
+    });
+  }
+  Reveal.on('ready', fixSlides);
+  Reveal.on('slidechanged', fixSlides);
+})();
+</script>
+</body>
+</html>
