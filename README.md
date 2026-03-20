@@ -43,6 +43,7 @@ Interactive single-page visualisations built with Plotly.js and vanilla HTML/CSS
 | Project | Description |
 |---------|-------------|
 | [Group Theory Visualiser](https://github.com/BrendanJamesLynskey/Group_Theory_Visualiser) | Cayley graphs, multiplication tables, subgroup lattices, and symmetry playground for cyclic, dihedral, symmetric, and quaternion groups |
+| [Galois Fields in Hardware](https://github.com/BrendanJamesLynskey/Galois_Fields) | Interactive Reveal.js presentation on Galois Field (GF(2^n)) theory for hardware engineers — finite field arithmetic, irreducible polynomials, and applications in CRC, LFSR, AES, and error-correcting codes |
 
 ### Topology & Geometry
 
