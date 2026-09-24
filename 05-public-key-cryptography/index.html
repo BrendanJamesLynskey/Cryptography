@@ -6,8 +6,8 @@
 <title>05 — Public Key Cryptography (RSA, DH)</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,24 +15,24 @@
 
 <style>
   :root {
-    --r-background-color: #0a0a0f;
+    --r-background-color: #fafaf8;
     --r-main-font: 'DM Sans', sans-serif;
     --r-main-font-size: 28px;
-    --r-main-color: #d4d4d8;
+    --r-main-color: #262624;
     --r-heading-font: 'Playfair Display', serif;
-    --r-heading-color: #fafafa;
+    --r-heading-color: #000000;
     --r-heading-text-transform: none;
     --r-code-font: 'JetBrains Mono', monospace;
-    --r-link-color: #60a5fa;
-    --r-link-color-hover: #93c5fd;
-    --r-selection-background-color: #2563eb;
-    --accent: #f59e0b;
-    --accent2: #10b981;
-    --accent3: #8b5cf6;
-    --accent4: #ef4444;
-    --dim: #71717a;
-    --surface: #18181b;
-    --surface2: #27272a;
+    --r-link-color: #2b3dc5;
+    --r-link-color-hover: #1a2d7f;
+    --r-selection-background-color: #6c80ff;
+    --accent: #c57e09;
+    --accent2: #25916a;
+    --accent3: #874cfc;
+    --accent4: #fb412e;
+    --dim: #8b8b84;
+    --surface: #eaeae7;
+    --surface2: #d6d6d0;
   }
 
   .reveal { font-weight: 400; }
@@ -42,7 +42,7 @@
   .reveal h3 { font-size: 1.2em; color: var(--accent); font-family: 'DM Sans', sans-serif; font-weight: 700; }
   .reveal p, .reveal li { line-height: 1.6; }
   .reveal code { font-family: var(--r-code-font); font-size: 0.85em; }
-  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(0,0,0,.5); border: 1px solid var(--surface2); border-radius: 8px; }
+  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(255,255,255,.5); border: 1px solid var(--surface2); border-radius: 8px; }
   .reveal pre code { padding: 1.2em; line-height: 1.5; max-height: 520px; }
 
   .accent  { color: var(--accent); }
@@ -71,8 +71,8 @@
   .box ul { padding-left: 1.2em; }
 
   .highlight-box {
-    background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(245,158,11,.03));
-    border: 1px solid rgba(245,158,11,.3);
+    background: linear-gradient(135deg, rgba(197,126,9,.12), rgba(197,126,9,.03));
+    border: 1px solid rgba(197,126,9,.3);
     border-radius: 8px;
     padding: 0.8em 1em;
     margin: 0.5em 0;
@@ -87,10 +87,10 @@
     vertical-align: middle;
     font-family: var(--r-code-font);
   }
-  .badge-amber  { background: rgba(245,158,11,.15); color: var(--accent); border: 1px solid rgba(245,158,11,.3); }
-  .badge-green  { background: rgba(16,185,129,.15); color: var(--accent2); border: 1px solid rgba(16,185,129,.3); }
-  .badge-purple { background: rgba(139,92,246,.15); color: var(--accent3); border: 1px solid rgba(139,92,246,.3); }
-  .badge-red    { background: rgba(239,68,68,.15); color: var(--accent4); border: 1px solid rgba(239,68,68,.3); }
+  .badge-amber  { background: rgba(197,126,9,.15); color: var(--accent); border: 1px solid rgba(197,126,9,.3); }
+  .badge-green  { background: rgba(37,145,106,.15); color: var(--accent2); border: 1px solid rgba(37,145,106,.3); }
+  .badge-purple { background: rgba(135,76,252,.15); color: var(--accent3); border: 1px solid rgba(135,76,252,.3); }
+  .badge-red    { background: rgba(251,65,46,.15); color: var(--accent4); border: 1px solid rgba(251,65,46,.3); }
 
   table.clean {
     width: 100%; border-collapse: collapse;
@@ -113,13 +113,14 @@
   .slide-number { font-family: 'JetBrains Mono', monospace !important; }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,.0); }
-    50% { box-shadow: 0 0 15px 2px rgba(245,158,11,.25); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(197,126,9,.0); }
+    50% { box-shadow: 0 0 15px 2px rgba(197,126,9,.25); }
   }
   .glow { animation: pulse-glow 2s ease-in-out infinite; }
 
   .reveal .slides > section { overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
 </style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 
 <body>
@@ -278,7 +279,7 @@
   <div class="two-col" style="margin-top:0.3em;">
     <div>
       <h3>Protocol</h3>
-      <div class="box" style="border-color:rgba(245,158,11,.3);">
+      <div class="box" style="border-color:rgba(197,126,9,.3);">
         <p class="small"><span class="badge badge-amber">SETUP</span> Agree on public parameters: prime <span class="mono accent">p</span> and generator <span class="mono accent">g</span> of (Z/pZ)*</p>
       </div>
       <div class="box">
@@ -289,7 +290,7 @@
         <p class="small"><span class="badge badge-green">BOB</span> Choose secret <span class="mono">b</span> &isin; [2, p&minus;2]</p>
         <p class="small">Compute and send <span class="mono accent">B = g<sup>b</sup> mod p</span></p>
       </div>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="small"><span class="badge badge-green">SHARED SECRET</span></p>
         <p class="small">Alice computes: <span class="mono">K = B<sup>a</sup> mod p = g<sup>ab</sup> mod p</span></p>
         <p class="small">Bob computes: &nbsp;<span class="mono">K = A<sup>b</sup> mod p = g<sup>ab</sup> mod p</span></p>
@@ -405,12 +406,12 @@
     </div>
     <div>
       <h3>Static vs Ephemeral DH</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p><span class="accent4">Static DH</span></p>
         <p class="small">Long-term DH key pair. Same shared secret for repeated exchanges with same party.</p>
         <p class="small accent4">No forward secrecy: compromise of long-term key reveals all past sessions.</p>
       </div>
-      <div class="box" style="margin-top:0.3em;border-color:rgba(16,185,129,.4);">
+      <div class="box" style="margin-top:0.3em;border-color:rgba(37,145,106,.4);">
         <p><span class="accent2">Ephemeral DH (DHE)</span></p>
         <p class="small">Fresh random exponent per session. Shared secret is unique each time.</p>
         <p class="small accent2">Provides forward secrecy: compromise of long-term signing key does NOT reveal past session keys.</p>
@@ -432,7 +433,7 @@
   <div class="two-col">
     <div>
       <h3>Algorithm</h3>
-      <div class="box" style="border-color:rgba(245,158,11,.3);">
+      <div class="box" style="border-color:rgba(197,126,9,.3);">
         <p><span class="badge badge-amber">STEP 1</span> Choose two large distinct primes <span class="mono accent">p</span> and <span class="mono accent">q</span></p>
         <p class="small dim">Each ~n/2 bits for an n-bit RSA modulus. |p &minus; q| should not be too small.</p>
       </div>
@@ -456,11 +457,11 @@
     </div>
     <div>
       <h3>Key Components</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p><span class="accent2">Public Key:</span> <span class="mono">(n, e)</span></p>
         <p class="small">Published openly. Anyone can encrypt messages or verify signatures.</p>
       </div>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p><span class="accent4">Private Key:</span> <span class="mono">d</span></p>
         <p class="small">Kept secret. Used to decrypt or sign.</p>
         <p class="small dim">In practice, store (p, q, d, d<sub>p</sub>, d<sub>q</sub>, q<sub>inv</sub>) for CRT optimization.</p>
@@ -488,12 +489,12 @@
   <div class="two-col">
     <div>
       <h3>Textbook RSA</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p><span class="accent2">Encrypt</span> (with public key):</p>
         <p class="mono" style="text-align:center;font-size:0.9em;">c = m<sup>e</sup> mod n</p>
         <p class="small dim">Message m must satisfy 0 &le; m &lt; n.</p>
       </div>
-      <div class="box" style="border-color:rgba(245,158,11,.3);">
+      <div class="box" style="border-color:rgba(197,126,9,.3);">
         <p><span class="accent">Decrypt</span> (with private key):</p>
         <p class="mono" style="text-align:center;font-size:0.9em;">m = c<sup>d</sup> mod n</p>
       </div>
@@ -505,14 +506,14 @@
     </div>
     <div>
       <h3 style="color:var(--accent4);">Textbook RSA Is Insecure!</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p class="small"><span class="accent4">Deterministic:</span> Same plaintext always produces same ciphertext. Attacker can build a dictionary.</p>
       </div>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p class="small"><span class="accent4">Malleable:</span> Given Enc(m<sub>1</sub>) and Enc(m<sub>2</sub>), attacker can compute Enc(m<sub>1</sub> &middot; m<sub>2</sub>) without decrypting:</p>
         <p class="small mono">m<sub>1</sub><sup>e</sup> &middot; m<sub>2</sub><sup>e</sup> = (m<sub>1</sub>m<sub>2</sub>)<sup>e</sup> mod n</p>
       </div>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p class="small"><span class="accent4">No semantic security:</span> Attacker can test whether a ciphertext corresponds to a guessed plaintext by re-encrypting the guess.</p>
       </div>
       <div class="highlight-box" style="margin-top:0.5em;">
@@ -530,12 +531,12 @@
   <div class="two-col">
     <div>
       <h3>Sign &amp; Verify</h3>
-      <div class="box" style="border-color:rgba(245,158,11,.3);">
+      <div class="box" style="border-color:rgba(197,126,9,.3);">
         <p><span class="accent">Sign</span> (with private key):</p>
         <p class="mono" style="text-align:center;font-size:0.9em;">s = m<sup>d</sup> mod n</p>
         <p class="small dim">Only the holder of d can produce s.</p>
       </div>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p><span class="accent2">Verify</span> (with public key):</p>
         <p class="mono" style="text-align:center;font-size:0.9em;">m' = s<sup>e</sup> mod n</p>
         <p class="small">Accept if m' equals the original message (or its hash).</p>
@@ -556,7 +557,7 @@
       <div class="box" style="margin-top:0.3em;">
         <p class="small"><span class="accent">Non-repudiation:</span> Only the private key holder could have signed. Unlike MACs, a third party can verify without the signing key.</p>
       </div>
-      <div class="box" style="margin-top:0.3em;border-color:rgba(239,68,68,.3);">
+      <div class="box" style="margin-top:0.3em;border-color:rgba(251,65,46,.3);">
         <h3 style="color:var(--accent4);">Textbook RSA Signature Attacks</h3>
         <p class="small accent4">Existential forgery: Choose arbitrary s, compute m = s<sup>e</sup> mod n. This (m, s) is a valid pair!</p>
         <p class="small accent4">Blinding attack: Get victim to sign m' = m &middot; r<sup>e</sup>, then s/r is signature on m.</p>
@@ -578,13 +579,13 @@
   <div class="two-col">
     <div>
       <h3>For Encryption</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p><span class="badge badge-red">PKCS#1 v1.5</span> <span class="small dim">(1993)</span></p>
         <p class="small">Format: <span class="mono">0x00 || 0x02 || [random padding] || 0x00 || [message]</span></p>
         <p class="small accent4">Bleichenbacher's attack (1998): adaptive chosen-ciphertext attack. ~1 million queries to decrypt by exploiting padding validity oracle.</p>
         <p class="small accent4">ROBOT attack (2017) showed this was still exploitable in practice across major TLS implementations.</p>
       </div>
-      <div class="box" style="margin-top:0.4em;border-color:rgba(16,185,129,.4);">
+      <div class="box" style="margin-top:0.4em;border-color:rgba(37,145,106,.4);">
         <p><span class="badge badge-green">RSA-OAEP</span> <span class="small dim">(1994/2001)</span></p>
         <p class="small"><span class="accent2">Optimal Asymmetric Encryption Padding</span> (Bellare &amp; Rogaway)</p>
         <p class="small">Two-round Feistel structure using hash functions G and H:</p>
@@ -595,13 +596,13 @@
     </div>
     <div>
       <h3>For Signatures</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p><span class="badge badge-red">PKCS#1 v1.5 Signatures</span></p>
         <p class="small">Format: <span class="mono">0x00 || 0x01 || [0xFF padding] || 0x00 || [DigestInfo]</span></p>
         <p class="small accent4">Bleichenbacher (2006) / BERserk: parsing vulnerabilities in implementations that don't check padding strictly. Allowed signature forgery.</p>
         <p class="small dim">Still widely used (TLS 1.2 and earlier) but being phased out.</p>
       </div>
-      <div class="box" style="margin-top:0.4em;border-color:rgba(16,185,129,.4);">
+      <div class="box" style="margin-top:0.4em;border-color:rgba(37,145,106,.4);">
         <p><span class="badge badge-green">RSA-PSS</span> <span class="small dim">(1996/2003)</span></p>
         <p class="small"><span class="accent2">Probabilistic Signature Scheme</span></p>
         <p class="small">Randomized via a salt value. Uses MGF (mask generation function) based on hash.</p>
@@ -712,7 +713,7 @@
     </div>
     <div>
       <h3>CRT Optimization</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="small">Instead of computing <span class="mono">m = c<sup>d</sup> mod n</span> directly:</p>
         <p class="small mono">m<sub>p</sub> = c<sup>d mod (p&minus;1)</sup> mod p</p>
         <p class="small mono">m<sub>q</sub> = c<sup>d mod (q&minus;1)</sup> mod q</p>
@@ -956,7 +957,7 @@
   <div class="two-col">
     <div>
       <h3>Protocol-Level Attacks</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p><span class="badge badge-red">MAN-IN-THE-MIDDLE</span></p>
         <p class="small">Mallory intercepts Alice's A and Bob's B, substitutes her own values. Establishes separate shared secrets with each party.</p>
         <p class="small accent4">Vanilla DH provides NO authentication.</p>
@@ -970,7 +971,7 @@
     </div>
     <div>
       <h3>Computational Attacks</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p><span class="badge badge-red">LOGJAM</span> <span class="small dim">(2015)</span></p>
         <p class="small accent4">Precomputation attack on 512-bit DH (export-grade):</p>
         <p class="small">NFS precomputation for a fixed prime takes ~1 week. After that, individual DLPs take ~90 seconds.</p>
@@ -1090,7 +1091,7 @@
   <div class="two-col">
     <div>
       <h3>Definition</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="small"><span class="accent2">Perfect Forward Secrecy (PFS):</span> Compromise of long-term private keys does <em>not</em> compromise past session keys.</p>
         <p class="small">Even if an attacker records all ciphertext and later obtains the server's private key, they cannot decrypt historical traffic.</p>
       </div>
@@ -1134,11 +1135,11 @@
   <div class="two-col">
     <div>
       <h3>Shor's Algorithm</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.3);">
+      <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p class="small"><span class="accent4">Factoring:</span> Shor's algorithm factors n-bit integers in <span class="mono">O(n<sup>3</sup>)</span> quantum time using <span class="mono">O(n)</span> logical qubits.</p>
         <p class="small accent4">RSA-2048 can be broken in hours on a sufficiently large fault-tolerant quantum computer.</p>
       </div>
-      <div class="box" style="margin-top:0.3em;border-color:rgba(239,68,68,.3);">
+      <div class="box" style="margin-top:0.3em;border-color:rgba(251,65,46,.3);">
         <p class="small"><span class="accent4">Discrete Log:</span> Shor also solves DLP in polynomial time.</p>
         <p class="small accent4">Breaks DH, ECDH, ElGamal, DSA, and ECDSA.</p>
       </div>
@@ -1153,7 +1154,7 @@
     </div>
     <div>
       <h3>Migration to PQC</h3>
-      <div class="box" style="border-color:rgba(139,92,246,.4);">
+      <div class="box" style="border-color:rgba(135,76,252,.4);">
         <p><span class="badge badge-purple">NIST PQC STANDARDS</span></p>
         <p class="small"><span class="accent3">ML-KEM</span> (FIPS 203) &mdash; lattice-based KEM (ex-CRYSTALS-Kyber)</p>
         <p class="small"><span class="accent3">ML-DSA</span> (FIPS 204) &mdash; lattice-based signatures (ex-CRYSTALS-Dilithium)</p>
@@ -1370,7 +1371,7 @@ print(f"pt = {pt}  ✓")</code></pre>
         <br/><br/>
         <label>Message m = <input type="number" id="rsa-m" value="42" style="background:var(--surface);border:1px solid var(--surface2);color:var(--accent2);font-family:var(--r-code-font);padding:0.3em;width:5em;border-radius:4px;"></label>
         <br/><br/>
-        <button id="rsa-go" style="background:var(--accent);color:#000;border:none;padding:0.4em 1.2em;border-radius:6px;font-weight:700;cursor:pointer;font-family:var(--r-code-font);">Compute</button>
+        <button id="rsa-go" style="background:var(--accent);color:#ffffff;border:none;padding:0.4em 1.2em;border-radius:6px;font-weight:700;cursor:pointer;font-family:var(--r-code-font);">Compute</button>
       </div>
     </div>
     <div>

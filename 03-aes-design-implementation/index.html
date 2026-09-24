@@ -6,8 +6,8 @@
 <title>03 — AES: Design &amp; Implementation</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,24 +15,24 @@
 
 <style>
   :root {
-    --r-background-color: #0a0a0f;
+    --r-background-color: #fafaf8;
     --r-main-font: 'DM Sans', sans-serif;
     --r-main-font-size: 28px;
-    --r-main-color: #d4d4d8;
+    --r-main-color: #262624;
     --r-heading-font: 'Playfair Display', serif;
-    --r-heading-color: #fafafa;
+    --r-heading-color: #000000;
     --r-heading-text-transform: none;
     --r-code-font: 'JetBrains Mono', monospace;
-    --r-link-color: #60a5fa;
-    --r-link-color-hover: #93c5fd;
-    --r-selection-background-color: #2563eb;
-    --accent: #f59e0b;
-    --accent2: #10b981;
-    --accent3: #8b5cf6;
-    --accent4: #ef4444;
-    --dim: #71717a;
-    --surface: #18181b;
-    --surface2: #27272a;
+    --r-link-color: #2b3dc5;
+    --r-link-color-hover: #1a2d7f;
+    --r-selection-background-color: #6c80ff;
+    --accent: #c57e09;
+    --accent2: #25916a;
+    --accent3: #874cfc;
+    --accent4: #fb412e;
+    --dim: #8b8b84;
+    --surface: #eaeae7;
+    --surface2: #d6d6d0;
   }
 
   .reveal { font-weight: 400; }
@@ -42,7 +42,7 @@
   .reveal h3 { font-size: 1.2em; color: var(--accent); font-family: 'DM Sans', sans-serif; font-weight: 700; }
   .reveal p, .reveal li { line-height: 1.6; }
   .reveal code { font-family: var(--r-code-font); font-size: 0.85em; }
-  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(0,0,0,.5); border: 1px solid var(--surface2); border-radius: 8px; }
+  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(255,255,255,.5); border: 1px solid var(--surface2); border-radius: 8px; }
   .reveal pre code { padding: 1.2em; line-height: 1.5; max-height: 520px; }
 
   .accent  { color: var(--accent); }
@@ -71,8 +71,8 @@
   .box ul { padding-left: 1.2em; }
 
   .highlight-box {
-    background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(245,158,11,.03));
-    border: 1px solid rgba(245,158,11,.3);
+    background: linear-gradient(135deg, rgba(197,126,9,.12), rgba(197,126,9,.03));
+    border: 1px solid rgba(197,126,9,.3);
     border-radius: 8px;
     padding: 0.8em 1em;
     margin: 0.5em 0;
@@ -112,10 +112,10 @@
     vertical-align: middle;
     font-family: var(--r-code-font);
   }
-  .badge-amber  { background: rgba(245,158,11,.15); color: var(--accent); border: 1px solid rgba(245,158,11,.3); }
-  .badge-green  { background: rgba(16,185,129,.15); color: var(--accent2); border: 1px solid rgba(16,185,129,.3); }
-  .badge-purple { background: rgba(139,92,246,.15); color: var(--accent3); border: 1px solid rgba(139,92,246,.3); }
-  .badge-red    { background: rgba(239,68,68,.15); color: var(--accent4); border: 1px solid rgba(239,68,68,.3); }
+  .badge-amber  { background: rgba(197,126,9,.15); color: var(--accent); border: 1px solid rgba(197,126,9,.3); }
+  .badge-green  { background: rgba(37,145,106,.15); color: var(--accent2); border: 1px solid rgba(37,145,106,.3); }
+  .badge-purple { background: rgba(135,76,252,.15); color: var(--accent3); border: 1px solid rgba(135,76,252,.3); }
+  .badge-red    { background: rgba(251,65,46,.15); color: var(--accent4); border: 1px solid rgba(251,65,46,.3); }
 
   table.clean {
     width: 100%; border-collapse: collapse;
@@ -158,8 +158,8 @@
 
   /* Animated round flow */
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,.0); }
-    50% { box-shadow: 0 0 15px 2px rgba(245,158,11,.25); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(197,126,9,.0); }
+    50% { box-shadow: 0 0 15px 2px rgba(197,126,9,.25); }
   }
   .glow { animation: pulse-glow 2s ease-in-out infinite; }
 .reveal .slides > section { overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
@@ -171,6 +171,7 @@
 .mat table { border-collapse:collapse; }
 .mat td { padding:0.08em 0.35em; text-align:center; white-space:nowrap; line-height:1.5; }
 </style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 
 <body>
@@ -240,13 +241,13 @@
       <h3>Substitution–Permutation Network (SPN)</h3>
       <p class="small">Each round applies four transformations to a 4×4 byte <em>State</em> matrix:</p>
       <div class="pipeline-row">
-        <div class="stage" style="background:rgba(139,92,246,.2);color:var(--accent3);">SubBytes</div>
+        <div class="stage" style="background:rgba(135,76,252,.2);color:var(--accent3);">SubBytes</div>
         <div class="arrow">→</div>
-        <div class="stage" style="background:rgba(16,185,129,.2);color:var(--accent2);">ShiftRows</div>
+        <div class="stage" style="background:rgba(37,145,106,.2);color:var(--accent2);">ShiftRows</div>
         <div class="arrow">→</div>
-        <div class="stage" style="background:rgba(96,165,250,.2);color:#60a5fa;">MixColumns</div>
+        <div class="stage" style="background:rgba(43,61,197,.2);color:#2b3dc5;">MixColumns</div>
         <div class="arrow">→</div>
-        <div class="stage" style="background:rgba(245,158,11,.2);color:var(--accent);">AddRoundKey</div>
+        <div class="stage" style="background:rgba(197,126,9,.2);color:var(--accent);">AddRoundKey</div>
       </div>
       <p class="small dim">Final round omits MixColumns.</p>
     </div>
@@ -280,25 +281,25 @@
       <p class="mono small dim">in<sub>0</sub> in<sub>1</sub> in<sub>2</sub> … in<sub>15</sub></p>
       <p class="small">↓ maps to columns ↓</p>
       <div class="state-grid" style="margin-top:0.5em;">
-        <div class="cell" style="background:rgba(245,158,11,.15);">S<sub>0,0</sub></div>
-        <div class="cell" style="background:rgba(96,165,250,.15);">S<sub>0,1</sub></div>
-        <div class="cell" style="background:rgba(16,185,129,.15);">S<sub>0,2</sub></div>
-        <div class="cell" style="background:rgba(139,92,246,.15);">S<sub>0,3</sub></div>
+        <div class="cell" style="background:rgba(197,126,9,.15);">S<sub>0,0</sub></div>
+        <div class="cell" style="background:rgba(43,61,197,.15);">S<sub>0,1</sub></div>
+        <div class="cell" style="background:rgba(37,145,106,.15);">S<sub>0,2</sub></div>
+        <div class="cell" style="background:rgba(135,76,252,.15);">S<sub>0,3</sub></div>
 
-        <div class="cell" style="background:rgba(245,158,11,.15);">S<sub>1,0</sub></div>
-        <div class="cell" style="background:rgba(96,165,250,.15);">S<sub>1,1</sub></div>
-        <div class="cell" style="background:rgba(16,185,129,.15);">S<sub>1,2</sub></div>
-        <div class="cell" style="background:rgba(139,92,246,.15);">S<sub>1,3</sub></div>
+        <div class="cell" style="background:rgba(197,126,9,.15);">S<sub>1,0</sub></div>
+        <div class="cell" style="background:rgba(43,61,197,.15);">S<sub>1,1</sub></div>
+        <div class="cell" style="background:rgba(37,145,106,.15);">S<sub>1,2</sub></div>
+        <div class="cell" style="background:rgba(135,76,252,.15);">S<sub>1,3</sub></div>
 
-        <div class="cell" style="background:rgba(245,158,11,.15);">S<sub>2,0</sub></div>
-        <div class="cell" style="background:rgba(96,165,250,.15);">S<sub>2,1</sub></div>
-        <div class="cell" style="background:rgba(16,185,129,.15);">S<sub>2,2</sub></div>
-        <div class="cell" style="background:rgba(139,92,246,.15);">S<sub>2,3</sub></div>
+        <div class="cell" style="background:rgba(197,126,9,.15);">S<sub>2,0</sub></div>
+        <div class="cell" style="background:rgba(43,61,197,.15);">S<sub>2,1</sub></div>
+        <div class="cell" style="background:rgba(37,145,106,.15);">S<sub>2,2</sub></div>
+        <div class="cell" style="background:rgba(135,76,252,.15);">S<sub>2,3</sub></div>
 
-        <div class="cell" style="background:rgba(245,158,11,.15);">S<sub>3,0</sub></div>
-        <div class="cell" style="background:rgba(96,165,250,.15);">S<sub>3,1</sub></div>
-        <div class="cell" style="background:rgba(16,185,129,.15);">S<sub>3,2</sub></div>
-        <div class="cell" style="background:rgba(139,92,246,.15);">S<sub>3,3</sub></div>
+        <div class="cell" style="background:rgba(197,126,9,.15);">S<sub>3,0</sub></div>
+        <div class="cell" style="background:rgba(43,61,197,.15);">S<sub>3,1</sub></div>
+        <div class="cell" style="background:rgba(37,145,106,.15);">S<sub>3,2</sub></div>
+        <div class="cell" style="background:rgba(135,76,252,.15);">S<sub>3,3</sub></div>
       </div>
       <p class="tiny dim" style="margin-top:0.5em;">S<sub>r,c</sub> = in[r + 4c]</p>
     </div>
@@ -333,7 +334,7 @@
       <p class="mono"><span class="accent4">for</span> r = 1 <span class="accent4">to</span> N<sub>r</sub> − 1:</p>
       <p class="mono">&emsp;&emsp;<span class="accent3">SubBytes</span>(State)</p>
       <p class="mono">&emsp;&emsp;<span class="accent2">ShiftRows</span>(State)</p>
-      <p class="mono">&emsp;&emsp;<span style="color:#60a5fa;">MixColumns</span>(State)</p>
+      <p class="mono">&emsp;&emsp;<span style="color:#2b3dc5;">MixColumns</span>(State)</p>
       <p class="mono">&emsp;&emsp;<span class="accent">AddRoundKey</span>(State, Key<sub>r</sub>)</p>
       <p class="mono">&nbsp;</p>
       <p class="mono"><span class="dim">// Final round (no MixColumns)</span></p>
@@ -484,22 +485,22 @@
         <div>
           <p class="small dim" style="text-align:center;margin-bottom:0.3em;">Before ShiftRows</p>
           <div class="state-grid">
-            <div class="cell" style="background:rgba(245,158,11,.2);color:var(--accent);">S₀₀</div>
-            <div class="cell" style="background:rgba(245,158,11,.2);color:var(--accent);">S₀₁</div>
-            <div class="cell" style="background:rgba(245,158,11,.2);color:var(--accent);">S₀₂</div>
-            <div class="cell" style="background:rgba(245,158,11,.2);color:var(--accent);">S₀₃</div>
-            <div class="cell" style="background:rgba(16,185,129,.2);color:var(--accent2);">S₁₀</div>
-            <div class="cell" style="background:rgba(16,185,129,.2);color:var(--accent2);">S₁₁</div>
-            <div class="cell" style="background:rgba(16,185,129,.2);color:var(--accent2);">S₁₂</div>
-            <div class="cell" style="background:rgba(16,185,129,.2);color:var(--accent2);">S₁₃</div>
-            <div class="cell" style="background:rgba(96,165,250,.2);color:#60a5fa;">S₂₀</div>
-            <div class="cell" style="background:rgba(96,165,250,.2);color:#60a5fa;">S₂₁</div>
-            <div class="cell" style="background:rgba(96,165,250,.2);color:#60a5fa;">S₂₂</div>
-            <div class="cell" style="background:rgba(96,165,250,.2);color:#60a5fa;">S₂₃</div>
-            <div class="cell" style="background:rgba(139,92,246,.2);color:var(--accent3);">S₃₀</div>
-            <div class="cell" style="background:rgba(139,92,246,.2);color:var(--accent3);">S₃₁</div>
-            <div class="cell" style="background:rgba(139,92,246,.2);color:var(--accent3);">S₃₂</div>
-            <div class="cell" style="background:rgba(139,92,246,.2);color:var(--accent3);">S₃₃</div>
+            <div class="cell" style="background:rgba(197,126,9,.2);color:var(--accent);">S₀₀</div>
+            <div class="cell" style="background:rgba(197,126,9,.2);color:var(--accent);">S₀₁</div>
+            <div class="cell" style="background:rgba(197,126,9,.2);color:var(--accent);">S₀₂</div>
+            <div class="cell" style="background:rgba(197,126,9,.2);color:var(--accent);">S₀₃</div>
+            <div class="cell" style="background:rgba(37,145,106,.2);color:var(--accent2);">S₁₀</div>
+            <div class="cell" style="background:rgba(37,145,106,.2);color:var(--accent2);">S₁₁</div>
+            <div class="cell" style="background:rgba(37,145,106,.2);color:var(--accent2);">S₁₂</div>
+            <div class="cell" style="background:rgba(37,145,106,.2);color:var(--accent2);">S₁₃</div>
+            <div class="cell" style="background:rgba(43,61,197,.2);color:#2b3dc5;">S₂₀</div>
+            <div class="cell" style="background:rgba(43,61,197,.2);color:#2b3dc5;">S₂₁</div>
+            <div class="cell" style="background:rgba(43,61,197,.2);color:#2b3dc5;">S₂₂</div>
+            <div class="cell" style="background:rgba(43,61,197,.2);color:#2b3dc5;">S₂₃</div>
+            <div class="cell" style="background:rgba(135,76,252,.2);color:var(--accent3);">S₃₀</div>
+            <div class="cell" style="background:rgba(135,76,252,.2);color:var(--accent3);">S₃₁</div>
+            <div class="cell" style="background:rgba(135,76,252,.2);color:var(--accent3);">S₃₂</div>
+            <div class="cell" style="background:rgba(135,76,252,.2);color:var(--accent3);">S₃₃</div>
           </div>
         </div>
         <!-- Arrow -->
@@ -508,22 +509,22 @@
         <div>
           <p class="small dim" style="text-align:center;margin-bottom:0.3em;">After ShiftRows</p>
           <div class="state-grid">
-            <div class="cell" style="background:rgba(245,158,11,.2);color:var(--accent);">S₀₀</div>
-            <div class="cell" style="background:rgba(245,158,11,.2);color:var(--accent);">S₀₁</div>
-            <div class="cell" style="background:rgba(245,158,11,.2);color:var(--accent);">S₀₂</div>
-            <div class="cell" style="background:rgba(245,158,11,.2);color:var(--accent);">S₀₃</div>
-            <div class="cell" style="background:rgba(16,185,129,.2);color:var(--accent2);">S₁₁</div>
-            <div class="cell" style="background:rgba(16,185,129,.2);color:var(--accent2);">S₁₂</div>
-            <div class="cell" style="background:rgba(16,185,129,.2);color:var(--accent2);">S₁₃</div>
-            <div class="cell" style="background:rgba(16,185,129,.2);color:var(--accent2);">S₁₀</div>
-            <div class="cell" style="background:rgba(96,165,250,.2);color:#60a5fa;">S₂₂</div>
-            <div class="cell" style="background:rgba(96,165,250,.2);color:#60a5fa;">S₂₃</div>
-            <div class="cell" style="background:rgba(96,165,250,.2);color:#60a5fa;">S₂₀</div>
-            <div class="cell" style="background:rgba(96,165,250,.2);color:#60a5fa;">S₂₁</div>
-            <div class="cell" style="background:rgba(139,92,246,.2);color:var(--accent3);">S₃₃</div>
-            <div class="cell" style="background:rgba(139,92,246,.2);color:var(--accent3);">S₃₀</div>
-            <div class="cell" style="background:rgba(139,92,246,.2);color:var(--accent3);">S₃₁</div>
-            <div class="cell" style="background:rgba(139,92,246,.2);color:var(--accent3);">S₃₂</div>
+            <div class="cell" style="background:rgba(197,126,9,.2);color:var(--accent);">S₀₀</div>
+            <div class="cell" style="background:rgba(197,126,9,.2);color:var(--accent);">S₀₁</div>
+            <div class="cell" style="background:rgba(197,126,9,.2);color:var(--accent);">S₀₂</div>
+            <div class="cell" style="background:rgba(197,126,9,.2);color:var(--accent);">S₀₃</div>
+            <div class="cell" style="background:rgba(37,145,106,.2);color:var(--accent2);">S₁₁</div>
+            <div class="cell" style="background:rgba(37,145,106,.2);color:var(--accent2);">S₁₂</div>
+            <div class="cell" style="background:rgba(37,145,106,.2);color:var(--accent2);">S₁₃</div>
+            <div class="cell" style="background:rgba(37,145,106,.2);color:var(--accent2);">S₁₀</div>
+            <div class="cell" style="background:rgba(43,61,197,.2);color:#2b3dc5;">S₂₂</div>
+            <div class="cell" style="background:rgba(43,61,197,.2);color:#2b3dc5;">S₂₃</div>
+            <div class="cell" style="background:rgba(43,61,197,.2);color:#2b3dc5;">S₂₀</div>
+            <div class="cell" style="background:rgba(43,61,197,.2);color:#2b3dc5;">S₂₁</div>
+            <div class="cell" style="background:rgba(135,76,252,.2);color:var(--accent3);">S₃₃</div>
+            <div class="cell" style="background:rgba(135,76,252,.2);color:var(--accent3);">S₃₀</div>
+            <div class="cell" style="background:rgba(135,76,252,.2);color:var(--accent3);">S₃₁</div>
+            <div class="cell" style="background:rgba(135,76,252,.2);color:var(--accent3);">S₃₂</div>
           </div>
         </div>
       </div>
@@ -534,7 +535,7 @@
       <tr><th>Row</th><th>Shift (bytes left)</th></tr>
       <tr><td style="color:var(--accent);">Row 0</td><td>0 (no shift)</td></tr>
       <tr><td style="color:var(--accent2);">Row 1</td><td>1</td></tr>
-      <tr><td style="color:#60a5fa;">Row 2</td><td>2</td></tr>
+      <tr><td style="color:#2b3dc5;">Row 2</td><td>2</td></tr>
       <tr><td style="color:var(--accent3);">Row 3</td><td>3</td></tr>
     </table>
   </div>
@@ -737,7 +738,7 @@
         <p>&emsp;<span class="accent2">InvShiftRows</span>(State)</p>
         <p>&emsp;<span class="accent3">InvSubBytes</span>(State)</p>
         <p>&emsp;<span class="accent">AddRoundKey</span>(State, Key<sub>r</sub>)</p>
-        <p>&emsp;<span style="color:#60a5fa;">InvMixColumns</span>(State)</p>
+        <p>&emsp;<span style="color:#2b3dc5;">InvMixColumns</span>(State)</p>
         <p><span class="accent2">InvShiftRows</span>(State)</p>
         <p><span class="accent3">InvSubBytes</span>(State)</p>
         <p><span class="accent">AddRoundKey</span>(State, Key<sub>0</sub>)</p>
@@ -793,7 +794,7 @@
         <tr><td>XORs/round</td><td>many</td><td>16 (32-bit)</td></tr>
         <tr><td>Ops per round</td><td>~160</td><td>~20</td></tr>
       </table>
-      <div class="box" style="margin-top:0.5em;border-color:rgba(239,68,68,.3);">
+      <div class="box" style="margin-top:0.5em;border-color:rgba(251,65,46,.3);">
         <p class="small accent4">⚠ Cache-timing vulnerability</p>
         <p class="tiny">Table access patterns leak key-dependent indices. Bernstein (2005) demonstrated full AES key recovery from timing measurements alone.</p>
       </div>
@@ -854,7 +855,7 @@
       <p class="tiny dim">Ideal for area-constrained IoT &amp; smart cards</p>
     </div>
     <div class="box">
-      <h3 style="color:#60a5fa;">Inner-Round Pipelined</h3>
+      <h3 style="color:#2b3dc5;">Inner-Round Pipelined</h3>
       <p class="tiny">Pipeline registers within a single round</p>
       <p class="tiny"><span class="accent">Area:</span> ~8,000–15,000 GE</p>
       <p class="tiny"><span class="accent">Throughput:</span> ~5–15 Gbps</p>
@@ -939,7 +940,7 @@
       <p class="tiny accent4">✗ Never use for real data</p>
     </div>
     <div class="box">
-      <h3 style="color:#60a5fa;">CBC</h3>
+      <h3 style="color:#2b3dc5;">CBC</h3>
       <p class="tiny">Each block XORed with previous ciphertext</p>
       <p class="tiny">✓ Widely deployed (TLS ≤1.2)</p>
       <p class="tiny dim">✗ Sequential — can't parallelize encryption</p>
@@ -954,7 +955,7 @@
     </div>
   </div>
   <div class="two-col" style="margin-top:0.5em;">
-    <div class="box" style="border-color:rgba(16,185,129,.4);">
+    <div class="box" style="border-color:rgba(37,145,106,.4);">
       <h3 style="color:var(--accent2);">GCM (Galois/Counter Mode) ★</h3>
       <p class="small">CTR encryption + GHASH authentication</p>
       <p class="small">✓ Authenticated encryption (AEAD)</p>
@@ -1228,7 +1229,7 @@ endmodule</code></pre>
     </div>
     <div>
       <h3>Security Assessment</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="accent2" style="font-size:1.1em;font-weight:700;">AES remains unbroken</p>
         <p class="small">No practical attack reducing security below the intended level exists as of 2025.</p>
       </div>

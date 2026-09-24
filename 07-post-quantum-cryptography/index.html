@@ -5,23 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Post-Quantum Cryptography — Modern Cryptography Series #07</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --q-cyan: #00e5ff;
-  --q-magenta: #e040fb;
-  --q-amber: #ffd740;
-  --q-green: #69f0ae;
-  --q-red: #ff5252;
-  --q-blue: #448aff;
-  --bg-dark: #0a0a1a;
-  --bg-card: rgba(255,255,255,0.04);
-  --text-dim: rgba(255,255,255,0.55);
+  --q-cyan: #023052;
+  --q-magenta: #8a09cf;
+  --q-amber: #5b4104;
+  --q-green: #044931;
+  --q-red: #f42313;
+  --q-blue: #4042f9;
+  --bg-dark: #f7f7f5;
+  --bg-card: rgba(0,0,0,0.04);
+  --text-dim: rgba(0,0,0,0.55);
 }
-.reveal { font-family: 'DM Sans', sans-serif; font-weight: 300; color: #e0e0e0; }
-.reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; font-weight: 700; color: #fff; text-transform: none; letter-spacing: -0.01em; }
+.reveal { font-family: 'DM Sans', sans-serif; font-weight: 300; color: #1d1d1c; }
+.reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; font-weight: 700; color: #000000; text-transform: none; letter-spacing: -0.01em; }
 .reveal h1 { font-size: 2.4em; }
 .reveal h2 { font-size: 1.7em; border-bottom: 2px solid var(--q-cyan); padding-bottom: 0.2em; display: inline-block; margin-bottom: 0.5em; }
 .reveal h3 { font-size: 1.2em; color: var(--q-cyan); }
@@ -43,51 +43,51 @@
 /* Title slide */
 .title-slide h1 { font-size: 2.6em; background: linear-gradient(135deg, var(--q-cyan), var(--q-magenta)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.15; }
 .title-slide .subtitle { font-size: 0.9em; color: var(--text-dim); margin-top: 0.3em; }
-.title-slide .series-badge { display: inline-block; background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.3); border-radius: 6px; padding: 4px 14px; font-size: 0.6em; color: var(--q-cyan); margin-bottom: 1em; letter-spacing: 0.05em; }
+.title-slide .series-badge { display: inline-block; background: rgba(2,48,82,0.12); border: 1px solid rgba(2,48,82,0.3); border-radius: 6px; padding: 4px 14px; font-size: 0.6em; color: var(--q-cyan); margin-bottom: 1em; letter-spacing: 0.05em; }
 
 /* Cards / boxes */
 .card-grid { display: grid; gap: 14px; margin-top: 0.5em; }
 .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
 .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
 .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-.card { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px 18px; }
+.card { background: var(--bg-card); border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 16px 18px; }
 .card h4 { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.7em; margin: 0 0 6px 0; color: var(--q-cyan); }
 .card p, .card ul { font-size: 0.6em; margin: 0; }
 .card ul li { margin-bottom: 2px; }
-.card.warn-card { border-color: rgba(255,82,82,0.3); background: rgba(255,82,82,0.06); }
-.card.safe-card { border-color: rgba(105,240,174,0.3); background: rgba(105,240,174,0.06); }
-.card.amber-card { border-color: rgba(255,215,64,0.3); background: rgba(255,215,64,0.06); }
+.card.warn-card { border-color: rgba(244,35,19,0.3); background: rgba(244,35,19,0.06); }
+.card.safe-card { border-color: rgba(4,73,49,0.3); background: rgba(4,73,49,0.06); }
+.card.amber-card { border-color: rgba(91,65,4,0.3); background: rgba(91,65,4,0.06); }
 
 /* Tables */
 .reveal table { font-size: 0.58em; border-collapse: collapse; width: 100%; margin: 0.5em 0; }
-.reveal table th { background: rgba(0,229,255,0.1); color: var(--q-cyan); font-weight: 700; text-align: left; padding: 8px 10px; border-bottom: 2px solid rgba(0,229,255,0.3); }
-.reveal table td { padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-.reveal table tr:hover td { background: rgba(255,255,255,0.03); }
+.reveal table th { background: rgba(2,48,82,0.1); color: var(--q-cyan); font-weight: 700; text-align: left; padding: 8px 10px; border-bottom: 2px solid rgba(2,48,82,0.3); }
+.reveal table td { padding: 6px 10px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.reveal table tr:hover td { background: rgba(0,0,0,0.03); }
 
 /* Diagrams */
-.diagram-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 20px; margin: 0.5em 0; text-align: center; }
+.diagram-box { background: rgba(255,255,255,0.3); border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; padding: 20px; margin: 0.5em 0; text-align: center; }
 .flow-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
-.flow-node { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); border-radius: 8px; padding: 8px 14px; font-size: 0.6em; font-weight: 500; color: #fff; white-space: nowrap; }
-.flow-node.danger { background: rgba(255,82,82,0.12); border-color: rgba(255,82,82,0.4); }
-.flow-node.safe { background: rgba(105,240,174,0.1); border-color: rgba(105,240,174,0.35); }
-.flow-node.amber { background: rgba(255,215,64,0.1); border-color: rgba(255,215,64,0.35); }
+.flow-node { background: rgba(2,48,82,0.1); border: 1px solid rgba(2,48,82,0.3); border-radius: 8px; padding: 8px 14px; font-size: 0.6em; font-weight: 500; color: #000000; white-space: nowrap; }
+.flow-node.danger { background: rgba(244,35,19,0.12); border-color: rgba(244,35,19,0.4); }
+.flow-node.safe { background: rgba(4,73,49,0.1); border-color: rgba(4,73,49,0.35); }
+.flow-node.amber { background: rgba(91,65,4,0.1); border-color: rgba(91,65,4,0.35); }
 .flow-arrow { font-size: 1.2em; color: var(--text-dim); }
 
 /* Interactive elements */
-.interactive-box { background: rgba(0,229,255,0.04); border: 1px solid rgba(0,229,255,0.15); border-radius: 12px; padding: 18px; margin: 0.5em 0; }
-.btn { display: inline-block; padding: 6px 16px; border-radius: 6px; font-size: 0.6em; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,229,255,0.4); background: rgba(0,229,255,0.1); color: var(--q-cyan); transition: all 0.2s; margin: 3px; }
-.btn:hover { background: rgba(0,229,255,0.2); }
-.btn.active { background: rgba(0,229,255,0.3); border-color: var(--q-cyan); }
+.interactive-box { background: rgba(2,48,82,0.04); border: 1px solid rgba(2,48,82,0.15); border-radius: 12px; padding: 18px; margin: 0.5em 0; }
+.btn { display: inline-block; padding: 6px 16px; border-radius: 6px; font-size: 0.6em; font-weight: 600; cursor: pointer; border: 1px solid rgba(2,48,82,0.4); background: rgba(2,48,82,0.1); color: var(--q-cyan); transition: all 0.2s; margin: 3px; }
+.btn:hover { background: rgba(2,48,82,0.2); }
+.btn.active { background: rgba(2,48,82,0.3); border-color: var(--q-cyan); }
 
 /* Bar chart */
 .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 180px; padding: 10px 0; }
 .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; }
 .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.6s ease; min-height: 2px; }
 .bar-label { font-size: 0.45em; color: var(--text-dim); margin-top: 6px; text-align: center; word-break: break-all; }
-.bar-value { font-size: 0.42em; color: #fff; margin-bottom: 3px; font-weight: 600; }
+.bar-value { font-size: 0.42em; color: #000000; margin-bottom: 3px; font-weight: 600; }
 
 /* Lattice visualization */
-.lattice-canvas { width: 100%; height: 260px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); }
+.lattice-canvas { width: 100%; height: 260px; border-radius: 10px; background: rgba(255,255,255,0.3); border: 1px solid rgba(0,0,0,0.08); }
 
 /* Timeline */
 .timeline { position: relative; padding-left: 30px; margin: 0.5em 0; }
@@ -95,16 +95,16 @@
 .timeline-item { position: relative; margin-bottom: 14px; }
 .timeline-item::before { content: ''; position: absolute; left: -26px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--q-cyan); border: 2px solid var(--bg-dark); }
 .timeline-item .year { font-size: 0.55em; color: var(--q-cyan); font-weight: 700; }
-.timeline-item .desc { font-size: 0.58em; color: #ccc; }
+.timeline-item .desc { font-size: 0.58em; color: #2d2d2b; }
 
 /* Math */
-.math-block { font-family: 'JetBrains Mono', monospace; font-size: 0.65em; background: rgba(0,0,0,0.3); padding: 14px 18px; border-radius: 8px; border-left: 3px solid var(--q-cyan); margin: 0.5em 0; color: #e0e0e0; line-height: 1.8; overflow-x: auto; }
+.math-block { font-family: 'JetBrains Mono', monospace; font-size: 0.65em; background: rgba(255,255,255,0.3); padding: 14px 18px; border-radius: 8px; border-left: 3px solid var(--q-cyan); margin: 0.5em 0; color: #1d1d1c; line-height: 1.8; overflow-x: auto; }
 
 /* Slide number */
-.reveal .slide-number { font-family: 'JetBrains Mono', monospace; font-size: 0.6em; color: var(--q-cyan); background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 4px; }
+.reveal .slide-number { font-family: 'JetBrains Mono', monospace; font-size: 0.6em; color: var(--q-cyan); background: rgba(255,255,255,0.4); padding: 4px 10px; border-radius: 4px; }
 
 /* Animations */
-@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 8px rgba(0,229,255,0.2); } 50% { box-shadow: 0 0 20px rgba(0,229,255,0.5); } }
+@keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 8px rgba(2,48,82,0.2); } 50% { box-shadow: 0 0 20px rgba(2,48,82,0.5); } }
 .glow { animation: pulse-glow 2s ease-in-out infinite; }
 
 /* NTT butterfly */
@@ -117,6 +117,8 @@
 }
 .reveal .slides > section { overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
 </style>
+<style>:root{--r-background-color:#fafaf8}.reveal-viewport{background:#fafaf8}</style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 <body>
 <div class="reveal">
@@ -125,7 +127,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 1: TITLE -->
 <!-- ============================================================ -->
-<section class="center-slide title-slide" data-background-color="#0a0a1a">
+<section class="center-slide title-slide" data-background-color="#f7f7f5">
   <div class="series-badge">MODERN CRYPTOGRAPHY SERIES · PRESENTATION 07</div>
   <h1>Post-Quantum Cryptography</h1>
   <p class="subtitle">Lattices · ML-KEM · ML-DSA · SLH-DSA · NIST PQC Standards · Hardware</p>
@@ -135,7 +137,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 2: WHY POST-QUANTUM? -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Why Post-Quantum?</h2>
   <p>Every public-key cryptosystem in wide deployment today — RSA, Diffie-Hellman, ECDSA, ECDH, EdDSA — derives security from one of two problems: <span class="warn">integer factorisation</span> or the <span class="warn">discrete logarithm problem</span>.</p>
   <p>Shor's algorithm (1994) solves both in <span class="accent">polynomial time</span> on a quantum computer, reducing exponential-class problems to O(n³) in qubit-circuit depth.</p>
@@ -165,7 +167,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 3: QUANTUM THREAT TIMELINE -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>The Quantum Threat Timeline</h2>
   <div class="card-grid cols-2">
     <div>
@@ -200,7 +202,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 4: PQC FAMILIES OVERVIEW -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>PQC Algorithm Families</h2>
   <p>Post-quantum schemes derive hardness from problems believed resistant to both classical and quantum algorithms.</p>
   <div class="card-grid cols-2">
@@ -237,7 +239,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 5: LATTICE FUNDAMENTALS -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Lattice Fundamentals</h2>
   <p>A <span class="accent">lattice</span> ℒ(B) is the set of all integer linear combinations of basis vectors B = {b₁, b₂, …, bₙ} ⊂ ℝⁿ:</p>
   <div class="math-block">
@@ -264,7 +266,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 6: LEARNING WITH ERRORS -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Learning With Errors (LWE)</h2>
   <p>Introduced by Oded Regev (2005, Gödel Prize 2018). LWE is the computational foundation for ML-KEM and ML-DSA.</p>
   <div class="card-grid cols-2">
@@ -300,7 +302,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 7: INTERACTIVE LWE DEMO -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Interactive: LWE in Action</h2>
   <p>This demonstrates why noise makes LWE hard. Without error, the system is trivially solvable.</p>
   <div class="interactive-box">
@@ -316,7 +318,7 @@
         <pre><code id="lwe-output" style="font-size:0.9em; line-height:1.5;"></code></pre>
       </div>
       <div style="flex:1; min-width:250px;">
-        <canvas id="lweChart" width="380" height="220" style="background:rgba(0,0,0,0.3); border-radius:8px; border:1px solid rgba(255,255,255,0.08);"></canvas>
+        <canvas id="lweChart" width="380" height="220" style="background:rgba(255,255,255,0.3); border-radius:8px; border:1px solid rgba(0,0,0,0.08);"></canvas>
         <p class="small" style="margin-top:4px;">Error distribution: discrete samples from e mod q</p>
       </div>
     </div>
@@ -326,7 +328,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 8: NIST PQC STANDARDS -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>NIST PQC Standards (Aug 2024)</h2>
   <table>
     <thead>
@@ -358,7 +360,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 9: ML-KEM DEEP DIVE -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>ML-KEM (FIPS 203) — Deep Dive</h2>
   <p>Module-Lattice-Based Key-Encapsulation Mechanism, derived from CRYSTALS-Kyber.</p>
   <div class="card-grid cols-2">
@@ -396,7 +398,7 @@ Decaps: m' = Decompress(c₂ − s<sup>T</sup>c₁), re-encrypt, check
 <!-- ============================================================ -->
 <!-- SLIDE 10: ML-KEM PROTOCOL FLOW -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>ML-KEM Protocol Flow</h2>
   <div class="diagram-box">
     <div style="display:grid; grid-template-columns: 1fr 80px 1fr; gap:10px; text-align:center;">
@@ -440,7 +442,7 @@ Decaps: m' = Decompress(c₂ − s<sup>T</sup>c₁), re-encrypt, check
 <!-- ============================================================ -->
 <!-- SLIDE 11: NTT -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Number Theoretic Transform (NTT)</h2>
   <p>The NTT is the workhorse of lattice cryptography — it converts polynomial multiplication from O(n²) to <span class="accent">O(n log n)</span>.</p>
   <div class="card-grid cols-2">
@@ -461,16 +463,16 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
       <h3>Butterfly Operation</h3>
       <div class="diagram-box" style="padding:14px;">
         <svg viewBox="0 0 320 140" style="width:100%; max-width:320px;">
-          <text x="10" y="30" fill="#e0e0e0" font-family="JetBrains Mono" font-size="13">a[j]</text>
-          <text x="10" y="110" fill="#e0e0e0" font-family="JetBrains Mono" font-size="13">a[j+m]</text>
-          <line x1="65" y1="26" x2="200" y2="26" stroke="#00e5ff" stroke-width="2"/>
-          <line x1="65" y1="106" x2="200" y2="106" stroke="#e040fb" stroke-width="2"/>
-          <line x1="65" y1="106" x2="200" y2="26" stroke="#e040fb" stroke-width="1.5" stroke-dasharray="4,3"/>
-          <line x1="65" y1="26" x2="200" y2="106" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,3"/>
-          <text x="115" y="60" fill="#ffd740" font-family="JetBrains Mono" font-size="11">×ζ^k</text>
-          <text x="115" y="98" fill="#ffd740" font-family="JetBrains Mono" font-size="11">×ζ^k</text>
-          <text x="210" y="30" fill="#69f0ae" font-family="JetBrains Mono" font-size="12">a[j] + ζᵏ·a[j+m]</text>
-          <text x="210" y="110" fill="#ff5252" font-family="JetBrains Mono" font-size="12">a[j] − ζᵏ·a[j+m]</text>
+          <text x="10" y="30" fill="#1d1d1c" font-family="JetBrains Mono" font-size="13">a[j]</text>
+          <text x="10" y="110" fill="#1d1d1c" font-family="JetBrains Mono" font-size="13">a[j+m]</text>
+          <line x1="65" y1="26" x2="200" y2="26" stroke="#023052" stroke-width="2"/>
+          <line x1="65" y1="106" x2="200" y2="106" stroke="#8a09cf" stroke-width="2"/>
+          <line x1="65" y1="106" x2="200" y2="26" stroke="#8a09cf" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="65" y1="26" x2="200" y2="106" stroke="#023052" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="115" y="60" fill="#5b4104" font-family="JetBrains Mono" font-size="11">×ζ^k</text>
+          <text x="115" y="98" fill="#5b4104" font-family="JetBrains Mono" font-size="11">×ζ^k</text>
+          <text x="210" y="30" fill="#044931" font-family="JetBrains Mono" font-size="12">a[j] + ζᵏ·a[j+m]</text>
+          <text x="210" y="110" fill="#f42313" font-family="JetBrains Mono" font-size="12">a[j] − ζᵏ·a[j+m]</text>
         </svg>
       </div>
       <p style="font-size:0.55em; margin-top:0.3em;">ML-KEM uses 7 layers of 128 butterflies. Each butterfly: 1 multiply + 1 add + 1 subtract in ℤ<sub>3329</sub>. Total: 128 × 7 = 896 butterflies per NTT.</p>
@@ -482,7 +484,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
 <!-- ============================================================ -->
 <!-- SLIDE 12: ML-DSA -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>ML-DSA (FIPS 204) — Digital Signatures</h2>
   <p>Module-Lattice-Based Digital Signature Algorithm, derived from CRYSTALS-Dilithium.</p>
   <div class="card-grid cols-2">
@@ -530,7 +532,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
 <!-- ============================================================ -->
 <!-- SLIDE 13: SLH-DSA -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>SLH-DSA (FIPS 205) — Hash-Based Signatures</h2>
   <p>Stateless Hash-Based Digital Signature Algorithm, derived from SPHINCS+. The <span class="accent">conservative</span> choice — security rests solely on hash function properties.</p>
   <div class="card-grid cols-2">
@@ -578,7 +580,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
 <!-- ============================================================ -->
 <!-- SLIDE 14: SIZE COMPARISON -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Interactive: Key & Signature Sizes</h2>
   <p>Compare PQC algorithms against classical schemes. Select a metric to visualise:</p>
   <div class="interactive-box">
@@ -595,7 +597,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
 <!-- ============================================================ -->
 <!-- SLIDE 15: PERFORMANCE -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Performance Benchmarks</h2>
   <p>PQC algorithms are competitive with — and often faster than — classical schemes in software.</p>
   <table>
@@ -633,7 +635,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
 <!-- ============================================================ -->
 <!-- SLIDE 16: HARDWARE IMPLEMENTATION -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Hardware Implementation</h2>
   <p>PQC accelerators for SoCs, FPGAs, and ASICs.</p>
   <div class="card-grid cols-2">
@@ -650,7 +652,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
         <div class="flow-row" style="margin-top:6px;">
           <div class="flow-node amber">Twiddle ROM<br><span style="font-size:0.8em;">ζ<sup>k</sup> table</span></div>
           <div class="flow-arrow">↗</div>
-          <div class="flow-node" style="background:rgba(224,64,251,0.1); border-color:rgba(224,64,251,0.35);">Control FSM<br><span style="font-size:0.8em;">7 stages × 128 ops</span></div>
+          <div class="flow-node" style="background:rgba(138,9,207,0.1); border-color:rgba(138,9,207,0.35);">Control FSM<br><span style="font-size:0.8em;">7 stages × 128 ops</span></div>
         </div>
       </div>
       <ul style="font-size:0.58em;">
@@ -686,7 +688,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
 <!-- ============================================================ -->
 <!-- SLIDE 17: PYTHON IMPLEMENTATION -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Python: Simplified ML-KEM Core</h2>
   <p>A pedagogical implementation of the core NTT and polynomial arithmetic in ℤ<sub>3329</sub>.</p>
   <pre><code class="language-python" data-trim data-noescape>
@@ -732,7 +734,7 @@ def pointwise_mul(f_hat, g_hat):
 <!-- ============================================================ -->
 <!-- SLIDE 18: PYTHON KEYGEN -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Python: Key Generation Sketch</h2>
   <pre><code class="language-python" data-trim data-noescape>
 import os, hashlib
@@ -779,7 +781,7 @@ def ml_kem_keygen(k=3, eta1=2):
 <!-- ============================================================ -->
 <!-- SLIDE 19: HYBRID SCHEMES & MIGRATION -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Hybrid Schemes & Migration</h2>
   <p>The transition strategy: combine classical + PQC for defence-in-depth.</p>
   <div class="card-grid cols-2">
@@ -827,7 +829,7 @@ def ml_kem_keygen(k=3, eta1=2):
 <!-- ============================================================ -->
 <!-- SLIDE 20: COMPARISON TABLE -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a">
+<section data-background-color="#f7f7f5">
   <h2>Algorithm Decision Matrix</h2>
   <table style="font-size:0.5em;">
     <thead>
@@ -857,7 +859,7 @@ def ml_kem_keygen(k=3, eta1=2):
 <!-- ============================================================ -->
 <!-- SLIDE 21: REFERENCES -->
 <!-- ============================================================ -->
-<section data-background-color="#0a0a1a" class="center-slide">
+<section data-background-color="#f7f7f5" class="center-slide">
   <h2>References & Standards</h2>
   <div style="text-align:left; max-width:800px; margin:0 auto;">
     <p style="font-size:0.6em; line-height:1.8;">
@@ -924,7 +926,7 @@ Reveal.initialize({
   function draw() {
     ctx.clearRect(0, 0, W, H);
     // Grid lines
-    ctx.strokeStyle = 'rgba(0,229,255,0.06)';
+    ctx.strokeStyle = 'rgba(2,48,82,0.06)';
     ctx.lineWidth = 0.5;
     for (let i = -8; i <= 8; i++) {
       for (let j = -8; j <= 8; j++) {
@@ -939,7 +941,7 @@ Reveal.initialize({
         const [x, y] = toScreen(i, j);
         if (x < -10 || x > W + 10 || y < -10 || y > H + 10) continue;
         ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = (i === 0 && j === 0) ? '#00e5ff' : 'rgba(0,229,255,0.35)';
+        ctx.fillStyle = (i === 0 && j === 0) ? '#023052' : 'rgba(2,48,82,0.35)';
         ctx.fill();
       }
     }
@@ -947,14 +949,14 @@ Reveal.initialize({
     const [ox, oy] = toScreen(0, 0);
     const [p1x, p1y] = toScreen(1, 0);
     const [p2x, p2y] = toScreen(0, 1);
-    drawArrow(ctx, ox, oy, p1x, p1y, '#00e5ff', 'b₁');
-    drawArrow(ctx, ox, oy, p2x, p2y, '#e040fb', 'b₂');
+    drawArrow(ctx, ox, oy, p1x, p1y, '#023052', 'b₁');
+    drawArrow(ctx, ox, oy, p2x, p2y, '#8a09cf', 'b₂');
 
     // Target + CVP
     if (target) {
       ctx.beginPath(); ctx.arc(target[0], target[1], 5, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffd740'; ctx.fill();
-      ctx.font = '11px DM Sans'; ctx.fillStyle = '#ffd740';
+      ctx.fillStyle = '#5b4104'; ctx.fill();
+      ctx.font = '11px DM Sans'; ctx.fillStyle = '#5b4104';
       ctx.fillText('target', target[0] + 8, target[1] - 8);
       // Find closest
       let minD = Infinity, closest = null;
@@ -967,11 +969,11 @@ Reveal.initialize({
       }
       if (closest) {
         ctx.setLineDash([4, 3]);
-        ctx.strokeStyle = '#69f0ae'; ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#044931'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(target[0], target[1]); ctx.lineTo(closest[0], closest[1]); ctx.stroke();
         ctx.setLineDash([]);
         ctx.beginPath(); ctx.arc(closest[0], closest[1], 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#69f0ae'; ctx.fill();
+        ctx.fillStyle = '#044931'; ctx.fill();
         ctx.fillText('closest', closest[0] + 8, closest[1] + 14);
       }
     }
@@ -1045,7 +1047,7 @@ function lweGenerate(sigma) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   if (sigma === 0) {
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.font = '14px DM Sans';
     ctx.textAlign = 'center';
     ctx.fillText('No errors — trivially solvable', canvas.width / 2, canvas.height / 2);
@@ -1069,10 +1071,10 @@ function lweGenerate(sigma) {
     const h = (bins[k] / maxCount) * (canvas.height - 40);
     const x = startX + i * barW;
     const y = canvas.height - 20 - h;
-    ctx.fillStyle = k === 0 ? '#00e5ff' : 'rgba(0,229,255,0.4)';
+    ctx.fillStyle = k === 0 ? '#023052' : 'rgba(2,48,82,0.4)';
     ctx.fillRect(x, y, barW - 2, h);
     if (barW > 12) {
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
       ctx.font = '9px JetBrains Mono';
       ctx.textAlign = 'center';
       ctx.fillText(k, x + barW / 2 - 1, canvas.height - 6);
@@ -1087,40 +1089,40 @@ lweGenerate(0);
 // ==============================
 const sizeData = {
   pk: [
-    { label: 'RSA-2048', value: 256, color: 'rgba(255,82,82,0.7)' },
-    { label: 'ECDSA\nP-256', value: 64, color: 'rgba(255,82,82,0.7)' },
-    { label: 'ML-KEM\n512', value: 800, color: 'rgba(0,229,255,0.7)' },
-    { label: 'ML-KEM\n768', value: 1184, color: 'rgba(0,229,255,0.9)' },
-    { label: 'ML-KEM\n1024', value: 1568, color: 'rgba(0,229,255,0.7)' },
-    { label: 'ML-DSA\n44', value: 1312, color: 'rgba(105,240,174,0.7)' },
-    { label: 'ML-DSA\n65', value: 1952, color: 'rgba(105,240,174,0.9)' },
-    { label: 'ML-DSA\n87', value: 2592, color: 'rgba(105,240,174,0.7)' },
-    { label: 'SLH-DSA\n128f', value: 32, color: 'rgba(224,64,251,0.7)' },
-    { label: 'FN-DSA\n512', value: 897, color: 'rgba(255,215,64,0.7)' },
+    { label: 'RSA-2048', value: 256, color: 'rgba(244,35,19,0.7)' },
+    { label: 'ECDSA\nP-256', value: 64, color: 'rgba(244,35,19,0.7)' },
+    { label: 'ML-KEM\n512', value: 800, color: 'rgba(2,48,82,0.7)' },
+    { label: 'ML-KEM\n768', value: 1184, color: 'rgba(2,48,82,0.9)' },
+    { label: 'ML-KEM\n1024', value: 1568, color: 'rgba(2,48,82,0.7)' },
+    { label: 'ML-DSA\n44', value: 1312, color: 'rgba(4,73,49,0.7)' },
+    { label: 'ML-DSA\n65', value: 1952, color: 'rgba(4,73,49,0.9)' },
+    { label: 'ML-DSA\n87', value: 2592, color: 'rgba(4,73,49,0.7)' },
+    { label: 'SLH-DSA\n128f', value: 32, color: 'rgba(138,9,207,0.7)' },
+    { label: 'FN-DSA\n512', value: 897, color: 'rgba(91,65,4,0.7)' },
   ],
   sk: [
-    { label: 'RSA-2048', value: 256, color: 'rgba(255,82,82,0.7)' },
-    { label: 'ECDSA\nP-256', value: 32, color: 'rgba(255,82,82,0.7)' },
-    { label: 'ML-KEM\n512', value: 1632, color: 'rgba(0,229,255,0.7)' },
-    { label: 'ML-KEM\n768', value: 2400, color: 'rgba(0,229,255,0.9)' },
-    { label: 'ML-KEM\n1024', value: 3168, color: 'rgba(0,229,255,0.7)' },
-    { label: 'ML-DSA\n44', value: 2528, color: 'rgba(105,240,174,0.7)' },
-    { label: 'ML-DSA\n65', value: 4000, color: 'rgba(105,240,174,0.9)' },
-    { label: 'ML-DSA\n87', value: 4864, color: 'rgba(105,240,174,0.7)' },
-    { label: 'SLH-DSA\n128f', value: 64, color: 'rgba(224,64,251,0.7)' },
-    { label: 'FN-DSA\n512', value: 1281, color: 'rgba(255,215,64,0.7)' },
+    { label: 'RSA-2048', value: 256, color: 'rgba(244,35,19,0.7)' },
+    { label: 'ECDSA\nP-256', value: 32, color: 'rgba(244,35,19,0.7)' },
+    { label: 'ML-KEM\n512', value: 1632, color: 'rgba(2,48,82,0.7)' },
+    { label: 'ML-KEM\n768', value: 2400, color: 'rgba(2,48,82,0.9)' },
+    { label: 'ML-KEM\n1024', value: 3168, color: 'rgba(2,48,82,0.7)' },
+    { label: 'ML-DSA\n44', value: 2528, color: 'rgba(4,73,49,0.7)' },
+    { label: 'ML-DSA\n65', value: 4000, color: 'rgba(4,73,49,0.9)' },
+    { label: 'ML-DSA\n87', value: 4864, color: 'rgba(4,73,49,0.7)' },
+    { label: 'SLH-DSA\n128f', value: 64, color: 'rgba(138,9,207,0.7)' },
+    { label: 'FN-DSA\n512', value: 1281, color: 'rgba(91,65,4,0.7)' },
   ],
   ct: [
-    { label: 'RSA-2048', value: 256, color: 'rgba(255,82,82,0.7)' },
-    { label: 'ECDSA\nP-256', value: 64, color: 'rgba(255,82,82,0.7)' },
-    { label: 'ML-KEM\n512', value: 768, color: 'rgba(0,229,255,0.7)' },
-    { label: 'ML-KEM\n768', value: 1088, color: 'rgba(0,229,255,0.9)' },
-    { label: 'ML-KEM\n1024', value: 1568, color: 'rgba(0,229,255,0.7)' },
-    { label: 'ML-DSA\n44', value: 2420, color: 'rgba(105,240,174,0.7)' },
-    { label: 'ML-DSA\n65', value: 3293, color: 'rgba(105,240,174,0.9)' },
-    { label: 'ML-DSA\n87', value: 4595, color: 'rgba(105,240,174,0.7)' },
-    { label: 'SLH-DSA\n128f', value: 17088, color: 'rgba(224,64,251,0.7)' },
-    { label: 'FN-DSA\n512', value: 690, color: 'rgba(255,215,64,0.7)' },
+    { label: 'RSA-2048', value: 256, color: 'rgba(244,35,19,0.7)' },
+    { label: 'ECDSA\nP-256', value: 64, color: 'rgba(244,35,19,0.7)' },
+    { label: 'ML-KEM\n512', value: 768, color: 'rgba(2,48,82,0.7)' },
+    { label: 'ML-KEM\n768', value: 1088, color: 'rgba(2,48,82,0.9)' },
+    { label: 'ML-KEM\n1024', value: 1568, color: 'rgba(2,48,82,0.7)' },
+    { label: 'ML-DSA\n44', value: 2420, color: 'rgba(4,73,49,0.7)' },
+    { label: 'ML-DSA\n65', value: 3293, color: 'rgba(4,73,49,0.9)' },
+    { label: 'ML-DSA\n87', value: 4595, color: 'rgba(4,73,49,0.7)' },
+    { label: 'SLH-DSA\n128f', value: 17088, color: 'rgba(138,9,207,0.7)' },
+    { label: 'FN-DSA\n512', value: 690, color: 'rgba(91,65,4,0.7)' },
   ],
 };
 

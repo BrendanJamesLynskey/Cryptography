@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zero-Knowledge Proofs</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --r-background-color: #0a0a0f;
+  --r-background-color: #fafaf8;
   --r-main-font: 'DM Sans', sans-serif;
   --r-heading-font: 'Playfair Display', serif;
   --r-code-font: 'JetBrains Mono', monospace;
   --r-main-font-size: 28px;
-  --r-main-color: #e0e0e8;
-  --r-heading-color: #ffffff;
-  --r-link-color: #64ffda;
-  --accent: #64ffda;
-  --accent2: #ff6b9d;
-  --accent3: #ffd93d;
-  --accent4: #6c5ce7;
-  --dim: #6a6a7a;
-  --panel: rgba(255,255,255,0.04);
-  --border: rgba(100,255,218,0.15);
+  --r-main-color: #1c1c1b;
+  --r-heading-color: #000000;
+  --r-link-color: #013225;
+  --accent: #013225;
+  --accent2: #c6145f;
+  --accent3: #573e05;
+  --accent4: #886dfc;
+  --dim: #94948d;
+  --panel: rgba(0,0,0,0.04);
+  --border: rgba(1,50,37,0.15);
 }
 .reveal { font-family: var(--r-main-font); }
 .reveal h1, .reveal h2, .reveal h3 { font-family: var(--r-heading-font); font-weight: 700; letter-spacing: -0.02em; }
@@ -33,13 +33,13 @@
 .reveal h3 { font-size: 1.15em; color: var(--accent3); }
 .reveal code { font-family: var(--r-code-font); font-size: 0.72em; }
 .reveal pre { width: 100%; box-shadow: none; }
-.reveal pre code { padding: 18px 22px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); max-height: 520px; }
+.reveal pre code { padding: 18px 22px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.5); max-height: 520px; }
 .reveal .slide-number { font-family: var(--r-code-font); font-size: 14px; color: var(--dim); background: transparent; }
 .reveal section { text-align: left; overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
 
 /* Custom elements */
 .title-slide { text-align: center !important; }
-.title-slide h1 { font-size: 2.6em; line-height: 1.15; background: linear-gradient(135deg, #64ffda 0%, #6c5ce7 50%, #ff6b9d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.title-slide h1 { font-size: 2.6em; line-height: 1.15; background: linear-gradient(135deg, #013225 0%, #886dfc 50%, #c6145f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .title-slide .subtitle { font-size: 1.1em; color: var(--dim); margin-top: 0.5em; }
 .title-slide .series-tag { display: inline-block; padding: 6px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 0.7em; color: var(--accent); margin-top: 1.5em; letter-spacing: 0.1em; text-transform: uppercase; }
 
@@ -49,11 +49,11 @@
 .card-row .card { flex: 1; }
 
 .tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.65em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 2px; }
-.tag-green { background: rgba(100,255,218,0.15); color: var(--accent); }
-.tag-pink { background: rgba(255,107,157,0.15); color: var(--accent2); }
-.tag-yellow { background: rgba(255,217,61,0.15); color: var(--accent3); }
-.tag-purple { background: rgba(108,92,231,0.15); color: var(--accent4); }
-.tag-dim { background: rgba(255,255,255,0.06); color: var(--dim); }
+.tag-green { background: rgba(1,50,37,0.15); color: var(--accent); }
+.tag-pink { background: rgba(198,20,95,0.15); color: var(--accent2); }
+.tag-yellow { background: rgba(87,62,5,0.15); color: var(--accent3); }
+.tag-purple { background: rgba(136,109,252,0.15); color: var(--accent4); }
+.tag-dim { background: rgba(0,0,0,0.06); color: var(--dim); }
 
 .metric { text-align: center; padding: 14px; }
 .metric .value { font-size: 2em; font-weight: 900; font-family: var(--r-code-font); color: var(--accent); }
@@ -67,9 +67,9 @@
 .pipeline-arrow { color: var(--accent); font-size: 1.4em; margin: 0 -4px; z-index: 1; }
 
 .comparison-table { width: 100%; border-collapse: collapse; font-size: 0.68em; margin: 12px 0; }
-.comparison-table th { background: rgba(100,255,218,0.1); color: var(--accent); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); font-weight: 700; }
-.comparison-table td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.comparison-table tr:hover td { background: rgba(255,255,255,0.03); }
+.comparison-table th { background: rgba(1,50,37,0.1); color: var(--accent); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); font-weight: 700; }
+.comparison-table td { padding: 7px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.comparison-table tr:hover td { background: rgba(0,0,0,0.03); }
 
 .diagram-box { border: 2px solid var(--accent); border-radius: 8px; padding: 10px 16px; text-align: center; display: inline-block; margin: 4px; font-size: 0.75em; font-weight: 700; }
 .diagram-box.pink { border-color: var(--accent2); color: var(--accent2); }
@@ -81,14 +81,14 @@
 .arch-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
 .arch-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
-.highlight-box { border-left: 3px solid var(--accent); padding: 12px 18px; background: rgba(100,255,218,0.04); margin: 12px 0; font-size: 0.85em; }
-.highlight-box.pink { border-color: var(--accent2); background: rgba(255,107,157,0.04); }
-.highlight-box.yellow { border-color: var(--accent3); background: rgba(255,217,61,0.04); }
+.highlight-box { border-left: 3px solid var(--accent); padding: 12px 18px; background: rgba(1,50,37,0.04); margin: 12px 0; font-size: 0.85em; }
+.highlight-box.pink { border-color: var(--accent2); background: rgba(198,20,95,0.04); }
+.highlight-box.yellow { border-color: var(--accent3); background: rgba(87,62,5,0.04); }
 
 .small { font-size: 0.72em; color: var(--dim); }
 .tiny { font-size: 0.6em; color: var(--dim); }
 em { color: var(--accent); font-style: normal; font-weight: 700; }
-strong { color: #fff; }
+strong { color: #000000; }
 .accent2 { color: var(--accent2); }
 .accent3 { color: var(--accent3); }
 .accent4 { color: var(--accent4); }
@@ -105,6 +105,7 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 .section-divider h2 { font-size: 2.2em; background: linear-gradient(135deg, var(--accent), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .section-divider .section-num { font-family: var(--r-code-font); font-size: 0.7em; color: var(--dim); letter-spacing: 0.15em; }
 </style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 <body>
 <div class="reveal">
@@ -166,29 +167,29 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
       <h3>Ali Baba's Cave</h3>
       <p class="small">A circular cave with a magic door. The prover enters from a random side, the verifier calls out which side to exit from. If the prover knows the secret word, they always emerge correctly. After <em>n</em> rounds, probability of cheating = <em>2<sup>-n</sup></em>.</p>
       <svg viewBox="0 0 340 220" style="width:100%; margin-top:8px;">
-        <path d="M170,30 Q60,30 60,110 Q60,190 170,190" fill="none" stroke="#64ffda" stroke-width="2"/>
-        <path d="M170,30 Q280,30 280,110 Q280,190 170,190" fill="none" stroke="#ff6b9d" stroke-width="2"/>
-        <rect x="145" y="96" width="50" height="28" rx="4" fill="none" stroke="#ffd93d" stroke-width="2"/>
-        <text x="170" y="115" text-anchor="middle" fill="#ffd93d" font-size="10" font-weight="700">DOOR</text>
-        <text x="90" y="115" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">Path A</text>
-        <text x="250" y="115" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">Path B</text>
-        <circle cx="170" cy="200" r="12" fill="none" stroke="#6c5ce7" stroke-width="2"/>
-        <text x="170" y="204" text-anchor="middle" fill="#6c5ce7" font-size="10" font-weight="700">V</text>
-        <text x="170" y="15" text-anchor="middle" fill="#6a6a7a" font-size="10">Entrance</text>
+        <path d="M170,30 Q60,30 60,110 Q60,190 170,190" fill="none" stroke="#013225" stroke-width="2"/>
+        <path d="M170,30 Q280,30 280,110 Q280,190 170,190" fill="none" stroke="#c6145f" stroke-width="2"/>
+        <rect x="145" y="96" width="50" height="28" rx="4" fill="none" stroke="#573e05" stroke-width="2"/>
+        <text x="170" y="115" text-anchor="middle" fill="#573e05" font-size="10" font-weight="700">DOOR</text>
+        <text x="90" y="115" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">Path A</text>
+        <text x="250" y="115" text-anchor="middle" fill="#c6145f" font-size="11" font-weight="700">Path B</text>
+        <circle cx="170" cy="200" r="12" fill="none" stroke="#886dfc" stroke-width="2"/>
+        <text x="170" y="204" text-anchor="middle" fill="#886dfc" font-size="10" font-weight="700">V</text>
+        <text x="170" y="15" text-anchor="middle" fill="#94948d" font-size="10">Entrance</text>
       </svg>
     </div>
     <div class="card">
       <h3 style="color:var(--accent2);">Colour-Blind Friend</h3>
       <p class="small">You have two balls &mdash; one red, one green. Your colour-blind friend cannot tell them apart. You prove they are different by having the friend hide them behind their back, optionally swap, then show you one. You always correctly say whether they swapped. After <em>n</em> rounds, the friend is convinced.</p>
       <svg viewBox="0 0 340 120" style="width:100%; margin-top:8px;">
-        <circle cx="80" cy="60" r="30" fill="none" stroke="#ff6b9d" stroke-width="2"/>
-        <text x="80" y="65" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">Red</text>
-        <circle cx="260" cy="60" r="30" fill="none" stroke="#64ffda" stroke-width="2"/>
-        <text x="260" y="65" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">Green</text>
-        <text x="170" y="40" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Swap?</text>
-        <path d="M120,50 Q170,20 230,50" fill="none" stroke="#ffd93d" stroke-width="1.5" stroke-dasharray="4,3"/>
-        <path d="M230,70 Q170,100 120,70" fill="none" stroke="#ffd93d" stroke-width="1.5" stroke-dasharray="4,3"/>
-        <text x="170" y="110" text-anchor="middle" fill="#6a6a7a" font-size="10">Prover detects swap with certainty</text>
+        <circle cx="80" cy="60" r="30" fill="none" stroke="#c6145f" stroke-width="2"/>
+        <text x="80" y="65" text-anchor="middle" fill="#c6145f" font-size="11" font-weight="700">Red</text>
+        <circle cx="260" cy="60" r="30" fill="none" stroke="#013225" stroke-width="2"/>
+        <text x="260" y="65" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">Green</text>
+        <text x="170" y="40" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Swap?</text>
+        <path d="M120,50 Q170,20 230,50" fill="none" stroke="#573e05" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <path d="M230,70 Q170,100 120,70" fill="none" stroke="#573e05" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="170" y="110" text-anchor="middle" fill="#94948d" font-size="10">Prover detects swap with certainty</text>
       </svg>
     </div>
   </div>
@@ -221,31 +222,31 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 
   <svg viewBox="0 0 800 160" style="width:100%; margin:10px 0;">
     <defs>
-      <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
-      <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff6b9d"/></marker>
+      <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#013225"/></marker>
+      <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#c6145f"/></marker>
     </defs>
     <!-- Interactive -->
-    <text x="30" y="20" fill="#64ffda" font-size="13" font-weight="700">Interactive</text>
-    <rect x="30" y="35" width="70" height="100" rx="6" fill="none" stroke="#64ffda" stroke-width="1.5"/>
-    <text x="65" y="90" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">P</text>
-    <rect x="280" y="35" width="70" height="100" rx="6" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
-    <text x="315" y="90" text-anchor="middle" fill="#ff6b9d" font-size="12" font-weight="700">V</text>
-    <line x1="100" y1="55" x2="280" y2="55" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arr)"/>
-    <text x="190" y="50" text-anchor="middle" fill="#6a6a7a" font-size="10">commit</text>
-    <line x1="280" y1="80" x2="100" y2="80" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#arr2)"/>
-    <text x="190" y="75" text-anchor="middle" fill="#6a6a7a" font-size="10">challenge</text>
-    <line x1="100" y1="105" x2="280" y2="105" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arr)"/>
-    <text x="190" y="100" text-anchor="middle" fill="#6a6a7a" font-size="10">response</text>
+    <text x="30" y="20" fill="#013225" font-size="13" font-weight="700">Interactive</text>
+    <rect x="30" y="35" width="70" height="100" rx="6" fill="none" stroke="#013225" stroke-width="1.5"/>
+    <text x="65" y="90" text-anchor="middle" fill="#013225" font-size="12" font-weight="700">P</text>
+    <rect x="280" y="35" width="70" height="100" rx="6" fill="none" stroke="#c6145f" stroke-width="1.5"/>
+    <text x="315" y="90" text-anchor="middle" fill="#c6145f" font-size="12" font-weight="700">V</text>
+    <line x1="100" y1="55" x2="280" y2="55" stroke="#013225" stroke-width="1.5" marker-end="url(#arr)"/>
+    <text x="190" y="50" text-anchor="middle" fill="#94948d" font-size="10">commit</text>
+    <line x1="280" y1="80" x2="100" y2="80" stroke="#c6145f" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <text x="190" y="75" text-anchor="middle" fill="#94948d" font-size="10">challenge</text>
+    <line x1="100" y1="105" x2="280" y2="105" stroke="#013225" stroke-width="1.5" marker-end="url(#arr)"/>
+    <text x="190" y="100" text-anchor="middle" fill="#94948d" font-size="10">response</text>
     <!-- Non-Interactive -->
-    <text x="440" y="20" fill="#ff6b9d" font-size="13" font-weight="700">Non-Interactive</text>
-    <rect x="440" y="35" width="70" height="100" rx="6" fill="none" stroke="#64ffda" stroke-width="1.5"/>
-    <text x="475" y="90" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">P</text>
-    <rect x="690" y="35" width="70" height="100" rx="6" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
-    <text x="725" y="90" text-anchor="middle" fill="#ff6b9d" font-size="12" font-weight="700">V</text>
-    <line x1="510" y1="80" x2="690" y2="80" stroke="#64ffda" stroke-width="2" marker-end="url(#arr)"/>
-    <text x="600" y="72" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">&pi; (single proof)</text>
-    <rect x="545" y="105" width="110" height="25" rx="4" fill="none" stroke="#6c5ce7" stroke-width="1.5"/>
-    <text x="600" y="122" text-anchor="middle" fill="#6c5ce7" font-size="10" font-weight="700">CRS / Random Oracle</text>
+    <text x="440" y="20" fill="#c6145f" font-size="13" font-weight="700">Non-Interactive</text>
+    <rect x="440" y="35" width="70" height="100" rx="6" fill="none" stroke="#013225" stroke-width="1.5"/>
+    <text x="475" y="90" text-anchor="middle" fill="#013225" font-size="12" font-weight="700">P</text>
+    <rect x="690" y="35" width="70" height="100" rx="6" fill="none" stroke="#c6145f" stroke-width="1.5"/>
+    <text x="725" y="90" text-anchor="middle" fill="#c6145f" font-size="12" font-weight="700">V</text>
+    <line x1="510" y1="80" x2="690" y2="80" stroke="#013225" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="600" y="72" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">&pi; (single proof)</text>
+    <rect x="545" y="105" width="110" height="25" rx="4" fill="none" stroke="#886dfc" stroke-width="1.5"/>
+    <text x="600" y="122" text-anchor="middle" fill="#886dfc" font-size="10" font-weight="700">CRS / Random Oracle</text>
   </svg>
 </section>
 
@@ -258,31 +259,31 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 
   <svg viewBox="0 0 800 280" style="width:100%; margin:8px 0;">
     <defs>
-      <marker id="arw" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
-      <marker id="arw2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#ff6b9d"/></marker>
+      <marker id="arw" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#013225"/></marker>
+      <marker id="arw2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#c6145f"/></marker>
     </defs>
     <!-- Prover box -->
-    <rect x="20" y="10" width="250" height="260" rx="8" fill="rgba(100,255,218,0.03)" stroke="#64ffda" stroke-width="1.5"/>
-    <text x="145" y="35" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">Prover (knows x)</text>
+    <rect x="20" y="10" width="250" height="260" rx="8" fill="rgba(1,50,37,0.03)" stroke="#013225" stroke-width="1.5"/>
+    <text x="145" y="35" text-anchor="middle" fill="#013225" font-size="14" font-weight="700">Prover (knows x)</text>
     <!-- Verifier box -->
-    <rect x="530" y="10" width="250" height="260" rx="8" fill="rgba(255,107,157,0.03)" stroke="#ff6b9d" stroke-width="1.5"/>
-    <text x="655" y="35" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">Verifier (knows h)</text>
+    <rect x="530" y="10" width="250" height="260" rx="8" fill="rgba(198,20,95,0.03)" stroke="#c6145f" stroke-width="1.5"/>
+    <text x="655" y="35" text-anchor="middle" fill="#c6145f" font-size="14" font-weight="700">Verifier (knows h)</text>
     <!-- Step 1: Commit -->
-    <text x="40" y="70" fill="#e0e0e8" font-size="12" class="mono">r &larr; Z_q</text>
-    <text x="40" y="90" fill="#e0e0e8" font-size="12" class="mono">a = g^r</text>
-    <line x1="270" y1="80" x2="530" y2="80" stroke="#64ffda" stroke-width="2" marker-end="url(#arw)"/>
-    <text x="400" y="72" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">a (commitment)</text>
+    <text x="40" y="70" fill="#1c1c1b" font-size="12" class="mono">r &larr; Z_q</text>
+    <text x="40" y="90" fill="#1c1c1b" font-size="12" class="mono">a = g^r</text>
+    <line x1="270" y1="80" x2="530" y2="80" stroke="#013225" stroke-width="2" marker-end="url(#arw)"/>
+    <text x="400" y="72" text-anchor="middle" fill="#573e05" font-size="12" font-weight="700">a (commitment)</text>
     <!-- Step 2: Challenge -->
-    <text x="550" y="130" fill="#e0e0e8" font-size="12" class="mono">e &larr; {0,1}^t</text>
-    <line x1="530" y1="140" x2="270" y2="140" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arw2)"/>
-    <text x="400" y="132" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">e (challenge)</text>
+    <text x="550" y="130" fill="#1c1c1b" font-size="12" class="mono">e &larr; {0,1}^t</text>
+    <line x1="530" y1="140" x2="270" y2="140" stroke="#c6145f" stroke-width="2" marker-end="url(#arw2)"/>
+    <text x="400" y="132" text-anchor="middle" fill="#573e05" font-size="12" font-weight="700">e (challenge)</text>
     <!-- Step 3: Response -->
-    <text x="40" y="190" fill="#e0e0e8" font-size="12" class="mono">z = r + e&middot;x (mod q)</text>
-    <line x1="270" y1="200" x2="530" y2="200" stroke="#64ffda" stroke-width="2" marker-end="url(#arw)"/>
-    <text x="400" y="192" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">z (response)</text>
+    <text x="40" y="190" fill="#1c1c1b" font-size="12" class="mono">z = r + e&middot;x (mod q)</text>
+    <line x1="270" y1="200" x2="530" y2="200" stroke="#013225" stroke-width="2" marker-end="url(#arw)"/>
+    <text x="400" y="192" text-anchor="middle" fill="#573e05" font-size="12" font-weight="700">z (response)</text>
     <!-- Verify -->
-    <text x="550" y="240" fill="#e0e0e8" font-size="12" class="mono">Check: g^z = a &middot; h^e</text>
-    <text x="550" y="258" fill="#64ffda" font-size="11" font-weight="700">Accept if equal</text>
+    <text x="550" y="240" fill="#1c1c1b" font-size="12" class="mono">Check: g^z = a &middot; h^e</text>
+    <text x="550" y="258" fill="#013225" font-size="11" font-weight="700">Accept if equal</text>
   </svg>
 
   <div class="highlight-box">
@@ -332,25 +333,25 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 
   <svg viewBox="0 0 800 200" style="width:100%; margin:8px 0;">
     <defs>
-      <marker id="fa" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="fa" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#013225"/></marker>
     </defs>
     <!-- Interactive side -->
-    <rect x="20" y="20" width="330" height="160" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <text x="185" y="15" text-anchor="middle" fill="#6a6a7a" font-size="12" font-weight="700">INTERACTIVE</text>
-    <text x="40" y="55" fill="#e0e0e8" font-size="12" class="mono">1. a = g^r</text>
-    <text x="40" y="85" fill="#ff6b9d" font-size="12" class="mono">2. e &larr; Verifier</text>
-    <text x="40" y="115" fill="#e0e0e8" font-size="12" class="mono">3. z = r + e&middot;x</text>
-    <text x="40" y="150" fill="#6a6a7a" font-size="11">Proof = (a, z), verified live</text>
+    <rect x="20" y="20" width="330" height="160" rx="8" fill="rgba(0,0,0,0.02)" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <text x="185" y="15" text-anchor="middle" fill="#94948d" font-size="12" font-weight="700">INTERACTIVE</text>
+    <text x="40" y="55" fill="#1c1c1b" font-size="12" class="mono">1. a = g^r</text>
+    <text x="40" y="85" fill="#c6145f" font-size="12" class="mono">2. e &larr; Verifier</text>
+    <text x="40" y="115" fill="#1c1c1b" font-size="12" class="mono">3. z = r + e&middot;x</text>
+    <text x="40" y="150" fill="#94948d" font-size="11">Proof = (a, z), verified live</text>
     <!-- Arrow -->
-    <line x1="370" y1="100" x2="440" y2="100" stroke="#ffd93d" stroke-width="2" marker-end="url(#fa)"/>
-    <text x="405" y="90" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">H()</text>
+    <line x1="370" y1="100" x2="440" y2="100" stroke="#573e05" stroke-width="2" marker-end="url(#fa)"/>
+    <text x="405" y="90" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">H()</text>
     <!-- Non-interactive side -->
-    <rect x="450" y="20" width="330" height="160" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <text x="615" y="15" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">NON-INTERACTIVE</text>
-    <text x="470" y="55" fill="#e0e0e8" font-size="12" class="mono">1. a = g^r</text>
-    <text x="470" y="85" fill="#64ffda" font-size="12" class="mono">2. e = H(g, h, a)</text>
-    <text x="470" y="115" fill="#e0e0e8" font-size="12" class="mono">3. z = r + e&middot;x</text>
-    <text x="470" y="150" fill="#ffd93d" font-size="11" font-weight="700">Proof &pi; = (a, z) &mdash; publicly verifiable</text>
+    <rect x="450" y="20" width="330" height="160" rx="8" fill="rgba(0,0,0,0.02)" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <text x="615" y="15" text-anchor="middle" fill="#013225" font-size="12" font-weight="700">NON-INTERACTIVE</text>
+    <text x="470" y="55" fill="#1c1c1b" font-size="12" class="mono">1. a = g^r</text>
+    <text x="470" y="85" fill="#013225" font-size="12" class="mono">2. e = H(g, h, a)</text>
+    <text x="470" y="115" fill="#1c1c1b" font-size="12" class="mono">3. z = r + e&middot;x</text>
+    <text x="470" y="150" fill="#573e05" font-size="11" font-weight="700">Proof &pi; = (a, z) &mdash; publicly verifiable</text>
   </svg>
 
   <div class="card-row">
@@ -428,21 +429,21 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
     <div class="card">
       <h3>Arithmetic Circuit</h3>
       <svg viewBox="0 0 280 200" style="width:100%; margin:4px 0;">
-        <text x="50" y="25" text-anchor="middle" fill="#64ffda" font-size="12" font-weight="700">x</text>
-        <text x="150" y="25" text-anchor="middle" fill="#ff6b9d" font-size="12" font-weight="700">y</text>
-        <text x="230" y="25" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">1</text>
+        <text x="50" y="25" text-anchor="middle" fill="#013225" font-size="12" font-weight="700">x</text>
+        <text x="150" y="25" text-anchor="middle" fill="#c6145f" font-size="12" font-weight="700">y</text>
+        <text x="230" y="25" text-anchor="middle" fill="#573e05" font-size="12" font-weight="700">1</text>
         <!-- Multiply gate -->
-        <circle cx="100" cy="80" r="20" fill="none" stroke="#64ffda" stroke-width="1.5"/>
-        <text x="100" y="85" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">&times;</text>
-        <line x1="50" y1="35" x2="85" y2="62" stroke="#6a6a7a" stroke-width="1"/>
-        <line x1="150" y1="35" x2="115" y2="62" stroke="#6a6a7a" stroke-width="1"/>
+        <circle cx="100" cy="80" r="20" fill="none" stroke="#013225" stroke-width="1.5"/>
+        <text x="100" y="85" text-anchor="middle" fill="#013225" font-size="14" font-weight="700">&times;</text>
+        <line x1="50" y1="35" x2="85" y2="62" stroke="#94948d" stroke-width="1"/>
+        <line x1="150" y1="35" x2="115" y2="62" stroke="#94948d" stroke-width="1"/>
         <!-- Add gate -->
-        <circle cx="160" cy="150" r="20" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
-        <text x="160" y="155" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">+</text>
-        <line x1="100" y1="100" x2="145" y2="132" stroke="#6a6a7a" stroke-width="1"/>
-        <line x1="230" y1="35" x2="175" y2="132" stroke="#6a6a7a" stroke-width="1"/>
+        <circle cx="160" cy="150" r="20" fill="none" stroke="#c6145f" stroke-width="1.5"/>
+        <text x="160" y="155" text-anchor="middle" fill="#c6145f" font-size="14" font-weight="700">+</text>
+        <line x1="100" y1="100" x2="145" y2="132" stroke="#94948d" stroke-width="1"/>
+        <line x1="230" y1="35" x2="175" y2="132" stroke="#94948d" stroke-width="1"/>
         <!-- Output -->
-        <text x="160" y="195" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">out = x&middot;y + 1</text>
+        <text x="160" y="195" text-anchor="middle" fill="#573e05" font-size="12" font-weight="700">out = x&middot;y + 1</text>
       </svg>
     </div>
     <div class="card">
@@ -510,33 +511,33 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 
   <svg viewBox="0 0 800 170" style="width:100%; margin:8px 0;">
     <defs>
-      <marker id="ts" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="ts" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#013225"/></marker>
     </defs>
     <!-- Phase 1 -->
-    <rect x="20" y="20" width="160" height="60" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
-    <text x="100" y="45" text-anchor="middle" fill="#ff6b9d" font-size="12" font-weight="700">Participant 1</text>
-    <text x="100" y="65" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">&tau;_1 &larr; random</text>
-    <line x1="180" y1="50" x2="220" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ts)"/>
+    <rect x="20" y="20" width="160" height="60" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
+    <text x="100" y="45" text-anchor="middle" fill="#c6145f" font-size="12" font-weight="700">Participant 1</text>
+    <text x="100" y="65" text-anchor="middle" fill="#94948d" font-size="10" class="mono">&tau;_1 &larr; random</text>
+    <line x1="180" y1="50" x2="220" y2="50" stroke="#013225" stroke-width="1.5" marker-end="url(#ts)"/>
     <!-- Phase 2 -->
-    <rect x="220" y="20" width="160" height="60" rx="8" fill="none" stroke="#ffd93d" stroke-width="2"/>
-    <text x="300" y="45" text-anchor="middle" fill="#ffd93d" font-size="12" font-weight="700">Participant 2</text>
-    <text x="300" y="65" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">&tau;_2 &larr; random</text>
-    <line x1="380" y1="50" x2="420" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ts)"/>
+    <rect x="220" y="20" width="160" height="60" rx="8" fill="none" stroke="#573e05" stroke-width="2"/>
+    <text x="300" y="45" text-anchor="middle" fill="#573e05" font-size="12" font-weight="700">Participant 2</text>
+    <text x="300" y="65" text-anchor="middle" fill="#94948d" font-size="10" class="mono">&tau;_2 &larr; random</text>
+    <line x1="380" y1="50" x2="420" y2="50" stroke="#013225" stroke-width="1.5" marker-end="url(#ts)"/>
     <!-- Phase N -->
-    <text x="435" y="55" fill="#6a6a7a" font-size="14">...</text>
-    <line x1="455" y1="50" x2="490" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ts)"/>
-    <rect x="490" y="20" width="160" height="60" rx="8" fill="none" stroke="#6c5ce7" stroke-width="2"/>
-    <text x="570" y="45" text-anchor="middle" fill="#6c5ce7" font-size="12" font-weight="700">Participant N</text>
-    <text x="570" y="65" text-anchor="middle" fill="#6a6a7a" font-size="10" class="mono">&tau;_n &larr; random</text>
-    <line x1="650" y1="50" x2="700" y2="50" stroke="#64ffda" stroke-width="1.5" marker-end="url(#ts)"/>
+    <text x="435" y="55" fill="#94948d" font-size="14">...</text>
+    <line x1="455" y1="50" x2="490" y2="50" stroke="#013225" stroke-width="1.5" marker-end="url(#ts)"/>
+    <rect x="490" y="20" width="160" height="60" rx="8" fill="none" stroke="#886dfc" stroke-width="2"/>
+    <text x="570" y="45" text-anchor="middle" fill="#886dfc" font-size="12" font-weight="700">Participant N</text>
+    <text x="570" y="65" text-anchor="middle" fill="#94948d" font-size="10" class="mono">&tau;_n &larr; random</text>
+    <line x1="650" y1="50" x2="700" y2="50" stroke="#013225" stroke-width="1.5" marker-end="url(#ts)"/>
     <!-- SRS -->
-    <rect x="700" y="15" width="80" height="70" rx="8" fill="rgba(100,255,218,0.08)" stroke="#64ffda" stroke-width="2"/>
-    <text x="740" y="45" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">SRS</text>
-    <text x="740" y="62" text-anchor="middle" fill="#6a6a7a" font-size="9" class="mono">[&tau;^i]_1, [&tau;^i]_2</text>
+    <rect x="700" y="15" width="80" height="70" rx="8" fill="rgba(1,50,37,0.08)" stroke="#013225" stroke-width="2"/>
+    <text x="740" y="45" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">SRS</text>
+    <text x="740" y="62" text-anchor="middle" fill="#94948d" font-size="9" class="mono">[&tau;^i]_1, [&tau;^i]_2</text>
     <!-- Bottom note -->
-    <text x="400" y="115" text-anchor="middle" fill="#e0e0e8" font-size="12">&tau; = &tau;_1 &middot; &tau;_2 &middot; ... &middot; &tau;_n &mdash; secure if <tspan fill="#64ffda" font-weight="700">at least one</tspan> participant is honest</text>
-    <text x="400" y="140" text-anchor="middle" fill="#ff6b9d" font-size="11">Each participant must destroy their &tau;_i &mdash; the <tspan fill="#ff6b9d" font-weight="700">"toxic waste"</tspan></text>
-    <text x="400" y="162" text-anchor="middle" fill="#6a6a7a" font-size="10">Zcash Sprout (6 participants) &rarr; Zcash Sapling (87) &rarr; Perpetual Powers of Tau (thousands)</text>
+    <text x="400" y="115" text-anchor="middle" fill="#1c1c1b" font-size="12">&tau; = &tau;_1 &middot; &tau;_2 &middot; ... &middot; &tau;_n &mdash; secure if <tspan fill="#013225" font-weight="700">at least one</tspan> participant is honest</text>
+    <text x="400" y="140" text-anchor="middle" fill="#c6145f" font-size="11">Each participant must destroy their &tau;_i &mdash; the <tspan fill="#c6145f" font-weight="700">"toxic waste"</tspan></text>
+    <text x="400" y="162" text-anchor="middle" fill="#94948d" font-size="10">Zcash Sprout (6 participants) &rarr; Zcash Sapling (87) &rarr; Perpetual Powers of Tau (thousands)</text>
   </svg>
 
   <div class="card-row">
@@ -665,36 +666,36 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
     <h3>FRI Protocol — Iterative Degree Reduction</h3>
     <svg viewBox="0 0 780 180" style="width:100%; margin:4px 0;">
       <defs>
-        <marker id="fri" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+        <marker id="fri" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#013225"/></marker>
       </defs>
       <!-- Layer 0 -->
-      <rect x="10" y="30" width="140" height="55" rx="6" fill="none" stroke="#64ffda" stroke-width="1.5"/>
-      <text x="80" y="52" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">f₀(x)</text>
-      <text x="80" y="72" text-anchor="middle" fill="#6a6a7a" font-size="9">degree &lt; d</text>
+      <rect x="10" y="30" width="140" height="55" rx="6" fill="none" stroke="#013225" stroke-width="1.5"/>
+      <text x="80" y="52" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">f₀(x)</text>
+      <text x="80" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree &lt; d</text>
       <!-- Arrow -->
-      <line x1="150" y1="57" x2="185" y2="57" stroke="#ffd93d" stroke-width="1.5" marker-end="url(#fri)"/>
-      <text x="168" y="50" text-anchor="middle" fill="#ffd93d" font-size="8">split</text>
+      <line x1="150" y1="57" x2="185" y2="57" stroke="#573e05" stroke-width="1.5" marker-end="url(#fri)"/>
+      <text x="168" y="50" text-anchor="middle" fill="#573e05" font-size="8">split</text>
       <!-- Layer 1 -->
-      <rect x="185" y="30" width="140" height="55" rx="6" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
-      <text x="255" y="52" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">f₁(x)</text>
-      <text x="255" y="72" text-anchor="middle" fill="#6a6a7a" font-size="9">degree &lt; d/2</text>
+      <rect x="185" y="30" width="140" height="55" rx="6" fill="none" stroke="#c6145f" stroke-width="1.5"/>
+      <text x="255" y="52" text-anchor="middle" fill="#c6145f" font-size="11" font-weight="700">f₁(x)</text>
+      <text x="255" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree &lt; d/2</text>
       <!-- Arrow -->
-      <line x1="325" y1="57" x2="360" y2="57" stroke="#ffd93d" stroke-width="1.5" marker-end="url(#fri)"/>
-      <text x="343" y="50" text-anchor="middle" fill="#ffd93d" font-size="8">split</text>
+      <line x1="325" y1="57" x2="360" y2="57" stroke="#573e05" stroke-width="1.5" marker-end="url(#fri)"/>
+      <text x="343" y="50" text-anchor="middle" fill="#573e05" font-size="8">split</text>
       <!-- Layer 2 -->
-      <rect x="360" y="30" width="140" height="55" rx="6" fill="none" stroke="#6c5ce7" stroke-width="1.5"/>
-      <text x="430" y="52" text-anchor="middle" fill="#6c5ce7" font-size="11" font-weight="700">f₂(x)</text>
-      <text x="430" y="72" text-anchor="middle" fill="#6a6a7a" font-size="9">degree &lt; d/4</text>
+      <rect x="360" y="30" width="140" height="55" rx="6" fill="none" stroke="#886dfc" stroke-width="1.5"/>
+      <text x="430" y="52" text-anchor="middle" fill="#886dfc" font-size="11" font-weight="700">f₂(x)</text>
+      <text x="430" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree &lt; d/4</text>
       <!-- Dots -->
-      <text x="520" y="57" fill="#6a6a7a" font-size="16">...</text>
+      <text x="520" y="57" fill="#94948d" font-size="16">...</text>
       <!-- Final -->
-      <rect x="560" y="30" width="140" height="55" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
-      <text x="630" y="52" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">f_k = constant</text>
-      <text x="630" y="72" text-anchor="middle" fill="#6a6a7a" font-size="9">degree 0</text>
+      <rect x="560" y="30" width="140" height="55" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
+      <text x="630" y="52" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">f_k = constant</text>
+      <text x="630" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree 0</text>
       <!-- Bottom explanation -->
-      <text x="80" y="115" fill="#e0e0e8" font-size="11">Each round: f_i(x) = g(x²) + &alpha;_i &middot; h(x²), where f_i(x) = g(x²) + x&middot;h(x²)</text>
-      <text x="80" y="135" fill="#6a6a7a" font-size="10">Verifier challenge &alpha;_i folds the polynomial, halving its degree</text>
-      <text x="80" y="155" fill="#6a6a7a" font-size="10">After log(d) rounds, the polynomial is constant &mdash; verifier checks consistency via Merkle proofs</text>
+      <text x="80" y="115" fill="#1c1c1b" font-size="11">Each round: f_i(x) = g(x²) + &alpha;_i &middot; h(x²), where f_i(x) = g(x²) + x&middot;h(x²)</text>
+      <text x="80" y="135" fill="#94948d" font-size="10">Verifier challenge &alpha;_i folds the polynomial, halving its degree</text>
+      <text x="80" y="155" fill="#94948d" font-size="10">After log(d) rounds, the polynomial is constant &mdash; verifier checks consistency via Merkle proofs</text>
     </svg>
   </div>
 
@@ -839,16 +840,16 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
       <h3>Age Verification</h3>
       <p class="small">Prove "I am over 18" without revealing your birthdate, name, or any other ID field. The ZK circuit checks: <code>current_date - birth_date &ge; 18 years</code> against a signed government credential.</p>
       <svg viewBox="0 0 300 100" style="width:100%; margin:4px 0;">
-        <rect x="10" y="10" width="100" height="40" rx="6" fill="none" stroke="#64ffda" stroke-width="1.5"/>
-        <text x="60" y="35" text-anchor="middle" fill="#64ffda" font-size="10" font-weight="700">Signed ID</text>
-        <rect x="10" y="55" width="100" height="30" rx="6" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
-        <text x="60" y="75" text-anchor="middle" fill="#ff6b9d" font-size="9">Private witness</text>
-        <line x1="110" y1="40" x2="170" y2="50" stroke="#6a6a7a" stroke-width="1"/>
-        <line x1="110" y1="70" x2="170" y2="55" stroke="#6a6a7a" stroke-width="1"/>
-        <rect x="170" y="30" width="60" height="40" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
-        <text x="200" y="55" text-anchor="middle" fill="#ffd93d" font-size="10" font-weight="700">ZK</text>
-        <line x1="230" y1="50" x2="260" y2="50" stroke="#64ffda" stroke-width="1.5"/>
-        <text x="280" y="55" fill="#64ffda" font-size="10" font-weight="700">&ge; 18</text>
+        <rect x="10" y="10" width="100" height="40" rx="6" fill="none" stroke="#013225" stroke-width="1.5"/>
+        <text x="60" y="35" text-anchor="middle" fill="#013225" font-size="10" font-weight="700">Signed ID</text>
+        <rect x="10" y="55" width="100" height="30" rx="6" fill="none" stroke="#c6145f" stroke-width="1.5"/>
+        <text x="60" y="75" text-anchor="middle" fill="#c6145f" font-size="9">Private witness</text>
+        <line x1="110" y1="40" x2="170" y2="50" stroke="#94948d" stroke-width="1"/>
+        <line x1="110" y1="70" x2="170" y2="55" stroke="#94948d" stroke-width="1"/>
+        <rect x="170" y="30" width="60" height="40" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
+        <text x="200" y="55" text-anchor="middle" fill="#573e05" font-size="10" font-weight="700">ZK</text>
+        <line x1="230" y1="50" x2="260" y2="50" stroke="#013225" stroke-width="1.5"/>
+        <text x="280" y="55" fill="#013225" font-size="10" font-weight="700">&ge; 18</text>
       </svg>
     </div>
     <div class="card">
@@ -903,40 +904,40 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 
   <svg viewBox="0 0 800 160" style="width:100%; margin:8px 0;">
     <defs>
-      <marker id="rc" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="rc" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#013225"/></marker>
     </defs>
     <!-- Step 1 -->
-    <rect x="20" y="30" width="130" height="70" rx="8" fill="none" stroke="#64ffda" stroke-width="1.5"/>
-    <text x="85" y="55" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">Step 1</text>
-    <text x="85" y="75" text-anchor="middle" fill="#6a6a7a" font-size="9">Prove f(x₀)=x₁</text>
-    <text x="85" y="90" text-anchor="middle" fill="#ffd93d" font-size="9">&pi;₁</text>
+    <rect x="20" y="30" width="130" height="70" rx="8" fill="none" stroke="#013225" stroke-width="1.5"/>
+    <text x="85" y="55" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">Step 1</text>
+    <text x="85" y="75" text-anchor="middle" fill="#94948d" font-size="9">Prove f(x₀)=x₁</text>
+    <text x="85" y="90" text-anchor="middle" fill="#573e05" font-size="9">&pi;₁</text>
     <!-- Arrow -->
-    <line x1="150" y1="65" x2="190" y2="65" stroke="#64ffda" stroke-width="1.5" marker-end="url(#rc)"/>
+    <line x1="150" y1="65" x2="190" y2="65" stroke="#013225" stroke-width="1.5" marker-end="url(#rc)"/>
     <!-- Step 2 -->
-    <rect x="190" y="30" width="160" height="70" rx="8" fill="none" stroke="#ff6b9d" stroke-width="1.5"/>
-    <text x="270" y="50" text-anchor="middle" fill="#ff6b9d" font-size="11" font-weight="700">Step 2</text>
-    <text x="270" y="68" text-anchor="middle" fill="#6a6a7a" font-size="9">Verify &pi;₁ inside circuit</text>
-    <text x="270" y="83" text-anchor="middle" fill="#6a6a7a" font-size="9">+ Prove f(x₁)=x₂</text>
-    <text x="270" y="96" text-anchor="middle" fill="#ffd93d" font-size="9">&pi;₂</text>
+    <rect x="190" y="30" width="160" height="70" rx="8" fill="none" stroke="#c6145f" stroke-width="1.5"/>
+    <text x="270" y="50" text-anchor="middle" fill="#c6145f" font-size="11" font-weight="700">Step 2</text>
+    <text x="270" y="68" text-anchor="middle" fill="#94948d" font-size="9">Verify &pi;₁ inside circuit</text>
+    <text x="270" y="83" text-anchor="middle" fill="#94948d" font-size="9">+ Prove f(x₁)=x₂</text>
+    <text x="270" y="96" text-anchor="middle" fill="#573e05" font-size="9">&pi;₂</text>
     <!-- Arrow -->
-    <line x1="350" y1="65" x2="390" y2="65" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#rc)"/>
+    <line x1="350" y1="65" x2="390" y2="65" stroke="#c6145f" stroke-width="1.5" marker-end="url(#rc)"/>
     <!-- Step N -->
-    <text x="405" y="70" fill="#6a6a7a" font-size="14">...</text>
-    <line x1="425" y1="65" x2="465" y2="65" stroke="#6a6a7a" stroke-width="1.5" marker-end="url(#rc)"/>
+    <text x="405" y="70" fill="#94948d" font-size="14">...</text>
+    <line x1="425" y1="65" x2="465" y2="65" stroke="#94948d" stroke-width="1.5" marker-end="url(#rc)"/>
     <!-- Final -->
-    <rect x="465" y="30" width="160" height="70" rx="8" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
-    <text x="545" y="50" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Step N</text>
-    <text x="545" y="68" text-anchor="middle" fill="#6a6a7a" font-size="9">Verify &pi;_{N-1} inside circuit</text>
-    <text x="545" y="83" text-anchor="middle" fill="#6a6a7a" font-size="9">+ Prove f(x_{N-1})=x_N</text>
-    <text x="545" y="96" text-anchor="middle" fill="#ffd93d" font-size="9">&pi;_N</text>
+    <rect x="465" y="30" width="160" height="70" rx="8" fill="none" stroke="#573e05" stroke-width="1.5"/>
+    <text x="545" y="50" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Step N</text>
+    <text x="545" y="68" text-anchor="middle" fill="#94948d" font-size="9">Verify &pi;_{N-1} inside circuit</text>
+    <text x="545" y="83" text-anchor="middle" fill="#94948d" font-size="9">+ Prove f(x_{N-1})=x_N</text>
+    <text x="545" y="96" text-anchor="middle" fill="#573e05" font-size="9">&pi;_N</text>
     <!-- Arrow to final proof -->
-    <line x1="625" y1="65" x2="680" y2="65" stroke="#ffd93d" stroke-width="2" marker-end="url(#rc)"/>
-    <rect x="680" y="40" width="100" height="45" rx="8" fill="rgba(100,255,218,0.08)" stroke="#64ffda" stroke-width="2"/>
-    <text x="730" y="60" text-anchor="middle" fill="#64ffda" font-size="10" font-weight="700">Single proof</text>
-    <text x="730" y="75" text-anchor="middle" fill="#6a6a7a" font-size="9">attests N steps</text>
+    <line x1="625" y1="65" x2="680" y2="65" stroke="#573e05" stroke-width="2" marker-end="url(#rc)"/>
+    <rect x="680" y="40" width="100" height="45" rx="8" fill="rgba(1,50,37,0.08)" stroke="#013225" stroke-width="2"/>
+    <text x="730" y="60" text-anchor="middle" fill="#013225" font-size="10" font-weight="700">Single proof</text>
+    <text x="730" y="75" text-anchor="middle" fill="#94948d" font-size="9">attests N steps</text>
     <!-- Bottom -->
-    <text x="400" y="130" text-anchor="middle" fill="#e0e0e8" font-size="11">Constant-size proof regardless of N &mdash; <tspan fill="#64ffda" font-weight="700">infinite compression</tspan></text>
-    <text x="400" y="150" text-anchor="middle" fill="#6a6a7a" font-size="10">Key challenge: the verifier circuit must be efficient to embed inside the prover</text>
+    <text x="400" y="130" text-anchor="middle" fill="#1c1c1b" font-size="11">Constant-size proof regardless of N &mdash; <tspan fill="#013225" font-weight="700">infinite compression</tspan></text>
+    <text x="400" y="150" text-anchor="middle" fill="#94948d" font-size="10">Key challenge: the verifier circuit must be efficient to embed inside the prover</text>
   </svg>
 
   <div class="card-row">

@@ -6,8 +6,8 @@
 <title>04 — Hash Functions &amp; MACs</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,24 +15,24 @@
 
 <style>
   :root {
-    --r-background-color: #0a0a0f;
+    --r-background-color: #fafaf8;
     --r-main-font: 'DM Sans', sans-serif;
     --r-main-font-size: 28px;
-    --r-main-color: #d4d4d8;
+    --r-main-color: #262624;
     --r-heading-font: 'Playfair Display', serif;
-    --r-heading-color: #fafafa;
+    --r-heading-color: #000000;
     --r-heading-text-transform: none;
     --r-code-font: 'JetBrains Mono', monospace;
-    --r-link-color: #60a5fa;
-    --r-link-color-hover: #93c5fd;
-    --r-selection-background-color: #2563eb;
-    --accent: #f59e0b;
-    --accent2: #10b981;
-    --accent3: #8b5cf6;
-    --accent4: #ef4444;
-    --dim: #71717a;
-    --surface: #18181b;
-    --surface2: #27272a;
+    --r-link-color: #2b3dc5;
+    --r-link-color-hover: #1a2d7f;
+    --r-selection-background-color: #6c80ff;
+    --accent: #c57e09;
+    --accent2: #25916a;
+    --accent3: #874cfc;
+    --accent4: #fb412e;
+    --dim: #8b8b84;
+    --surface: #eaeae7;
+    --surface2: #d6d6d0;
   }
 
   .reveal { font-weight: 400; }
@@ -42,7 +42,7 @@
   .reveal h3 { font-size: 1.2em; color: var(--accent); font-family: 'DM Sans', sans-serif; font-weight: 700; }
   .reveal p, .reveal li { line-height: 1.6; }
   .reveal code { font-family: var(--r-code-font); font-size: 0.85em; }
-  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(0,0,0,.5); border: 1px solid var(--surface2); border-radius: 8px; }
+  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(255,255,255,.5); border: 1px solid var(--surface2); border-radius: 8px; }
   .reveal pre code { padding: 1.2em; line-height: 1.5; max-height: 520px; }
 
   .accent  { color: var(--accent); }
@@ -71,8 +71,8 @@
   .box ul { padding-left: 1.2em; }
 
   .highlight-box {
-    background: linear-gradient(135deg, rgba(245,158,11,.12), rgba(245,158,11,.03));
-    border: 1px solid rgba(245,158,11,.3);
+    background: linear-gradient(135deg, rgba(197,126,9,.12), rgba(197,126,9,.03));
+    border: 1px solid rgba(197,126,9,.3);
     border-radius: 8px;
     padding: 0.8em 1em;
     margin: 0.5em 0;
@@ -87,10 +87,10 @@
     vertical-align: middle;
     font-family: var(--r-code-font);
   }
-  .badge-amber  { background: rgba(245,158,11,.15); color: var(--accent); border: 1px solid rgba(245,158,11,.3); }
-  .badge-green  { background: rgba(16,185,129,.15); color: var(--accent2); border: 1px solid rgba(16,185,129,.3); }
-  .badge-purple { background: rgba(139,92,246,.15); color: var(--accent3); border: 1px solid rgba(139,92,246,.3); }
-  .badge-red    { background: rgba(239,68,68,.15); color: var(--accent4); border: 1px solid rgba(239,68,68,.3); }
+  .badge-amber  { background: rgba(197,126,9,.15); color: var(--accent); border: 1px solid rgba(197,126,9,.3); }
+  .badge-green  { background: rgba(37,145,106,.15); color: var(--accent2); border: 1px solid rgba(37,145,106,.3); }
+  .badge-purple { background: rgba(135,76,252,.15); color: var(--accent3); border: 1px solid rgba(135,76,252,.3); }
+  .badge-red    { background: rgba(251,65,46,.15); color: var(--accent4); border: 1px solid rgba(251,65,46,.3); }
 
   table.clean {
     width: 100%; border-collapse: collapse;
@@ -113,8 +113,8 @@
   .slide-number { font-family: 'JetBrains Mono', monospace !important; }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,.0); }
-    50% { box-shadow: 0 0 15px 2px rgba(245,158,11,.25); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(197,126,9,.0); }
+    50% { box-shadow: 0 0 15px 2px rgba(197,126,9,.25); }
   }
   .glow { animation: pulse-glow 2s ease-in-out infinite; }
 
@@ -151,6 +151,7 @@
 
   .reveal .slides > section { overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
 </style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 
 <body>
@@ -215,19 +216,19 @@
 <section>
   <h2>Security Properties</h2>
   <div class="three-col" style="margin-top:0.5em;">
-    <div class="box" style="border-color:rgba(245,158,11,.4);">
+    <div class="box" style="border-color:rgba(197,126,9,.4);">
       <h3>Preimage Resistance</h3>
       <p class="small">Given <span class="mono">d</span>, find <em>any</em> <span class="mono">m</span> such that <span class="mono">H(m) = d</span>.</p>
       <p class="small accent">Cost: O(2<sup>n</sup>)</p>
       <p class="small dim">Also called "one-wayness." Generic attack: brute-force search over messages.</p>
     </div>
-    <div class="box" style="border-color:rgba(139,92,246,.4);">
+    <div class="box" style="border-color:rgba(135,76,252,.4);">
       <h3 style="color:var(--accent3);">Second-Preimage Resistance</h3>
       <p class="small">Given <span class="mono">m<sub>1</sub></span>, find <span class="mono">m<sub>2</sub> &ne; m<sub>1</sub></span> such that <span class="mono">H(m<sub>1</sub>) = H(m<sub>2</sub>)</span>.</p>
       <p class="small accent3">Cost: O(2<sup>n</sup>)</p>
       <p class="small dim">Harder than collision resistance &mdash; one input is fixed by the attacker's target.</p>
     </div>
-    <div class="box" style="border-color:rgba(239,68,68,.4);">
+    <div class="box" style="border-color:rgba(251,65,46,.4);">
       <h3 style="color:var(--accent4);">Collision Resistance</h3>
       <p class="small">Find <em>any</em> <span class="mono">m<sub>1</sub> &ne; m<sub>2</sub></span> such that <span class="mono">H(m<sub>1</sub>) = H(m<sub>2</sub>)</span>.</p>
       <p class="small accent4">Cost: O(2<sup>n/2</sup>)</p>
@@ -276,7 +277,7 @@
     </div>
     <div>
       <h3 style="color:var(--accent4);">Length Extension Attack</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p class="small accent4">Given H(m) and |m|, an attacker can compute H(m || pad || m') without knowing m.</p>
         <p class="small">The attacker uses H(m) as the chaining value and continues the Merkle-Damg&aring;rd iteration with new blocks m'.</p>
         <p class="small dim">Affects: MD5, SHA-1, SHA-256, SHA-512</p>
@@ -295,7 +296,7 @@
   <div class="two-col">
     <div>
       <h3 style="color:var(--accent4);">MD5 (1992)</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p class="small">128-bit digest, 512-bit blocks, 64 rounds</p>
         <p class="small">Designed by Ron Rivest (RFC 1321)</p>
         <p class="small accent4">2004 &mdash; Wang et al. find collisions in 2<sup>39</sup> operations</p>
@@ -307,7 +308,7 @@
     </div>
     <div>
       <h3 style="color:var(--accent4);">SHA-1 (1995)</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p class="small">160-bit digest, 512-bit blocks, 80 rounds</p>
         <p class="small">NSA design, published as FIPS 180-1</p>
         <p class="small accent4">2005 &mdash; Wang et al. theoretical collision in 2<sup>63</sup></p>
@@ -373,7 +374,7 @@
         <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);min-width:2em;text-align:center;">h</div>
       </div>
       <span class="dim">&darr;</span>
-      <div style="background:rgba(245,158,11,.15);border:1px solid var(--accent);padding:0.3em 0.8em;border-radius:6px;text-align:center;">
+      <div style="background:rgba(197,126,9,.15);border:1px solid var(--accent);padding:0.3em 0.8em;border-radius:6px;text-align:center;">
         <span class="accent">T<sub>1</sub></span> = h + &Sigma;<sub>1</sub>(e) + Ch(e,f,g) + K<sub>t</sub> + W<sub>t</sub><br/>
         <span class="accent">T<sub>2</sub></span> = &Sigma;<sub>0</sub>(a) + Maj(a,b,c)
       </div>
@@ -514,7 +515,7 @@
         <p class="small dim">The team also developed Keyak (AEAD), Ketje (lightweight AEAD), and KangarooTwelve.</p>
       </div>
       <h3 style="margin-top:0.5em;">Key Innovation</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="small accent2">Sponge construction &mdash; a single permutation-based framework that yields hash functions, MACs, PRNGs, stream ciphers, and authenticated encryption from one primitive.</p>
       </div>
     </div>
@@ -535,15 +536,15 @@
         <div style="display:flex;align-items:center;gap:0.15em;">
           <div style="background:var(--surface2);padding:0.3em 0.5em;border-radius:4px;font-family:var(--r-code-font);">0<sup>b</sup></div>
           <span class="dim">&rarr;</span>
-          <div style="background:rgba(245,158,11,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
+          <div style="background:rgba(197,126,9,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
             <span class="dim tiny">&oplus;m<sub>1</sub></span><br/>f
           </div>
           <span class="dim">&rarr;</span>
-          <div style="background:rgba(245,158,11,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
+          <div style="background:rgba(197,126,9,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
             <span class="dim tiny">&oplus;m<sub>2</sub></span><br/>f
           </div>
           <span class="dim">&rarr;</span>
-          <div style="background:rgba(245,158,11,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
+          <div style="background:rgba(197,126,9,.15);border:1px solid var(--accent);padding:0.3em;border-radius:6px;text-align:center;">
             <span class="dim tiny">&oplus;m<sub>k</sub></span><br/>f
           </div>
         </div>
@@ -552,11 +553,11 @@
       <div style="text-align:center;padding:0.3em;">
         <div style="color:var(--accent2);font-weight:700;margin-bottom:0.3em;">SQUEEZE</div>
         <div style="display:flex;align-items:center;gap:0.15em;">
-          <div style="background:rgba(16,185,129,.15);border:1px solid var(--accent2);padding:0.3em;border-radius:6px;text-align:center;">
+          <div style="background:rgba(37,145,106,.15);border:1px solid var(--accent2);padding:0.3em;border-radius:6px;text-align:center;">
             f<br/><span class="tiny" style="color:var(--accent2);">z<sub>1</sub>&darr;</span>
           </div>
           <span class="dim">&rarr;</span>
-          <div style="background:rgba(16,185,129,.15);border:1px solid var(--accent2);padding:0.3em;border-radius:6px;text-align:center;">
+          <div style="background:rgba(37,145,106,.15);border:1px solid var(--accent2);padding:0.3em;border-radius:6px;text-align:center;">
             f<br/><span class="tiny" style="color:var(--accent2);">z<sub>2</sub>&darr;</span>
           </div>
           <span class="dim">&rarr; &middot;&middot;&middot;</span>
@@ -721,7 +722,7 @@
     </div>
     <div>
       <h3>Security</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="small accent2">Proven secure by Bellare, Canetti &amp; Krawczyk (1996)</p>
         <p class="small">HMAC is a PRF (pseudorandom function) if the compression function of H is a PRF.</p>
         <p class="small">Security does <em>not</em> require collision resistance of H &mdash; HMAC-MD5 remains a secure MAC even though MD5 collisions are trivial.</p>
@@ -745,7 +746,7 @@
   <div class="two-col">
     <div>
       <h3 style="color:var(--accent3);">KMAC (SP 800-185)</h3>
-      <div class="box" style="border-color:rgba(139,92,246,.4);">
+      <div class="box" style="border-color:rgba(135,76,252,.4);">
         <p class="small">Keccak-based MAC &mdash; <span class="accent2">no nested construction needed</span>.</p>
         <p class="small mono">KMAC256(K, X, L, S) = cSHAKE256(bytepad(encode(K),168) || X || right_encode(L), L, "KMAC", S)</p>
         <p class="small">Because the sponge construction has capacity bits that absorb the key, KMAC is simpler and avoids HMAC's double-hash overhead.</p>
@@ -813,7 +814,7 @@
         <p class="small dim">Approved by NIST for firmware/software updates where state tracking is feasible.</p>
       </div>
       <h3 style="margin-top:0.5em;color:var(--accent2);">Stateless: SLH-DSA (SPHINCS+)</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="small"><span class="accent3">FIPS 205</span> &mdash; standardized 2024. Based on SPHINCS+.</p>
         <p class="small accent2">Stateless &mdash; no state management required. Uses a hyper-tree of WOTS+ / FORS trees.</p>
         <p class="small">Tradeoff: larger signatures (~7&ndash;49 KB) and slower signing than lattice-based schemes, but security relies <em>only</em> on hash function properties.</p>
@@ -832,7 +833,7 @@
   <p class="small">A tree of hashes enabling efficient <span class="accent">proof of inclusion</span> for any leaf in O(log n) hashes.</p>
   <div style="text-align:center;margin:0.5em 0;">
     <div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.3em;font-size:0.6em;font-family:var(--r-code-font);">
-      <div style="background:rgba(245,158,11,.2);border:1px solid var(--accent);padding:0.3em 0.8em;border-radius:6px;color:var(--accent);">Root = H(H<sub>01</sub> || H<sub>23</sub>)</div>
+      <div style="background:rgba(197,126,9,.2);border:1px solid var(--accent);padding:0.3em 0.8em;border-radius:6px;color:var(--accent);">Root = H(H<sub>01</sub> || H<sub>23</sub>)</div>
       <div style="display:flex;gap:3em;">
         <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.6em;border-radius:6px;">H<sub>01</sub> = H(H<sub>0</sub>||H<sub>1</sub>)</div>
         <div style="background:var(--surface);border:1px solid var(--surface2);padding:0.3em 0.6em;border-radius:6px;">H<sub>23</sub> = H(H<sub>2</sub>||H<sub>3</sub>)</div>
@@ -840,7 +841,7 @@
       <div style="display:flex;gap:1em;">
         <div style="background:var(--surface2);padding:0.3em 0.5em;border-radius:4px;">H<sub>0</sub>=H(D<sub>0</sub>)</div>
         <div style="background:var(--surface2);padding:0.3em 0.5em;border-radius:4px;">H<sub>1</sub>=H(D<sub>1</sub>)</div>
-        <div style="background:rgba(16,185,129,.15);border:1px solid var(--accent2);padding:0.3em 0.5em;border-radius:4px;color:var(--accent2);">H<sub>2</sub>=H(D<sub>2</sub>)</div>
+        <div style="background:rgba(37,145,106,.15);border:1px solid var(--accent2);padding:0.3em 0.5em;border-radius:4px;color:var(--accent2);">H<sub>2</sub>=H(D<sub>2</sub>)</div>
         <div style="background:var(--surface2);padding:0.3em 0.5em;border-radius:4px;">H<sub>3</sub>=H(D<sub>3</sub>)</div>
       </div>
       <div style="display:flex;gap:1.8em;">
@@ -881,7 +882,7 @@
   <div class="two-col" style="margin-top:0.5em;">
     <div>
       <h3 style="color:var(--accent4);">Why SHA-256 Is Wrong</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p class="small">A GPU can compute ~10 billion SHA-256 hashes/second.</p>
         <p class="small">An 8-character alphanumeric password has ~2&times;10<sup>14</sup> possibilities &rarr; exhausted in ~6 hours on one GPU.</p>
         <p class="small accent4">Fast hashes enable brute-force and dictionary attacks on leaked password databases.</p>
@@ -903,7 +904,7 @@
         <p><span class="badge badge-purple">scrypt</span></p>
         <p class="small">Memory-hard: requires O(N) memory and O(N) time. Parameters: N (CPU/memory cost), r (block size), p (parallelism). Used in Litecoin, Tarsnap.</p>
       </div>
-      <div class="box" style="margin-top:0.3em;border-color:rgba(16,185,129,.4);">
+      <div class="box" style="margin-top:0.3em;border-color:rgba(37,145,106,.4);">
         <p><span class="badge badge-green">Argon2</span> <span class="tiny accent2">PHC Winner 2015</span></p>
         <p class="small accent2">Current best practice. Three variants:</p>
         <p class="small"><span class="accent2">Argon2d</span> &mdash; data-dependent access (GPU-resistant)</p>
@@ -1139,19 +1140,19 @@ def sha256_block(block, h):
   <div class="two-col">
     <div>
       <h3 style="color:var(--accent4);">Notable Incidents</h3>
-      <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p><span class="badge badge-red">2008</span> <span class="small">Rogue CA Certificate</span></p>
         <p class="small">MD5 collision used to forge a CA certificate that could sign arbitrary TLS certificates. Sotirov et al. at 25C3.</p>
       </div>
-      <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p><span class="badge badge-red">2012</span> <span class="small">Flame Malware</span></p>
         <p class="small">Nation-state malware used an MD5 chosen-prefix collision to forge a Windows Update code-signing certificate.</p>
       </div>
-      <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p><span class="badge badge-red">2017</span> <span class="small">SHAttered</span></p>
         <p class="small">Google/CWI produced two different PDFs with identical SHA-1 hashes. Cost: ~$110,000 in cloud compute.</p>
       </div>
-      <div class="box" style="border-color:rgba(239,68,68,.4);">
+      <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p><span class="badge badge-red">2020</span> <span class="small">SHA-mbles</span></p>
         <p class="small">Chosen-prefix SHA-1 collision for ~$45,000 &mdash; enables PGP key impersonation.</p>
       </div>
@@ -1259,7 +1260,7 @@ def sha256_block(block, h):
     </div>
     <div>
       <h3 style="color:var(--accent2);">Assessment</h3>
-      <div class="box" style="border-color:rgba(16,185,129,.4);">
+      <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="small accent2">Hash functions are relatively quantum-resistant.</p>
         <p class="small">Doubling the digest size compensates for Grover's attack. 256-bit hashes provide 128-bit post-quantum security for preimage resistance.</p>
       </div>

@@ -6,8 +6,8 @@
 <title>09 — Side-Channel Attacks &amp; Countermeasures</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,25 +15,25 @@
 
 <style>
   :root {
-    --r-background-color: #0a0a0f;
+    --r-background-color: #fafaf8;
     --r-main-font: 'DM Sans', sans-serif;
     --r-heading-font: 'Playfair Display', serif;
     --r-code-font: 'JetBrains Mono', monospace;
     --r-main-font-size: 28px;
-    --r-main-color: #d4d4d8;
-    --r-heading-color: #fafafa;
-    --r-link-color: #f87171;
-    --r-link-color-hover: #fca5a5;
-    --r-selection-background-color: #dc262660;
-    --accent: #ef4444;
-    --accent2: #f97316;
-    --accent3: #22d3ee;
-    --accent4: #a78bfa;
-    --success: #4ade80;
-    --warning: #facc15;
-    --dim: #71717a;
-    --surface: #18181b;
-    --surface2: #27272a;
+    --r-main-color: #262624;
+    --r-heading-color: #000000;
+    --r-link-color: #db3a30;
+    --r-link-color-hover: #8b312b;
+    --r-selection-background-color: #ff6f5860;
+    --accent: #fb412e;
+    --accent2: #e17f17;
+    --accent3: #063e68;
+    --accent4: #6435bc;
+    --success: #046b43;
+    --warning: #725207;
+    --dim: #8b8b84;
+    --surface: #eaeae7;
+    --surface2: #d6d6d0;
   }
 
   .reveal { font-weight: 300; }
@@ -41,17 +41,17 @@
   .reveal h1 { font-size: 2.2em; }
   .reveal h2 { font-size: 1.5em; color: var(--accent); }
   .reveal h3 { font-size: 1.1em; color: var(--accent3); font-family: var(--r-main-font); font-weight: 500; }
-  .reveal strong { color: #fafafa; font-weight: 700; }
+  .reveal strong { color: #000000; font-weight: 700; }
   .reveal em { color: var(--accent3); font-style: normal; }
   .reveal code { font-family: var(--r-code-font); font-size: 0.85em; }
-  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(0,0,0,.5); border: 1px solid #333; border-radius: 8px; }
+  .reveal pre { width: 100%; font-size: 0.48em; box-shadow: 0 4px 30px rgba(255,255,255,.5); border: 1px solid #c9c9c3; border-radius: 8px; }
   .reveal pre code { max-height: 520px; padding: 16px; line-height: 1.45; }
   .reveal ul, .reveal ol { display: block; text-align: left; margin-left: 1em; }
   .reveal li { margin-bottom: 0.45em; line-height: 1.5; }
   .reveal .slides section { padding: 20px 40px; }
 
   /* --- custom classes --- */
-  .title-slide h1 { font-size: 2.6em; background: linear-gradient(135deg, #ef4444, #f97316, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .title-slide h1 { font-size: 2.6em; background: linear-gradient(135deg, #fb412e, #e17f17, #fb412e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
   .title-slide .subtitle { font-size: 0.75em; color: var(--dim); margin-top: -0.3em; font-weight: 300; }
 
   .section-title { text-align: center; }
@@ -61,7 +61,7 @@
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; text-align: left; }
   .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; text-align: left; }
 
-  .card { background: var(--surface); border: 1px solid #333; border-radius: 10px; padding: 20px; }
+  .card { background: var(--surface); border: 1px solid #c9c9c3; border-radius: 10px; padding: 20px; }
   .card h3 { margin-top: 0; margin-bottom: 0.4em; }
   .card-accent { border-left: 3px solid var(--accent); }
   .card-cyan { border-left: 3px solid var(--accent3); }
@@ -70,14 +70,14 @@
   .card-orange { border-left: 3px solid var(--accent2); }
   .card-warn { border-left: 3px solid var(--warning); }
 
-  .tag { display: inline-block; font-family: var(--r-code-font); font-size: 0.55em; padding: 2px 10px; border-radius: 999px; background: #ffffff10; margin: 2px 3px; }
-  .tag-red { background: #ef444430; color: #fca5a5; }
-  .tag-green { background: #22c55e30; color: #86efac; }
-  .tag-blue { background: #3b82f630; color: #93c5fd; }
-  .tag-cyan { background: #06b6d430; color: #67e8f9; }
-  .tag-purple { background: #8b5cf630; color: #c4b5fd; }
-  .tag-orange { background: #f9731630; color: #fdba74; }
-  .tag-yellow { background: #eab30830; color: #fde68a; }
+  .tag { display: inline-block; font-family: var(--r-code-font); font-size: 0.55em; padding: 2px 10px; border-radius: 999px; background: #00000010; margin: 2px 3px; }
+  .tag-red { background: #fb412e30; color: #8b312b; }
+  .tag-green { background: #088c5630; color: #04452b; }
+  .tag-blue { background: #4753fe30; color: #1a2d7f; }
+  .tag-cyan { background: #06569430; color: #002a48; }
+  .tag-purple { background: #874cfc30; color: #3f2874; }
+  .tag-orange { background: #e17f1730; color: #8f5b17; }
+  .tag-yellow { background: #ae7b1430; color: #3f2c02; }
 
   .small { font-size: 0.65em; color: var(--dim); }
   .tiny { font-size: 0.5em; color: var(--dim); }
@@ -93,14 +93,14 @@
 
   .taxonomy-table { width: 100%; border-collapse: collapse; font-size: 0.6em; }
   .taxonomy-table th { background: var(--surface2); color: var(--accent3); text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--accent); font-weight: 500; }
-  .taxonomy-table td { padding: 7px 12px; border-bottom: 1px solid #333; vertical-align: top; }
-  .taxonomy-table tr:hover td { background: #ffffff06; }
+  .taxonomy-table td { padding: 7px 12px; border-bottom: 1px solid #c9c9c3; vertical-align: top; }
+  .taxonomy-table tr:hover td { background: #00000006; }
 
   .attack-flow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
-  .flow-box { background: var(--surface); border: 1px solid #444; border-radius: 8px; padding: 10px 18px; font-size: 0.7em; text-align: center; min-width: 100px; }
+  .flow-box { background: var(--surface); border: 1px solid #b8b8b2; border-radius: 8px; padding: 10px 18px; font-size: 0.7em; text-align: center; min-width: 100px; }
   .flow-arrow { color: var(--accent); font-size: 1.4em; font-weight: 700; }
 
-  .equation-box { background: var(--surface); border: 1px solid #333; border-radius: 8px; padding: 15px 25px; font-family: var(--r-code-font); font-size: 0.75em; text-align: center; margin: 15px auto; display: inline-block; }
+  .equation-box { background: var(--surface); border: 1px solid #c9c9c3; border-radius: 8px; padding: 15px 25px; font-family: var(--r-code-font); font-size: 0.75em; text-align: center; margin: 15px auto; display: inline-block; }
 
   .power-trace { width: 100%; height: 120px; position: relative; margin: 10px 0; }
   .trace-canvas { width: 100%; height: 100%; }
@@ -114,21 +114,22 @@
   .icon-large { font-size: 2.5em; margin-bottom: 10px; }
   .icon-medium { font-size: 1.6em; }
 
-  .quote-box { border-left: 3px solid var(--accent); padding: 12px 20px; font-style: italic; color: #a1a1aa; font-size: 0.8em; margin: 15px 0; }
+  .quote-box { border-left: 3px solid var(--accent); padding: 12px 20px; font-style: italic; color: #53534e; font-size: 0.8em; margin: 15px 0; }
 
-  .interactive-demo { background: var(--surface); border: 1px solid #333; border-radius: 10px; padding: 20px; margin: 10px 0; }
-  .demo-btn { background: var(--accent); color: white; border: none; border-radius: 6px; padding: 8px 18px; font-family: var(--r-main-font); font-size: 0.65em; cursor: pointer; margin: 4px; transition: 0.2s; }
+  .interactive-demo { background: var(--surface); border: 1px solid #c9c9c3; border-radius: 10px; padding: 20px; margin: 10px 0; }
+  .demo-btn { background: var(--accent); color: #000000; border: none; border-radius: 6px; padding: 8px 18px; font-family: var(--r-main-font); font-size: 0.65em; cursor: pointer; margin: 4px; transition: 0.2s; }
   .demo-btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
-  .demo-btn.active { box-shadow: 0 0 12px rgba(239,68,68,0.5); }
-  .demo-output { font-family: var(--r-code-font); font-size: 0.55em; color: var(--accent3); margin-top: 10px; min-height: 60px; padding: 10px; background: #0a0a0f; border-radius: 6px; border: 1px solid #333; overflow-x: auto; }
+  .demo-btn.active { box-shadow: 0 0 12px rgba(251,65,46,0.5); }
+  .demo-output { font-family: var(--r-code-font); font-size: 0.55em; color: var(--accent3); margin-top: 10px; min-height: 60px; padding: 10px; background: #fafaf8; border-radius: 6px; border: 1px solid #c9c9c3; overflow-x: auto; }
 
-  @keyframes pulseGlow { 0%,100%{ box-shadow: 0 0 5px rgba(239,68,68,0.3); } 50%{ box-shadow: 0 0 20px rgba(239,68,68,0.6); } }
+  @keyframes pulseGlow { 0%,100%{ box-shadow: 0 0 5px rgba(251,65,46,0.3); } 50%{ box-shadow: 0 0 20px rgba(251,65,46,0.6); } }
   .glow { animation: pulseGlow 2s ease-in-out infinite; }
 
   @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
   .scanline-bg::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: scanline 4s linear infinite; opacity: 0.15; pointer-events: none; z-index: 1; }
 .reveal .slides > section { overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
 </style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 <body>
 
@@ -138,7 +139,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 1: TITLE -->
 <!-- ============================================================ -->
-<section class="title-slide" data-background-gradient="radial-gradient(ellipse at 30% 50%, #1a0a0a 0%, #0a0a0f 70%)">
+<section class="title-slide" data-background-gradient="radial-gradient(ellipse at 30% 50%, #f9f1ef 0%, #fafaf8 70%)">
   <p class="mono small" style="letter-spacing:0.2em; color:var(--dim);">PRESENTATION 09</p>
   <h1>Side-Channel Attacks<br/>&amp; Countermeasures</h1>
   <p class="subtitle">Timing · Power Analysis · EM Emanations · Cache Attacks · Fault Injection · Masking · Constant-Time Code</p>
@@ -198,7 +199,7 @@
 <!-- ============================================================ -->
 <!-- SECTION: TIMING ATTACKS -->
 <!-- ============================================================ -->
-<section class="section-title" data-background-gradient="radial-gradient(ellipse at 70% 30%, #1a1a0a 0%, #0a0a0f 70%)">
+<section class="section-title" data-background-gradient="radial-gradient(ellipse at 70% 30%, #eeeae0 0%, #fafaf8 70%)">
   <p class="section-num">Section I</p>
   <h2>Timing Attacks</h2>
   <p class="dim">When execution time reveals your secrets</p>
@@ -314,7 +315,7 @@ result = (value_a & mask) | (value_b & ~mask);
 <!-- ============================================================ -->
 <!-- SECTION: POWER ANALYSIS -->
 <!-- ============================================================ -->
-<section class="section-title" data-background-gradient="radial-gradient(ellipse at 30% 70%, #1a0a05 0%, #0a0a0f 70%)">
+<section class="section-title" data-background-gradient="radial-gradient(ellipse at 30% 70%, #faf2ee 0%, #fafaf8 70%)">
   <p class="section-num">Section II</p>
   <h2>Power Analysis Attacks</h2>
   <p class="dim">Reading secrets from current consumption</p>
@@ -373,7 +374,7 @@ result = (value_a & mask) | (value_b & ~mask);
     <div>
       <h3>Simulated SPA Trace</h3>
       <div class="interactive-demo">
-        <canvas id="spaCanvas" width="520" height="180" style="width:100%; background:#0a0a0f; border-radius:6px;"></canvas>
+        <canvas id="spaCanvas" width="520" height="180" style="width:100%; background:#fafaf8; border-radius:6px;"></canvas>
         <p class="tiny" style="margin-top:6px;">Simulated RSA exponentiation power trace. <span class="cyan">S</span> = square, <span class="highlight">SM</span> = square + multiply. Key bits readable directly from amplitude pattern.</p>
       </div>
       <div class="card card-green" style="margin-top:10px;">
@@ -424,7 +425,7 @@ result = (value_a & mask) | (value_b & ~mask);
       <button class="demo-btn" onclick="resetCPA()" style="background:var(--surface2);">Reset</button>
       <span class="mono small" id="cpaStatus" style="color:var(--dim);">Ready — click Run CPA</span>
     </div>
-    <canvas id="cpaCanvas" width="600" height="200" style="width:100%; background:#0a0a0f; border-radius:6px; border:1px solid #333;"></canvas>
+    <canvas id="cpaCanvas" width="600" height="200" style="width:100%; background:#fafaf8; border-radius:6px; border:1px solid #c9c9c3;"></canvas>
     <p class="tiny" style="margin-top:6px;"><span class="cyan">Cyan</span> = correct key hypothesis (0xAB). <span class="dim">Grey</span> = wrong hypotheses (sample of 20). X-axis = number of traces. Y-axis = |Pearson ρ|.</p>
   </div>
 </section>
@@ -470,7 +471,7 @@ result = (value_a & mask) | (value_b & ~mask);
 <!-- ============================================================ -->
 <!-- SECTION: EM ATTACKS -->
 <!-- ============================================================ -->
-<section class="section-title" data-background-gradient="radial-gradient(ellipse at 60% 40%, #0a0a1a 0%, #0a0a0f 70%)">
+<section class="section-title" data-background-gradient="radial-gradient(ellipse at 60% 40%, #f7f7f5 0%, #fafaf8 70%)">
   <p class="section-num">Section III</p>
   <h2>Electromagnetic Emanations</h2>
   <p class="dim">Secrets broadcast over the air</p>
@@ -515,7 +516,7 @@ result = (value_a & mask) | (value_b & ~mask);
 <!-- ============================================================ -->
 <!-- SECTION: CACHE / MICROARCH -->
 <!-- ============================================================ -->
-<section class="section-title" data-background-gradient="radial-gradient(ellipse at 40% 60%, #0a1a0a 0%, #0a0a0f 70%)">
+<section class="section-title" data-background-gradient="radial-gradient(ellipse at 40% 60%, #e2f2e5 0%, #fafaf8 70%)">
   <p class="section-num">Section IV</p>
   <h2>Cache &amp; Microarchitectural Attacks</h2>
   <p class="dim">Software-only side channels — no oscilloscope required</p>
@@ -581,7 +582,7 @@ result = (value_a & mask) | (value_b & ~mask);
 <!-- ============================================================ -->
 <!-- SECTION: FAULT INJECTION -->
 <!-- ============================================================ -->
-<section class="section-title" data-background-gradient="radial-gradient(ellipse at 50% 50%, #1a0a10 0%, #0a0a0f 70%)">
+<section class="section-title" data-background-gradient="radial-gradient(ellipse at 50% 50%, #f9f0f0 0%, #fafaf8 70%)">
   <p class="section-num">Section V</p>
   <h2>Fault Injection Attacks</h2>
   <p class="dim">Active attacks — inducing errors to extract secrets</p>
@@ -666,7 +667,7 @@ result = (value_a & mask) | (value_b & ~mask);
 <!-- ============================================================ -->
 <!-- SECTION: COUNTERMEASURES -->
 <!-- ============================================================ -->
-<section class="section-title" data-background-gradient="radial-gradient(ellipse at 50% 30%, #0a1a0a 0%, #0a0a0f 70%)">
+<section class="section-title" data-background-gradient="radial-gradient(ellipse at 50% 30%, #e2f2e5 0%, #fafaf8 70%)">
   <p class="section-num">Section VI</p>
   <h2>Countermeasures</h2>
   <p class="dim">Defending implementations against physical leakage</p>
@@ -861,7 +862,7 @@ result = old ^ (mask & (old ^ new_val));
     <div>
       <h3>Interpreting Results</h3>
       <div class="interactive-demo">
-        <canvas id="tvlaCanvas" width="520" height="160" style="width:100%; background:#0a0a0f; border-radius:6px;"></canvas>
+        <canvas id="tvlaCanvas" width="520" height="160" style="width:100%; background:#fafaf8; border-radius:6px;"></canvas>
         <p class="tiny" style="margin-top:4px;">Simulated TVLA t-test. <span class="highlight">Red</span> horizontal lines = ±4.5 threshold. <span class="cyan">Cyan</span> trace = t-value over time. Spikes exceeding threshold indicate leakage points.</p>
       </div>
       <br/>
@@ -874,7 +875,7 @@ result = old ^ (mask & (old ^ new_val));
 <!-- ============================================================ -->
 <!-- SECTION: HARDWARE -->
 <!-- ============================================================ -->
-<section class="section-title" data-background-gradient="radial-gradient(ellipse at 60% 60%, #0a0a1a 0%, #0a0a0f 70%)">
+<section class="section-title" data-background-gradient="radial-gradient(ellipse at 60% 60%, #f7f7f5 0%, #fafaf8 70%)">
   <p class="section-num">Section VII</p>
   <h2>Hardware Countermeasures</h2>
   <p class="dim">Silicon-level defenses for crypto accelerators</p>
@@ -939,7 +940,7 @@ result = old ^ (mask & (old ^ new_val));
 <!-- ============================================================ -->
 <!-- SECTION: CASE STUDIES -->
 <!-- ============================================================ -->
-<section class="section-title" data-background-gradient="radial-gradient(ellipse at 30% 30%, #1a0a1a 0%, #0a0a0f 70%)">
+<section class="section-title" data-background-gradient="radial-gradient(ellipse at 30% 30%, #f5edfd 0%, #fafaf8 70%)">
   <p class="section-num">Section VIII</p>
   <h2>Real-World Case Studies</h2>
   <p class="dim">When theory meets silicon</p>
@@ -990,11 +991,11 @@ result = old ^ (mask & (old ^ new_val));
   <p>No single countermeasure is sufficient. Real-world secure implementations combine multiple layers:</p>
   <div style="max-width:700px; margin:20px auto;">
     <div class="timeline-bar" style="height:48px; margin-bottom:3px;">
-      <div style="flex:2; background:linear-gradient(90deg, #ef4444, #dc2626); color:white;">Algorithm Design</div>
-      <div style="flex:2; background:linear-gradient(90deg, #f97316, #ea580c); color:white;">SW Implementation</div>
-      <div style="flex:2; background:linear-gradient(90deg, #22d3ee, #0891b2); color:white;">HW Countermeasures</div>
-      <div style="flex:1.5; background:linear-gradient(90deg, #a78bfa, #7c3aed); color:white;">Physical</div>
-      <div style="flex:1.5; background:linear-gradient(90deg, #4ade80, #16a34a); color:white;">Testing</div>
+      <div style="flex:2; background:linear-gradient(90deg, #fb412e, #ff6f58); color:#000000;">Algorithm Design</div>
+      <div style="flex:2; background:linear-gradient(90deg, #e17f17, #f14d01); color:#000000;">SW Implementation</div>
+      <div style="flex:2; background:linear-gradient(90deg, #063e68, #1a77d2); color:#000000;">HW Countermeasures</div>
+      <div style="flex:1.5; background:linear-gradient(90deg, #6435bc, #9b77fd); color:#000000;">Physical</div>
+      <div style="flex:1.5; background:linear-gradient(90deg, #046b43, #39a56f); color:#000000;">Testing</div>
     </div>
     <div class="three-col small" style="margin-top:16px;">
       <div>
@@ -1158,8 +1159,8 @@ Reveal.initialize({
   const segW = W / keyBits.length;
 
   function drawSPA() {
-    ctx.fillStyle = '#0a0a0f'; ctx.fillRect(0,0,W,H);
-    ctx.strokeStyle = '#333'; ctx.lineWidth = 0.5;
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle = '#c9c9c3'; ctx.lineWidth = 0.5;
     for(let y = 30; y < H; y += 30){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
 
     ctx.lineWidth = 2;
@@ -1168,7 +1169,7 @@ Reveal.initialize({
       const w = segW - 8;
       // Square portion
       const sqH = 35 + Math.random()*10;
-      ctx.strokeStyle = '#22d3ee';
+      ctx.strokeStyle = '#063e68';
       ctx.beginPath();
       for(let px = 0; px < w * 0.5; px++) {
         const noise = (Math.random()-0.5)*6;
@@ -1181,7 +1182,7 @@ Reveal.initialize({
       if(bit === 1) {
         // Multiply portion (taller)
         const mH = 60 + Math.random()*15;
-        ctx.strokeStyle = '#ef4444';
+        ctx.strokeStyle = '#fb412e';
         ctx.beginPath();
         for(let px = Math.floor(w*0.5); px < w; px++) {
           const noise = (Math.random()-0.5)*8;
@@ -1192,7 +1193,7 @@ Reveal.initialize({
         ctx.stroke();
       } else {
         // Just continued square
-        ctx.strokeStyle = '#22d3ee';
+        ctx.strokeStyle = '#063e68';
         ctx.beginPath();
         for(let px = Math.floor(w*0.5); px < w; px++) {
           const noise = (Math.random()-0.5)*6;
@@ -1204,11 +1205,11 @@ Reveal.initialize({
       }
 
       // Label
-      ctx.fillStyle = bit ? '#ef4444' : '#22d3ee';
+      ctx.fillStyle = bit ? '#fb412e' : '#063e68';
       ctx.font = '11px JetBrains Mono';
       ctx.textAlign = 'center';
       ctx.fillText(bit ? 'SM' : 'S', x0 + w/2, H - 6);
-      ctx.fillStyle = '#71717a';
+      ctx.fillStyle = '#8b8b84';
       ctx.fillText(bit.toString(), x0 + w/2, 14);
     });
   }
@@ -1221,9 +1222,9 @@ function resetCPA() {
   if(cpaAnimId) cancelAnimationFrame(cpaAnimId);
   const c = document.getElementById('cpaCanvas');
   const ctx = c.getContext('2d');
-  ctx.fillStyle = '#0a0a0f'; ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle = '#fafaf8'; ctx.fillRect(0,0,c.width,c.height);
   document.getElementById('cpaStatus').textContent = 'Ready — click Run CPA';
-  document.getElementById('cpaStatus').style.color = '#71717a';
+  document.getElementById('cpaStatus').style.color = '#8b8b84';
 }
 
 function runCPA() {
@@ -1247,19 +1248,19 @@ function runCPA() {
   }
 
   function draw() {
-    ctx.fillStyle = '#0a0a0f'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0,0,W,H);
     // Grid
-    ctx.strokeStyle = '#222'; ctx.lineWidth = 0.5;
+    ctx.strokeStyle = '#ddddd8'; ctx.lineWidth = 0.5;
     for(let y = 0; y <= H; y += H/5){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
     // Labels
-    ctx.fillStyle = '#555'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'right';
+    ctx.fillStyle = '#a8a8a1'; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'right';
     ctx.fillText('|ρ|=1.0', 38, 12); ctx.fillText('|ρ|=0.0', 38, H-2);
 
     const xScale = (W - 50) / numTraces;
 
     // Wrong hypotheses
     for(let w = 0; w < numWrong; w++) {
-      ctx.strokeStyle = '#444'; ctx.lineWidth = 0.8; ctx.beginPath();
+      ctx.strokeStyle = '#b8b8b2'; ctx.lineWidth = 0.8; ctx.beginPath();
       for(let i = 0; i <= step; i++) {
         const x = 50 + i * xScale;
         const y = H - 10 - wrongs[i][w] * (H - 20);
@@ -1269,7 +1270,7 @@ function runCPA() {
     }
 
     // Correct hypothesis
-    ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 2.5; ctx.beginPath();
+    ctx.strokeStyle = '#063e68'; ctx.lineWidth = 2.5; ctx.beginPath();
     for(let i = 0; i <= step; i++) {
       const x = 50 + i * xScale;
       const y = H - 10 - correct[i] * (H - 20);
@@ -1280,7 +1281,7 @@ function runCPA() {
     // Status
     const st = document.getElementById('cpaStatus');
     st.textContent = `Traces: ${step}/${numTraces}  |  Correct key ρ = ${correct[step].toFixed(3)}`;
-    st.style.color = step >= numTraces ? '#4ade80' : '#22d3ee';
+    st.style.color = step >= numTraces ? '#046b43' : '#063e68';
 
     if(step < numTraces) { step += 2; cpaAnimId = requestAnimationFrame(draw); }
     else { st.textContent += '  ✓ KEY RECOVERED'; }
@@ -1296,21 +1297,21 @@ function runCPA() {
   const ctx = c.getContext('2d');
   const W = c.width, H = c.height;
   setTimeout(() => {
-    ctx.fillStyle = '#0a0a0f'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#fafaf8'; ctx.fillRect(0,0,W,H);
     // Threshold lines
-    ctx.strokeStyle = '#ef444480'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.strokeStyle = '#fb412e80'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
     const threshY1 = H/2 - (4.5/10) * (H/2 - 10);
     const threshY2 = H/2 + (4.5/10) * (H/2 - 10);
     ctx.beginPath(); ctx.moveTo(0, threshY1); ctx.lineTo(W, threshY1); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, threshY2); ctx.lineTo(W, threshY2); ctx.stroke();
     ctx.setLineDash([]);
     // Labels
-    ctx.fillStyle = '#ef4444'; ctx.font = '9px JetBrains Mono'; ctx.textAlign = 'left';
+    ctx.fillStyle = '#fb412e'; ctx.font = '9px JetBrains Mono'; ctx.textAlign = 'left';
     ctx.fillText('+4.5', 4, threshY1 - 3); ctx.fillText('-4.5', 4, threshY2 + 10);
-    ctx.fillStyle = '#555'; ctx.fillText('0', 4, H/2 + 4);
+    ctx.fillStyle = '#a8a8a1'; ctx.fillText('0', 4, H/2 + 4);
 
     // t-test trace
-    ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 1.5; ctx.beginPath();
+    ctx.strokeStyle = '#063e68'; ctx.lineWidth = 1.5; ctx.beginPath();
     for(let x = 30; x < W; x++) {
       const t = (x - 30) / (W - 30);
       // Mostly near zero with spikes at "leakage points"

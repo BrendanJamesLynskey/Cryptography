@@ -6,23 +6,23 @@
 <title>02 — Elliptic Curve Cryptography (ECC)</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-:root{--bg:#0a0a0f;--text:#e0e0e8;--dim:#6a6a7a;--accent:#64ffda;--accent2:#ff6b9d;--accent3:#ffd93d;--accent4:#6c5ce7;--panel:rgba(255,255,255,0.04);--border:rgba(100,255,218,0.15)}
+:root{--bg:#fafaf8;--text:#1c1c1b;--dim:#94948d;--accent:#013225;--accent2:#c6145f;--accent3:#573e05;--accent4:#886dfc;--panel:rgba(0,0,0,0.04);--border:rgba(1,50,37,0.15)}
 .reveal{font-family:'DM Sans',sans-serif;font-size:28px;color:var(--text)}
 .reveal .slides{text-align:left}
 .reveal h1,.reveal h2,.reveal h3{font-family:'Playfair Display',serif;font-weight:900;text-transform:none;letter-spacing:-.01em}
-.reveal h1{font-size:2.2em;background:linear-gradient(135deg,#64ffda 0%,#6c5ce7 50%,#ff6b9d 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.reveal h2{font-size:1.6em;color:#fff;margin-bottom:.4em}
+.reveal h1{font-size:2.2em;background:linear-gradient(135deg,#013225 0%,#886dfc 50%,#c6145f 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.reveal h2{font-size:1.6em;color:#000000;margin-bottom:.4em}
 .reveal h3{font-size:1.15em;color:var(--accent);margin-bottom:.3em}
 .reveal p,.reveal li{line-height:1.6;color:var(--text)}
 .reveal ul,.reveal ol{margin-left:1em}
 .reveal li{margin-bottom:.35em}
 .reveal code{font-family:'JetBrains Mono',monospace}
-.reveal pre{width:100%;font-size:.48em;background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:14px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.reveal pre{width:100%;font-size:.48em;background:#f1f1ee;border:1px solid var(--border);border-radius:8px;padding:14px;box-shadow:0 4px 24px rgba(255,255,255,.4)}
 .reveal pre code{font-family:'JetBrains Mono',monospace;line-height:1.5}
 .reveal .dim{color:var(--dim)}
 .reveal .accent{color:var(--accent)}
@@ -32,32 +32,34 @@
 .reveal .small{font-size:.7em}
 .reveal .tiny{font-size:.55em;color:var(--dim)}
 .reveal .badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:.55em;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-.reveal .badge-math{background:rgba(108,92,231,.2);color:var(--accent4)}
-.reveal .badge-std{background:rgba(100,255,218,.15);color:var(--accent)}
-.reveal .badge-hw{background:rgba(255,107,157,.15);color:var(--accent2)}
-.reveal .badge-code{background:rgba(255,217,61,.15);color:var(--accent3)}
-.reveal .badge-attack{background:rgba(255,80,80,.15);color:#ff5050}
-.reveal .badge-interactive{background:rgba(0,200,255,.15);color:#00c8ff}
+.reveal .badge-math{background:rgba(136,109,252,.2);color:var(--accent4)}
+.reveal .badge-std{background:rgba(1,50,37,.15);color:var(--accent)}
+.reveal .badge-hw{background:rgba(198,20,95,.15);color:var(--accent2)}
+.reveal .badge-code{background:rgba(87,62,5,.15);color:var(--accent3)}
+.reveal .badge-attack{background:rgba(245,33,16,.15);color:#f52110}
+.reveal .badge-interactive{background:rgba(2,64,129,.15);color:#024081}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px;margin:10px 0}
 .reveal table{font-size:.65em;border-collapse:collapse;width:100%;margin:.6em 0}
-.reveal table th{background:rgba(100,255,218,.08);color:var(--accent);font-weight:700;text-align:left;padding:8px 12px;border-bottom:2px solid var(--border)}
-.reveal table td{padding:6px 12px;border-bottom:1px solid rgba(255,255,255,.04)}
-.reveal table tr:hover td{background:rgba(100,255,218,.03)}
-.formula{background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.25);border-radius:8px;padding:12px 18px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:.85em;text-align:center}
+.reveal table th{background:rgba(1,50,37,.08);color:var(--accent);font-weight:700;text-align:left;padding:8px 12px;border-bottom:2px solid var(--border)}
+.reveal table td{padding:6px 12px;border-bottom:1px solid rgba(0,0,0,.04)}
+.reveal table tr:hover td{background:rgba(1,50,37,.03)}
+.formula{background:rgba(136,109,252,.08);border:1px solid rgba(136,109,252,.25);border-radius:8px;padding:12px 18px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:.85em;text-align:center}
 .cols{display:flex;gap:24px;align-items:flex-start}
 .cols>*{flex:1}
-.reveal .slide-number{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);background:rgba(0,0,0,.3);padding:6px 10px;border-radius:4px}
-.math-block{background:rgba(108,92,231,.06);border-left:3px solid var(--accent4);padding:10px 16px;margin:8px 0;border-radius:0 6px 6px 0;font-size:.9em}
-canvas{border:1px solid var(--border);border-radius:8px;background:rgba(0,0,0,.3)}
+.reveal .slide-number{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);background:rgba(255,255,255,.3);padding:6px 10px;border-radius:4px}
+.math-block{background:rgba(136,109,252,.06);border-left:3px solid var(--accent4);padding:10px 16px;margin:8px 0;border-radius:0 6px 6px 0;font-size:.9em}
+canvas{border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,.3)}
 .key-point{border-left:3px solid var(--accent);padding-left:14px;margin:10px 0}
 .warning{border-left:3px solid var(--accent2);padding-left:14px;margin:10px 0;color:var(--accent2)}
-.hw-diagram{background:rgba(255,107,157,.04);border:1px solid rgba(255,107,157,.2);border-radius:10px;padding:16px;margin:10px 0}
-.step-box{display:inline-block;background:rgba(100,255,218,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px;margin:2px;font-size:.75em}
+.hw-diagram{background:rgba(198,20,95,.04);border:1px solid rgba(198,20,95,.2);border-radius:10px;padding:16px;margin:10px 0}
+.step-box{display:inline-block;background:rgba(1,50,37,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px;margin:2px;font-size:.75em}
 .arrow{color:var(--accent);margin:0 4px}
 section .fragment.visible{opacity:1}
 .comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .comparison-grid .panel{margin:0}
 </style>
+<style>:root{--r-background-color:#fafaf8}.reveal-viewport{background:#fafaf8}</style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 <body>
 <div class="reveal">
@@ -766,20 +768,20 @@ Public key: Q = dG</p>
 <h2>Real-World ECC Failures</h2>
 <span class="badge badge-attack">Case Studies</span>
 <div style="font-size:.8em">
-<div class="panel" style="border-left:3px solid #ff5050;margin-bottom:12px">
-<h3 style="font-size:.9em;color:#ff5050">Sony PS3 ECDSA Nonce Reuse (2010)</h3>
+<div class="panel" style="border-left:3px solid #f52110;margin-bottom:12px">
+<h3 style="font-size:.9em;color:#f52110">Sony PS3 ECDSA Nonce Reuse (2010)</h3>
 <p class="small">Sony used a <em>static</em> value of k for all ECDSA signatures on PS3 firmware. fail0verflow recovered the private key with basic algebra: d = (s·k − e)·r⁻¹ mod n. Complete compromise of PS3 code signing.</p>
 </div>
-<div class="panel fragment" style="border-left:3px solid #ff5050;margin-bottom:12px">
-<h3 style="font-size:.9em;color:#ff5050">Android Bitcoin Wallet RNG Failure (2013)</h3>
+<div class="panel fragment" style="border-left:3px solid #f52110;margin-bottom:12px">
+<h3 style="font-size:.9em;color:#f52110">Android Bitcoin Wallet RNG Failure (2013)</h3>
 <p class="small">Android's SecureRandom produced duplicate ECDSA nonces across different transactions. Attackers extracted private keys from the blockchain, stealing ~55 BTC.</p>
 </div>
-<div class="panel fragment" style="border-left:3px solid #ff5050;margin-bottom:12px">
-<h3 style="font-size:.9em;color:#ff5050">Minerva Timing Attack (2019)</h3>
+<div class="panel fragment" style="border-left:3px solid #f52110;margin-bottom:12px">
+<h3 style="font-size:.9em;color:#f52110">Minerva Timing Attack (2019)</h3>
 <p class="small">Timing leakage in scalar multiplication on smart cards allowed recovery of ECDSA private keys via lattice-based analysis of biased nonces. Affected Athena IDProtect and other JavaCard implementations.</p>
 </div>
-<div class="panel fragment" style="border-left:3px solid #ff5050">
-<h3 style="font-size:.9em;color:#ff5050">Dual_EC_DRBG NSA Backdoor (2013)</h3>
+<div class="panel fragment" style="border-left:3px solid #f52110">
+<h3 style="font-size:.9em;color:#f52110">Dual_EC_DRBG NSA Backdoor (2013)</h3>
 <p class="small">The NIST-standardized PRNG used two EC points P and Q. If Q = eP for a secret e known to NSA, the output could predict future random numbers, compromising any ECC keys generated with it.</p>
 </div>
 </div>
@@ -795,16 +797,16 @@ Public key: Q = dG</p>
 <div style="text-align:center;margin:.6em 0">
 <div class="hw-diagram" style="display:inline-block;text-align:left;font-size:.75em;max-width:800px">
 <div style="text-align:center;margin-bottom:12px">
-  <span class="step-box" style="background:rgba(108,92,231,.15)"><strong>Level 3: Scalar Multiplication</strong><br>Montgomery Ladder / Double-and-Add / w-NAF</span>
+  <span class="step-box" style="background:rgba(136,109,252,.15)"><strong>Level 3: Scalar Multiplication</strong><br>Montgomery Ladder / Double-and-Add / w-NAF</span>
 </div>
 <div style="text-align:center;margin-bottom:12px">
-  <span class="step-box" style="background:rgba(255,107,157,.12)"><strong>Level 2: Point Operations</strong><br>Point Addition · Point Doubling · Mixed Addition</span>
+  <span class="step-box" style="background:rgba(198,20,95,.12)"><strong>Level 2: Point Operations</strong><br>Point Addition · Point Doubling · Mixed Addition</span>
 </div>
 <div style="text-align:center;margin-bottom:12px">
-  <span class="step-box" style="background:rgba(100,255,218,.1)"><strong>Level 1: Modular Arithmetic</strong><br>Mod Multiply · Mod Square · Mod Add/Sub · Mod Inverse</span>
+  <span class="step-box" style="background:rgba(1,50,37,.1)"><strong>Level 1: Modular Arithmetic</strong><br>Mod Multiply · Mod Square · Mod Add/Sub · Mod Inverse</span>
 </div>
 <div style="text-align:center">
-  <span class="step-box" style="background:rgba(255,217,61,.1)"><strong>Level 0: Multi-Precision Arithmetic</strong><br>Big-integer multiply (Karatsuba / Schoolbook) · Reduction (Barrett / Montgomery)</span>
+  <span class="step-box" style="background:rgba(87,62,5,.1)"><strong>Level 0: Multi-Precision Arithmetic</strong><br>Big-integer multiply (Karatsuba / Schoolbook) · Reduction (Barrett / Montgomery)</span>
 </div>
 </div>
 </div>
@@ -1061,8 +1063,8 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 <p id="interP" class="accent" style="font-family:'JetBrains Mono'"></p>
 <p id="interQ" class="accent2" style="font-family:'JetBrains Mono'"></p>
 <p id="interR" class="accent3" style="font-family:'JetBrains Mono';font-weight:700"></p>
-<button id="interReset" style="margin-top:8px;padding:6px 14px;background:rgba(100,255,218,.1);color:var(--accent);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'DM Sans'">Reset</button>
-<button id="interDouble" style="margin-top:8px;padding:6px 14px;background:rgba(108,92,231,.1);color:var(--accent4);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'DM Sans'">Double P</button>
+<button id="interReset" style="margin-top:8px;padding:6px 14px;background:rgba(1,50,37,.1);color:var(--accent);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'DM Sans'">Reset</button>
+<button id="interDouble" style="margin-top:8px;padding:6px 14px;background:rgba(136,109,252,.1);color:var(--accent4);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'DM Sans'">Double P</button>
 </div>
 <div class="panel fragment" style="font-size:.7em;margin-top:8px">
 <p><strong>All 100 points on E(𝔽₉₇):</strong></p>
@@ -1356,16 +1358,16 @@ for (let x = 0; x < FP; x++) {
   if (!cv) return;
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
-  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(0,0,W,H);
   // Map: x in [-2, 3], y in [-3, 3]
   function tx(x) { return (x + 2) / 5 * W; }
   function ty(y) { return H/2 - y / 6 * H; }
   // Axes
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(tx(-2),ty(0)); ctx.lineTo(tx(3),ty(0)); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(tx(0),ty(-3)); ctx.lineTo(tx(0),ty(3)); ctx.stroke();
   // Curve
-  ctx.strokeStyle = '#64ffda'; ctx.lineWidth = 2;
+  ctx.strokeStyle = '#013225'; ctx.lineWidth = 2;
   for (let py = -300; py <= 300; py++) {
     const y = py / 100;
     const lhs = y * y;
@@ -1374,13 +1376,13 @@ for (let x = 0; x < FP; x++) {
       const x = px / 100;
       const rhs = x*x*x - x + 1;
       if (Math.abs(rhs - lhs) < 0.03) {
-        ctx.fillStyle = '#64ffda';
+        ctx.fillStyle = '#013225';
         ctx.fillRect(tx(x), ty(y), 1.5, 1.5);
       }
     }
   }
   // Labels
-  ctx.fillStyle = '#6a6a7a'; ctx.font = '11px "DM Sans"';
+  ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"';
   ctx.fillText('y² = x³ − x + 1', 10, 18);
 })();
 
@@ -1392,11 +1394,11 @@ for (let x = 0; x < FP; x++) {
   const W = cv.width, H = cv.height;
   let mode = 0;
   function draw() {
-    ctx.fillStyle = 'rgba(10,10,15,1)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = 'rgba(250,250,248,1)'; ctx.fillRect(0,0,W,H);
     function tx(x) { return (x + 2) / 5 * W; }
     function ty(y) { return H/2 - y / 6 * H; }
     // Curve
-    ctx.fillStyle = '#64ffda';
+    ctx.fillStyle = '#013225';
     for (let py = -300; py <= 300; py++) {
       const y = py / 100;
       for (let px = -200; px <= 300; px++) {
@@ -1407,7 +1409,7 @@ for (let x = 0; x < FP; x++) {
       }
     }
     // Axes
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0,ty(0)); ctx.lineTo(W,ty(0)); ctx.stroke();
     
     if (mode === 0) { // Addition
@@ -1416,40 +1418,40 @@ for (let x = 0; x < FP; x++) {
       const Rx = lam*lam - Px - Qx;
       const Ry_neg = lam*(Px - Rx) - Py;
       // Line
-      ctx.strokeStyle = 'rgba(255,107,157,0.5)'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(198,20,95,0.5)'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(tx(-2), ty(Py + lam*(-2-Px))); ctx.lineTo(tx(3), ty(Py + lam*(3-Px))); ctx.stroke();
       // Vertical
-      ctx.strokeStyle = 'rgba(255,217,61,0.4)'; ctx.setLineDash([4,4]);
+      ctx.strokeStyle = 'rgba(87,62,5,0.4)'; ctx.setLineDash([4,4]);
       ctx.beginPath(); ctx.moveTo(tx(Rx), ty(-Ry_neg)); ctx.lineTo(tx(Rx), ty(Ry_neg)); ctx.stroke();
       ctx.setLineDash([]);
       // Points
-      drawPoint(ctx, tx(Px), ty(Py), '#64ffda', 'P'); 
-      drawPoint(ctx, tx(Qx), ty(Qy), '#ff6b9d', 'Q');
-      drawPoint(ctx, tx(Rx), ty(-Ry_neg), '#6a6a7a', "R'");
-      drawPoint(ctx, tx(Rx), ty(Ry_neg), '#ffd93d', 'P+Q');
-      ctx.fillStyle = '#6a6a7a'; ctx.font = '11px "DM Sans"'; ctx.fillText('Point Addition', 10, 18);
+      drawPoint(ctx, tx(Px), ty(Py), '#013225', 'P'); 
+      drawPoint(ctx, tx(Qx), ty(Qy), '#c6145f', 'Q');
+      drawPoint(ctx, tx(Rx), ty(-Ry_neg), '#94948d', "R'");
+      drawPoint(ctx, tx(Rx), ty(Ry_neg), '#573e05', 'P+Q');
+      ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"'; ctx.fillText('Point Addition', 10, 18);
     } else if (mode === 1) { // Doubling
       const Px = -0.5, Py = Math.sqrt((-0.5)*(-0.5)*(-0.5) - (-0.5) + 1);
       const lam = (3*Px*Px - 1) / (2*Py);
       const Rx = lam*lam - 2*Px;
       const Ry_neg = lam*(Px - Rx) - Py;
-      ctx.strokeStyle = 'rgba(108,92,231,0.5)'; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(136,109,252,0.5)'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(tx(-2), ty(Py + lam*(-2-Px))); ctx.lineTo(tx(3), ty(Py + lam*(3-Px))); ctx.stroke();
-      ctx.strokeStyle = 'rgba(255,217,61,0.4)'; ctx.setLineDash([4,4]);
+      ctx.strokeStyle = 'rgba(87,62,5,0.4)'; ctx.setLineDash([4,4]);
       ctx.beginPath(); ctx.moveTo(tx(Rx), ty(-Ry_neg)); ctx.lineTo(tx(Rx), ty(Ry_neg)); ctx.stroke();
       ctx.setLineDash([]);
-      drawPoint(ctx, tx(Px), ty(Py), '#6c5ce7', 'P');
-      drawPoint(ctx, tx(Rx), ty(-Ry_neg), '#6a6a7a', "R'");
-      drawPoint(ctx, tx(Rx), ty(Ry_neg), '#ffd93d', '2P');
-      ctx.fillStyle = '#6a6a7a'; ctx.font = '11px "DM Sans"'; ctx.fillText('Point Doubling (tangent)', 10, 18);
+      drawPoint(ctx, tx(Px), ty(Py), '#886dfc', 'P');
+      drawPoint(ctx, tx(Rx), ty(-Ry_neg), '#94948d', "R'");
+      drawPoint(ctx, tx(Rx), ty(Ry_neg), '#573e05', '2P');
+      ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"'; ctx.fillText('Point Doubling (tangent)', 10, 18);
     } else { // Inverse
       const Px = 0.5, Py = Math.sqrt(0.5*0.5*0.5 - 0.5 + 1);
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.setLineDash([4,4]);
+      ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.setLineDash([4,4]);
       ctx.beginPath(); ctx.moveTo(tx(Px), ty(-Py-0.3)); ctx.lineTo(tx(Px), ty(Py+0.3)); ctx.stroke();
       ctx.setLineDash([]);
-      drawPoint(ctx, tx(Px), ty(Py), '#64ffda', 'P');
-      drawPoint(ctx, tx(Px), ty(-Py), '#ff6b9d', '−P');
-      ctx.fillStyle = '#6a6a7a'; ctx.font = '11px "DM Sans"'; ctx.fillText('Inverse: −(x,y) = (x,−y)', 10, 18);
+      drawPoint(ctx, tx(Px), ty(Py), '#013225', 'P');
+      drawPoint(ctx, tx(Px), ty(-Py), '#c6145f', '−P');
+      ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"'; ctx.fillText('Inverse: −(x,y) = (x,−y)', 10, 18);
     }
   }
   function drawPoint(ctx, x, y, color, label) {
@@ -1466,17 +1468,17 @@ for (let x = 0; x < FP; x++) {
   if (!cv) return;
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
-  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(0,0,W,H);
   const margin = 25;
   allPts.forEach(([x, y]) => {
     const px = margin + (x / FP) * (W - 2*margin);
     const py = H - margin - (y / FP) * (H - 2*margin);
-    ctx.fillStyle = '#64ffda';
+    ctx.fillStyle = '#013225';
     ctx.globalAlpha = 0.7;
     ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill();
   });
   ctx.globalAlpha = 1;
-  ctx.fillStyle = '#6a6a7a'; ctx.font = '11px "DM Sans"';
+  ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"';
   ctx.fillText(`${allPts.length} points + 𝒪`, 10, 16);
   ctx.fillText('x →', W - 30, H - 8);
   ctx.fillText('y ↑', 4, margin - 5);
@@ -1505,9 +1507,9 @@ for (let x = 0; x < FP; x++) {
   }
 
   function draw() {
-    ctx.fillStyle = 'rgba(10,10,15,1)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = 'rgba(250,250,248,1)'; ctx.fillRect(0,0,W,H);
     // Grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.03)';
     for (let i = 0; i <= FP; i += 10) {
       const [gx] = ptToCanvas(i, 0);
       ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
@@ -1517,28 +1519,28 @@ for (let x = 0; x < FP; x++) {
     // All points
     allPts.forEach(([x,y]) => {
       const [px, py] = ptToCanvas(x, y);
-      ctx.fillStyle = 'rgba(100,255,218,0.25)';
+      ctx.fillStyle = 'rgba(1,50,37,0.25)';
       ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI*2); ctx.fill();
     });
     // Selected P
     if (selP) {
       const [px, py] = ptToCanvas(selP[0], selP[1]);
-      ctx.fillStyle = '#64ffda'; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#64ffda'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('P', px+10, py-6);
+      ctx.fillStyle = '#013225'; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#013225'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('P', px+10, py-6);
     }
     // Selected Q
     if (selQ) {
       const [qx, qy] = ptToCanvas(selQ[0], selQ[1]);
-      ctx.fillStyle = '#ff6b9d'; ctx.beginPath(); ctx.arc(qx, qy, 6, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#ff6b9d'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('Q', qx+10, qy-6);
+      ctx.fillStyle = '#c6145f'; ctx.beginPath(); ctx.arc(qx, qy, 6, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#c6145f'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('Q', qx+10, qy-6);
     }
     // Result
     if (selP && selQ) {
       const R = ecAdd(selP, selQ);
       if (R) {
         const [rx, ry] = ptToCanvas(R[0], R[1]);
-        ctx.fillStyle = '#ffd93d'; ctx.beginPath(); ctx.arc(rx, ry, 7, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#ffd93d'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('P+Q', rx+10, ry-6);
+        ctx.fillStyle = '#573e05'; ctx.beginPath(); ctx.arc(rx, ry, 7, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#573e05'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('P+Q', rx+10, ry-6);
         document.getElementById('interR').textContent = `P + Q = (${R[0]}, ${R[1]})`;
       } else {
         document.getElementById('interR').textContent = 'P + Q = 𝒪 (point at infinity)';
@@ -1607,11 +1609,11 @@ for (let x = 0; x < FP; x++) {
   function draw() {
     const k = parseInt(slider.value);
     valEl.textContent = k;
-    ctx.fillStyle = 'rgba(10,10,15,1)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = 'rgba(250,250,248,1)'; ctx.fillRect(0,0,W,H);
     // All points dim
     allPts.forEach(([x,y]) => {
       const [px, py] = ptToCanvas(x, y);
-      ctx.fillStyle = 'rgba(100,255,218,0.12)';
+      ctx.fillStyle = 'rgba(1,50,37,0.12)';
       ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill();
     });
     // Trace path
@@ -1622,7 +1624,7 @@ for (let x = 0; x < FP; x++) {
       if (pt) trail.push({i, pt});
     }
     // Draw connections
-    ctx.strokeStyle = 'rgba(108,92,231,0.3)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(136,109,252,0.3)'; ctx.lineWidth = 1;
     for (let i = 1; i < trail.length; i++) {
       const [ax, ay] = ptToCanvas(trail[i-1].pt[0], trail[i-1].pt[1]);
       const [bx, by] = ptToCanvas(trail[i].pt[0], trail[i].pt[1]);
@@ -1632,25 +1634,25 @@ for (let x = 0; x < FP; x++) {
     trail.forEach(({i, pt}, idx) => {
       const [px, py] = ptToCanvas(pt[0], pt[1]);
       const isLast = idx === trail.length - 1;
-      ctx.fillStyle = isLast ? '#ffd93d' : `rgba(108,92,231,${0.3 + 0.7*idx/trail.length})`;
+      ctx.fillStyle = isLast ? '#573e05' : `rgba(108,92,231,${0.3 + 0.7*idx/trail.length})`;
       ctx.beginPath(); ctx.arc(px, py, isLast ? 6 : 3.5, 0, Math.PI*2); ctx.fill();
       if (isLast) {
-        ctx.fillStyle = '#ffd93d'; ctx.font = 'bold 12px "JetBrains Mono"';
+        ctx.fillStyle = '#573e05'; ctx.font = 'bold 12px "JetBrains Mono"';
         ctx.fillText(`${k}G`, px+9, py-8);
       }
     });
     // Generator
     const [gx, gy] = ptToCanvas(G[0], G[1]);
-    ctx.strokeStyle = '#64ffda'; ctx.lineWidth = 2;
+    ctx.strokeStyle = '#013225'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(gx, gy, 7, 0, Math.PI*2); ctx.stroke();
-    ctx.fillStyle = '#64ffda'; ctx.font = 'bold 12px "JetBrains Mono"'; ctx.fillText('G', gx+10, gy-8);
+    ctx.fillStyle = '#013225'; ctx.font = 'bold 12px "JetBrains Mono"'; ctx.fillText('G', gx+10, gy-8);
 
     const R = scalarMult(k, G);
     resEl.textContent = R ? `${k}G = (${R[0]}, ${R[1]})` : `${k}G = 𝒪`;
 
     // Show binary expansion
     const bits = k.toString(2);
-    let html = `<span style="color:#64ffda">k = ${k} = ${bits}₂</span><br>`;
+    let html = `<span style="color:#013225">k = ${k} = ${bits}₂</span><br>`;
     html += `Double-and-add: ${bits.length} doublings, ${(bits.match(/1/g)||[]).length - 1} additions`;
     stepsEl.innerHTML = html;
   }

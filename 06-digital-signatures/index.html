@@ -6,26 +6,26 @@
 <title>06 — Digital Signatures (ECDSA, EdDSA, Schnorr)</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
 <style>
   :root {
-    --accent:  #00e5ff;
-    --accent2: #76ff03;
-    --accent3: #ff6d00;
-    --accent4: #d500f9;
-    --bg:      #0a0e17;
-    --fg:      #e0e6f0;
-    --muted:   #5a6a8a;
-    --card-bg: rgba(255,255,255,0.04);
+    --accent:  #023052;
+    --accent2: #003e1a;
+    --accent3: #e37d16;
+    --accent4: #9b0beb;
+    --bg:      #f5f5f2;
+    --fg:      #181818;
+    --muted:   #939597;
+    --card-bg: rgba(0,0,0,0.04);
   }
 
   .reveal { font-family: 'DM Sans', sans-serif; color: var(--fg); }
   .reveal .slides { text-align: left; }
-  .reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; color: #fff; text-transform: none; letter-spacing: -0.02em; }
+  .reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; color: #000000; text-transform: none; letter-spacing: -0.02em; }
   .reveal h1 { font-size: 2.4em; }
   .reveal h2 { font-size: 1.6em; border-bottom: 2px solid var(--accent); padding-bottom: .25em; margin-bottom: .6em; display: inline-block; }
   .reveal h3 { font-size: 1.15em; color: var(--accent); }
@@ -37,9 +37,9 @@
   .reveal ul li::before { content: "▸ "; color: var(--accent); font-weight: 700; }
   .reveal ul li { margin-bottom: 0.35em; }
   .reveal table { font-size: 0.62em; border-collapse: collapse; width: 100%; margin: 0.5em 0; }
-  .reveal th { background: rgba(0,229,255,0.12); color: var(--accent); font-weight: 700; text-align: left; padding: 0.4em 0.6em; border-bottom: 2px solid var(--accent); }
-  .reveal td { padding: 0.35em 0.6em; border-bottom: 1px solid rgba(255,255,255,0.06); }
-  .reveal tr:hover td { background: rgba(0,229,255,0.04); }
+  .reveal th { background: rgba(2,48,82,0.12); color: var(--accent); font-weight: 700; text-align: left; padding: 0.4em 0.6em; border-bottom: 2px solid var(--accent); }
+  .reveal td { padding: 0.35em 0.6em; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .reveal tr:hover td { background: rgba(2,48,82,0.04); }
   .reveal .accent  { color: var(--accent);  }
   .reveal .accent2 { color: var(--accent2); }
   .reveal .accent3 { color: var(--accent3); }
@@ -50,7 +50,7 @@
   .reveal .mono     { font-family: 'JetBrains Mono', monospace; }
   .reveal .card {
     background: var(--card-bg);
-    border: 1px solid rgba(255,255,255,0.07);
+    border: 1px solid rgba(0,0,0,0.07);
     border-radius: 10px;
     padding: 0.7em 1em;
     margin: 0.4em 0;
@@ -60,7 +60,7 @@
   .reveal .grid23 { display: grid; grid-template-columns: 2fr 3fr; gap: 0.8em; }
   .reveal .grid32 { display: grid; grid-template-columns: 3fr 2fr; gap: 0.8em; }
   .reveal .math-box {
-    background: rgba(0,229,255,0.06);
+    background: rgba(2,48,82,0.06);
     border-left: 3px solid var(--accent);
     padding: 0.6em 0.9em;
     border-radius: 0 8px 8px 0;
@@ -69,14 +69,14 @@
     font-size: 0.68em;
   }
   .reveal .warn-box {
-    background: rgba(255,109,0,0.1);
+    background: rgba(227,125,22,0.1);
     border-left: 3px solid var(--accent3);
     padding: 0.5em 0.9em;
     border-radius: 0 8px 8px 0;
     margin: 0.5em 0;
   }
   .reveal .ok-box {
-    background: rgba(118,255,3,0.08);
+    background: rgba(0,62,26,0.08);
     border-left: 3px solid var(--accent2);
     padding: 0.5em 0.9em;
     border-radius: 0 8px 8px 0;
@@ -84,7 +84,7 @@
   }
   .reveal .badge {
     display: inline-block;
-    background: rgba(0,229,255,0.15);
+    background: rgba(2,48,82,0.15);
     color: var(--accent);
     padding: 0.15em 0.5em;
     border-radius: 4px;
@@ -93,15 +93,15 @@
     margin-right: 0.3em;
   }
   .reveal .badge-warn {
-    background: rgba(255,109,0,0.15);
+    background: rgba(227,125,22,0.15);
     color: var(--accent3);
   }
   .reveal .badge-ok {
-    background: rgba(118,255,3,0.12);
+    background: rgba(0,62,26,0.12);
     color: var(--accent2);
   }
   .reveal .badge-purple {
-    background: rgba(213,0,249,0.15);
+    background: rgba(155,11,235,0.15);
     color: var(--accent4);
   }
 
@@ -116,14 +116,14 @@
 
   /* Interactive controls */
   .interactive-demo {
-    background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(0,229,255,0.2);
+    background: rgba(255,255,255,0.4);
+    border: 1px solid rgba(2,48,82,0.2);
     border-radius: 12px;
     padding: 1em;
     margin: 0.5em 0;
   }
   .interactive-demo button {
-    background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(0,229,255,0.05));
+    background: linear-gradient(135deg, rgba(2,48,82,0.2), rgba(2,48,82,0.05));
     border: 1px solid var(--accent);
     color: var(--accent);
     padding: 0.3em 0.8em;
@@ -135,13 +135,13 @@
     transition: all 0.2s;
   }
   .interactive-demo button:hover {
-    background: rgba(0,229,255,0.25);
-    box-shadow: 0 0 12px rgba(0,229,255,0.3);
+    background: rgba(2,48,82,0.25);
+    box-shadow: 0 0 12px rgba(2,48,82,0.3);
   }
   .interactive-demo input[type="text"],
   .interactive-demo textarea {
-    background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(0,0,0,0.15);
     color: var(--fg);
     padding: 0.3em 0.5em;
     border-radius: 4px;
@@ -150,7 +150,7 @@
     width: 100%;
   }
   .interactive-demo .output {
-    background: rgba(0,0,0,0.6);
+    background: rgba(255,255,255,0.6);
     border-radius: 6px;
     padding: 0.5em;
     margin-top: 0.4em;
@@ -163,16 +163,18 @@
 
   /* SVG diagrams */
   svg text { font-family: 'DM Sans', sans-serif; }
-  svg .label { fill: #e0e6f0; font-size: 13px; }
-  svg .label-sm { fill: #e0e6f0; font-size: 11px; }
+  svg .label { fill: #181818; font-size: 13px; }
+  svg .label-sm { fill: #181818; font-size: 11px; }
   svg .accent-stroke { stroke: var(--accent); stroke-width: 2; fill: none; }
   svg .accent2-stroke { stroke: var(--accent2); stroke-width: 2; fill: none; }
   svg .accent3-stroke { stroke: var(--accent3); stroke-width: 2; fill: none; }
-  svg .node { fill: rgba(0,229,255,0.1); stroke: var(--accent); stroke-width: 1.5; }
-  svg .node2 { fill: rgba(118,255,3,0.1); stroke: var(--accent2); stroke-width: 1.5; }
-  svg .node3 { fill: rgba(255,109,0,0.1); stroke: var(--accent3); stroke-width: 1.5; }
+  svg .node { fill: rgba(2,48,82,0.1); stroke: var(--accent); stroke-width: 1.5; }
+  svg .node2 { fill: rgba(0,62,26,0.1); stroke: var(--accent2); stroke-width: 1.5; }
+  svg .node3 { fill: rgba(227,125,22,0.1); stroke: var(--accent3); stroke-width: 1.5; }
   svg .arrow { fill: var(--accent); }
 </style>
+<style>:root{--r-background-color:#fafaf8}.reveal-viewport{background:#fafaf8}</style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 <body>
 <div class="reveal">
@@ -181,7 +183,7 @@
 <!-- ============================================================ -->
 <!-- SLIDE 1 : TITLE                                               -->
 <!-- ============================================================ -->
-<section class="title-slide" data-background-gradient="radial-gradient(ellipse at 30% 60%, #0d1a2e 0%, #0a0e17 70%)">
+<section class="title-slide" data-background-gradient="radial-gradient(ellipse at 30% 60%, #e9e9e5 0%, #f5f5f2 70%)">
   <div style="text-align:center;">
     <p style="font-size:3em; margin:0;">🖊️</p>
     <h1>Digital Signatures</h1>
@@ -273,38 +275,38 @@
     <rect class="node" x="10" y="60" width="110" height="50" rx="8"/>
     <text class="label" x="65" y="90" text-anchor="middle">Message m</text>
     <!-- Arrow -->
-    <line x1="120" y1="85" x2="175" y2="85" stroke="#00e5ff" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <line x1="120" y1="85" x2="175" y2="85" stroke="#023052" stroke-width="2" marker-end="url(#arrowBlue)"/>
     <!-- Hash -->
     <rect class="node3" x="175" y="50" width="120" height="70" rx="8"/>
     <text class="label" x="235" y="82" text-anchor="middle">Hash</text>
-    <text class="label-sm" x="235" y="100" text-anchor="middle" fill="#ff6d00">SHA-256 / SHA-512</text>
+    <text class="label-sm" x="235" y="100" text-anchor="middle" fill="#e37d16">SHA-256 / SHA-512</text>
     <!-- Arrow -->
-    <line x1="295" y1="85" x2="350" y2="85" stroke="#00e5ff" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <line x1="295" y1="85" x2="350" y2="85" stroke="#023052" stroke-width="2" marker-end="url(#arrowBlue)"/>
     <!-- h = H(m) -->
     <rect class="node" x="350" y="65" width="80" height="40" rx="6"/>
     <text class="label" x="390" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="12">h = H(m)</text>
     <!-- Arrow -->
-    <line x1="430" y1="85" x2="490" y2="85" stroke="#00e5ff" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    <line x1="430" y1="85" x2="490" y2="85" stroke="#023052" stroke-width="2" marker-end="url(#arrowBlue)"/>
     <!-- Sign box -->
     <rect class="node2" x="490" y="40" width="130" height="90" rx="8"/>
     <text class="label" x="555" y="72" text-anchor="middle">Sign(h, privKey)</text>
-    <text class="label-sm" x="555" y="92" text-anchor="middle" fill="#76ff03">EC scalar mul</text>
-    <text class="label-sm" x="555" y="108" text-anchor="middle" fill="#76ff03">+ mod arithmetic</text>
+    <text class="label-sm" x="555" y="92" text-anchor="middle" fill="#003e1a">EC scalar mul</text>
+    <text class="label-sm" x="555" y="108" text-anchor="middle" fill="#003e1a">+ mod arithmetic</text>
     <!-- privKey input -->
     <rect class="node3" x="510" y="148" width="90" height="35" rx="6"/>
-    <text class="label-sm" x="555" y="170" text-anchor="middle" fill="#ff6d00">Private Key d</text>
-    <line x1="555" y1="148" x2="555" y2="130" stroke="#ff6d00" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+    <text class="label-sm" x="555" y="170" text-anchor="middle" fill="#e37d16">Private Key d</text>
+    <line x1="555" y1="148" x2="555" y2="130" stroke="#e37d16" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
     <!-- Arrow out -->
-    <line x1="620" y1="85" x2="680" y2="85" stroke="#76ff03" stroke-width="2" marker-end="url(#arrowGreen)"/>
+    <line x1="620" y1="85" x2="680" y2="85" stroke="#003e1a" stroke-width="2" marker-end="url(#arrowGreen)"/>
     <!-- Signature -->
     <rect class="node2" x="680" y="60" width="110" height="50" rx="8"/>
     <text class="label" x="735" y="82" text-anchor="middle">Signature</text>
-    <text class="label-sm" x="735" y="98" text-anchor="middle" fill="#76ff03">(r, s) or (R, s)</text>
+    <text class="label-sm" x="735" y="98" text-anchor="middle" fill="#003e1a">(r, s) or (R, s)</text>
     <!-- Arrow defs -->
     <defs>
-      <marker id="arrowBlue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#00e5ff"/></marker>
-      <marker id="arrowGreen" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#76ff03"/></marker>
-      <marker id="arrowOrange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6d00"/></marker>
+      <marker id="arrowBlue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#023052"/></marker>
+      <marker id="arrowGreen" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#003e1a"/></marker>
+      <marker id="arrowOrange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#e37d16"/></marker>
     </defs>
   </svg>
 
@@ -331,9 +333,9 @@
     <!-- ElGamal -->
     <rect class="node3" x="310" y="5" width="180" height="40" rx="8"/>
     <text class="label" x="400" y="30" text-anchor="middle">ElGamal Signature (1985)</text>
-    <line x1="350" y1="45" x2="200" y2="80" stroke="#5a6a8a" stroke-width="1.5"/>
-    <line x1="400" y1="45" x2="400" y2="80" stroke="#5a6a8a" stroke-width="1.5"/>
-    <line x1="450" y1="45" x2="600" y2="80" stroke="#5a6a8a" stroke-width="1.5"/>
+    <line x1="350" y1="45" x2="200" y2="80" stroke="#939597" stroke-width="1.5"/>
+    <line x1="400" y1="45" x2="400" y2="80" stroke="#939597" stroke-width="1.5"/>
+    <line x1="450" y1="45" x2="600" y2="80" stroke="#939597" stroke-width="1.5"/>
     <!-- DSA -->
     <rect class="node" x="120" y="80" width="160" height="40" rx="8"/>
     <text class="label" x="200" y="105" text-anchor="middle">DSA — FIPS 186 (1994)</text>
@@ -344,16 +346,16 @@
     <rect class="node" x="520" y="80" width="180" height="40" rx="8"/>
     <text class="label" x="610" y="105" text-anchor="middle">ECDSA — ANSI X9.62 (1999)</text>
     <!-- Lines down -->
-    <line x1="200" y1="120" x2="200" y2="155" stroke="#5a6a8a" stroke-width="1.5"/>
-    <line x1="400" y1="120" x2="400" y2="155" stroke="#5a6a8a" stroke-width="1.5"/>
-    <line x1="610" y1="120" x2="610" y2="155" stroke="#5a6a8a" stroke-width="1.5"/>
+    <line x1="200" y1="120" x2="200" y2="155" stroke="#939597" stroke-width="1.5"/>
+    <line x1="400" y1="120" x2="400" y2="155" stroke="#939597" stroke-width="1.5"/>
+    <line x1="610" y1="120" x2="610" y2="155" stroke="#939597" stroke-width="1.5"/>
     <!-- DSA deprecated -->
-    <rect x="120" y="155" width="160" height="40" rx="8" fill="rgba(255,109,0,0.12)" stroke="#ff6d00" stroke-width="1.5"/>
-    <text class="label-sm" x="200" y="172" text-anchor="middle" fill="#ff6d00">Deprecated for signing</text>
-    <text class="label-sm" x="200" y="188" text-anchor="middle" fill="#ff6d00">in FIPS 186-5 (2023)</text>
+    <rect x="120" y="155" width="160" height="40" rx="8" fill="rgba(227,125,22,0.12)" stroke="#e37d16" stroke-width="1.5"/>
+    <text class="label-sm" x="200" y="172" text-anchor="middle" fill="#e37d16">Deprecated for signing</text>
+    <text class="label-sm" x="200" y="188" text-anchor="middle" fill="#e37d16">in FIPS 186-5 (2023)</text>
     <!-- Schnorr children -->
-    <line x1="370" y1="155" x2="320" y2="195" stroke="#76ff03" stroke-width="1.5"/>
-    <line x1="430" y1="155" x2="480" y2="195" stroke="#76ff03" stroke-width="1.5"/>
+    <line x1="370" y1="155" x2="320" y2="195" stroke="#003e1a" stroke-width="1.5"/>
+    <line x1="430" y1="155" x2="480" y2="195" stroke="#003e1a" stroke-width="1.5"/>
     <!-- EdDSA -->
     <rect class="node2" x="230" y="195" width="180" height="40" rx="8"/>
     <text class="label" x="320" y="220" text-anchor="middle">EdDSA — RFC 8032 (2017)</text>
@@ -365,10 +367,10 @@
     <text class="label-sm" x="610" y="172" text-anchor="middle">FIPS 186-5 (2023)</text>
     <text class="label-sm" x="610" y="188" text-anchor="middle">+ deterministic ECDSA</text>
     <!-- Ed25519 / Ed448 -->
-    <line x1="290" y1="235" x2="270" y2="260" stroke="#76ff03" stroke-width="1"/>
-    <line x1="350" y1="235" x2="370" y2="260" stroke="#76ff03" stroke-width="1"/>
-    <text class="label-sm" x="270" y="275" text-anchor="middle" fill="#76ff03">Ed25519</text>
-    <text class="label-sm" x="370" y="275" text-anchor="middle" fill="#76ff03">Ed448</text>
+    <line x1="290" y1="235" x2="270" y2="260" stroke="#003e1a" stroke-width="1"/>
+    <line x1="350" y1="235" x2="370" y2="260" stroke="#003e1a" stroke-width="1"/>
+    <text class="label-sm" x="270" y="275" text-anchor="middle" fill="#003e1a">Ed25519</text>
+    <text class="label-sm" x="370" y="275" text-anchor="middle" fill="#003e1a">Ed448</text>
   </svg>
   <div class="card small" style="margin-top:0.2em;">
     <strong>Key insight:</strong> All these schemes derive from ElGamal's 1985 framework. The core idea is the same — prove knowledge of a private scalar <code>d</code> by constructing a relationship between a random nonce point, the message hash, and the public key — but they differ in how the relationship is computed and what security proofs are available.
@@ -772,26 +774,26 @@
   <div class="grid2">
     <div>
       <svg viewBox="0 0 380 260" style="width:100%;">
-        <text class="label" x="190" y="18" text-anchor="middle" fill="#00e5ff" font-weight="700" font-size="13">ECDSA Accelerator Block Diagram</text>
+        <text class="label" x="190" y="18" text-anchor="middle" fill="#023052" font-weight="700" font-size="13">ECDSA Accelerator Block Diagram</text>
         <!-- Host interface -->
         <rect class="node" x="10" y="30" width="100" height="40" rx="6"/>
         <text class="label-sm" x="60" y="55" text-anchor="middle">Host / Bus</text>
-        <line x1="110" y1="50" x2="140" y2="50" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+        <line x1="110" y1="50" x2="140" y2="50" stroke="#023052" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
         <!-- Controller -->
         <rect class="node" x="140" y="30" width="100" height="40" rx="6"/>
         <text class="label-sm" x="190" y="55" text-anchor="middle">Controller FSM</text>
         <!-- SHA engine -->
         <rect class="node3" x="10" y="90" width="100" height="50" rx="6"/>
         <text class="label-sm" x="60" y="110" text-anchor="middle">SHA-256</text>
-        <text class="label-sm" x="60" y="125" text-anchor="middle" fill="#ff6d00">Engine</text>
+        <text class="label-sm" x="60" y="125" text-anchor="middle" fill="#e37d16">Engine</text>
         <!-- RNG -->
         <rect class="node3" x="10" y="160" width="100" height="50" rx="6"/>
         <text class="label-sm" x="60" y="180" text-anchor="middle">TRNG / DRBG</text>
-        <text class="label-sm" x="60" y="195" text-anchor="middle" fill="#ff6d00">Nonce gen</text>
+        <text class="label-sm" x="60" y="195" text-anchor="middle" fill="#e37d16">Nonce gen</text>
         <!-- Modular arithmetic -->
         <rect class="node2" x="140" y="90" width="110" height="120" rx="6"/>
-        <text class="label-sm" x="195" y="110" text-anchor="middle" fill="#76ff03">Modular</text>
-        <text class="label-sm" x="195" y="125" text-anchor="middle" fill="#76ff03">Arithmetic Unit</text>
+        <text class="label-sm" x="195" y="110" text-anchor="middle" fill="#003e1a">Modular</text>
+        <text class="label-sm" x="195" y="125" text-anchor="middle" fill="#003e1a">Arithmetic Unit</text>
         <text class="label-sm" x="195" y="145" text-anchor="middle">Add / Sub</text>
         <text class="label-sm" x="195" y="160" text-anchor="middle">Multiply</text>
         <text class="label-sm" x="195" y="175" text-anchor="middle">Inversion</text>
@@ -806,14 +808,14 @@
         <text class="label-sm" x="320" y="195" text-anchor="middle">(Montgomery</text>
         <text class="label-sm" x="320" y="208" text-anchor="middle">Ladder)</text>
         <!-- connections -->
-        <line x1="110" y1="115" x2="140" y2="115" stroke="#5a6a8a" stroke-width="1"/>
-        <line x1="110" y1="185" x2="140" y2="185" stroke="#5a6a8a" stroke-width="1"/>
-        <line x1="250" y1="150" x2="270" y2="150" stroke="#76ff03" stroke-width="1.5"/>
-        <line x1="190" y1="70" x2="190" y2="90" stroke="#5a6a8a" stroke-width="1"/>
+        <line x1="110" y1="115" x2="140" y2="115" stroke="#939597" stroke-width="1"/>
+        <line x1="110" y1="185" x2="140" y2="185" stroke="#939597" stroke-width="1"/>
+        <line x1="250" y1="150" x2="270" y2="150" stroke="#003e1a" stroke-width="1.5"/>
+        <line x1="190" y1="70" x2="190" y2="90" stroke="#939597" stroke-width="1"/>
         <!-- Key storage -->
         <rect class="node3" x="270" y="225" width="100" height="30" rx="6"/>
-        <text class="label-sm" x="320" y="245" text-anchor="middle" fill="#ff6d00">Key Storage</text>
-        <line x1="320" y1="225" x2="320" y2="210" stroke="#ff6d00" stroke-width="1"/>
+        <text class="label-sm" x="320" y="245" text-anchor="middle" fill="#e37d16">Key Storage</text>
+        <line x1="320" y1="225" x2="320" y2="210" stroke="#e37d16" stroke-width="1"/>
       </svg>
     </div>
     <div>
@@ -1388,17 +1390,17 @@ function ecdsaDemo() {
   lastSig = { r, s, msg, qx, qy, e, k, d };
 
   document.getElementById('ecdsaOutput').innerHTML =
-    `<span style="color:#00e5ff">── Key Generation ──</span>\n` +
+    `<span style="color:#023052">── Key Generation ──</span>\n` +
     `Private key d = ${d}\n` +
     `Public key Q  = (${qx}, ${qy})\n\n` +
-    `<span style="color:#76ff03">── Signing ──</span>\n` +
+    `<span style="color:#003e1a">── Signing ──</span>\n` +
     `Message: "${msg}"\n` +
     `Hash e     = H(m) = ${e}\n` +
     `Nonce k    = ${k}\n` +
     `k·G        = (${kGx}, ${kGy})\n` +
     `r = x₁ mod n = ${r}\n` +
     `s = k⁻¹·(e + r·d) mod n = ${s}\n\n` +
-    `<span style="color:#76ff03;font-weight:700">Signature σ = (r=${r}, s=${s})</span>`;
+    `<span style="color:#003e1a;font-weight:700">Signature σ = (r=${r}, s=${s})</span>`;
 }
 
 function ecdsaVerifyDemo() {
@@ -1414,14 +1416,14 @@ function ecdsaVerifyDemo() {
   const valid = v === r;
 
   document.getElementById('ecdsaOutput').innerHTML +=
-    `\n\n<span style="color:#00e5ff">── Verification ──</span>\n` +
+    `\n\n<span style="color:#023052">── Verification ──</span>\n` +
     `w = s⁻¹ mod n = ${w}\n` +
     `u₁ = e·w = ${u1}, u₂ = r·w = ${u2}\n` +
     `u₁·G + u₂·Q = (${vx}, ${vy})\n` +
     `x₁ mod n = ${v}\n` +
     (valid
-      ? `<span style="color:#76ff03;font-weight:700">✓ VALID — x₁ mod n (${v}) = r (${r})</span>`
-      : `<span style="color:#ff6d00;font-weight:700">✗ INVALID</span>`);
+      ? `<span style="color:#003e1a;font-weight:700">✓ VALID — x₁ mod n (${v}) = r (${r})</span>`
+      : `<span style="color:#e37d16;font-weight:700">✗ INVALID</span>`);
 }
 
 function ecdsaTamperDemo() {
@@ -1439,14 +1441,14 @@ function ecdsaTamperDemo() {
   const valid = v === r;
 
   document.getElementById('ecdsaOutput').innerHTML +=
-    `\n\n<span style="color:#ff6d00">── Tamper Test ──</span>\n` +
+    `\n\n<span style="color:#e37d16">── Tamper Test ──</span>\n` +
     `Tampered msg: "${tamperedMsg}"\n` +
     `New hash e' = ${e2}\n` +
     `Verification point = (${vx}, ${vy})\n` +
     `x₁ mod n = ${v}\n` +
     (valid
-      ? `<span style="color:#ff6d00;font-weight:700">✗ FALSE POSITIVE (unlikely!)</span>`
-      : `<span style="color:#ff6d00;font-weight:700">✗ INVALID — tampering detected! (${v} ≠ ${r})</span>`);
+      ? `<span style="color:#e37d16;font-weight:700">✗ FALSE POSITIVE (unlikely!)</span>`
+      : `<span style="color:#e37d16;font-weight:700">✗ INVALID — tampering detected! (${v} ≠ ${r})</span>`);
 }
 </script>
 

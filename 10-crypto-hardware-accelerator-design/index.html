@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crypto Hardware Accelerator Design</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --r-background-color: #0a0a0f;
+  --r-background-color: #fafaf8;
   --r-main-font: 'DM Sans', sans-serif;
   --r-heading-font: 'Playfair Display', serif;
   --r-code-font: 'JetBrains Mono', monospace;
   --r-main-font-size: 28px;
-  --r-main-color: #e0e0e8;
-  --r-heading-color: #ffffff;
-  --r-link-color: #64ffda;
-  --accent: #64ffda;
-  --accent2: #ff6b9d;
-  --accent3: #ffd93d;
-  --accent4: #6c5ce7;
-  --dim: #6a6a7a;
-  --panel: rgba(255,255,255,0.04);
-  --border: rgba(100,255,218,0.15);
+  --r-main-color: #1c1c1b;
+  --r-heading-color: #000000;
+  --r-link-color: #013225;
+  --accent: #013225;
+  --accent2: #c6145f;
+  --accent3: #573e05;
+  --accent4: #886dfc;
+  --dim: #94948d;
+  --panel: rgba(0,0,0,0.04);
+  --border: rgba(1,50,37,0.15);
 }
 .reveal { font-family: var(--r-main-font); }
 .reveal h1, .reveal h2, .reveal h3 { font-family: var(--r-heading-font); font-weight: 700; letter-spacing: -0.02em; }
@@ -33,13 +33,13 @@
 .reveal h3 { font-size: 1.15em; color: var(--accent3); }
 .reveal code { font-family: var(--r-code-font); font-size: 0.72em; }
 .reveal pre { width: 100%; box-shadow: none; }
-.reveal pre code { padding: 18px 22px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); max-height: 520px; }
+.reveal pre code { padding: 18px 22px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.5); max-height: 520px; }
 .reveal .slide-number { font-family: var(--r-code-font); font-size: 14px; color: var(--dim); background: transparent; }
 .reveal section { text-align: left; overflow-y: auto !important; align-items: flex-start !important; justify-content: flex-start !important; }
 
 /* Custom elements */
 .title-slide { text-align: center !important; }
-.title-slide h1 { font-size: 2.6em; line-height: 1.15; background: linear-gradient(135deg, #64ffda 0%, #6c5ce7 50%, #ff6b9d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.title-slide h1 { font-size: 2.6em; line-height: 1.15; background: linear-gradient(135deg, #013225 0%, #886dfc 50%, #c6145f 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .title-slide .subtitle { font-size: 1.1em; color: var(--dim); margin-top: 0.5em; }
 .title-slide .series-tag { display: inline-block; padding: 6px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 0.7em; color: var(--accent); margin-top: 1.5em; letter-spacing: 0.1em; text-transform: uppercase; }
 
@@ -49,11 +49,11 @@
 .card-row .card { flex: 1; }
 
 .tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 0.65em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 2px; }
-.tag-green { background: rgba(100,255,218,0.15); color: var(--accent); }
-.tag-pink { background: rgba(255,107,157,0.15); color: var(--accent2); }
-.tag-yellow { background: rgba(255,217,61,0.15); color: var(--accent3); }
-.tag-purple { background: rgba(108,92,231,0.15); color: var(--accent4); }
-.tag-dim { background: rgba(255,255,255,0.06); color: var(--dim); }
+.tag-green { background: rgba(1,50,37,0.15); color: var(--accent); }
+.tag-pink { background: rgba(198,20,95,0.15); color: var(--accent2); }
+.tag-yellow { background: rgba(87,62,5,0.15); color: var(--accent3); }
+.tag-purple { background: rgba(136,109,252,0.15); color: var(--accent4); }
+.tag-dim { background: rgba(0,0,0,0.06); color: var(--dim); }
 
 .metric { text-align: center; padding: 14px; }
 .metric .value { font-size: 2em; font-weight: 900; font-family: var(--r-code-font); color: var(--accent); }
@@ -67,9 +67,9 @@
 .pipeline-arrow { color: var(--accent); font-size: 1.4em; margin: 0 -4px; z-index: 1; }
 
 .comparison-table { width: 100%; border-collapse: collapse; font-size: 0.68em; margin: 12px 0; }
-.comparison-table th { background: rgba(100,255,218,0.1); color: var(--accent); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); font-weight: 700; }
-.comparison-table td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.comparison-table tr:hover td { background: rgba(255,255,255,0.03); }
+.comparison-table th { background: rgba(1,50,37,0.1); color: var(--accent); padding: 8px 12px; text-align: left; border-bottom: 2px solid var(--border); font-weight: 700; }
+.comparison-table td { padding: 7px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.comparison-table tr:hover td { background: rgba(0,0,0,0.03); }
 
 .diagram-box { border: 2px solid var(--accent); border-radius: 8px; padding: 10px 16px; text-align: center; display: inline-block; margin: 4px; font-size: 0.75em; font-weight: 700; }
 .diagram-box.pink { border-color: var(--accent2); color: var(--accent2); }
@@ -81,14 +81,14 @@
 .arch-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
 .arch-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
-.highlight-box { border-left: 3px solid var(--accent); padding: 12px 18px; background: rgba(100,255,218,0.04); margin: 12px 0; font-size: 0.85em; }
-.highlight-box.pink { border-color: var(--accent2); background: rgba(255,107,157,0.04); }
-.highlight-box.yellow { border-color: var(--accent3); background: rgba(255,217,61,0.04); }
+.highlight-box { border-left: 3px solid var(--accent); padding: 12px 18px; background: rgba(1,50,37,0.04); margin: 12px 0; font-size: 0.85em; }
+.highlight-box.pink { border-color: var(--accent2); background: rgba(198,20,95,0.04); }
+.highlight-box.yellow { border-color: var(--accent3); background: rgba(87,62,5,0.04); }
 
 .small { font-size: 0.72em; color: var(--dim); }
 .tiny { font-size: 0.6em; color: var(--dim); }
 em { color: var(--accent); font-style: normal; font-weight: 700; }
-strong { color: #fff; }
+strong { color: #000000; }
 .accent2 { color: var(--accent2); }
 .accent3 { color: var(--accent3); }
 .accent4 { color: var(--accent4); }
@@ -105,6 +105,7 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 .section-divider h2 { font-size: 2.2em; background: linear-gradient(135deg, var(--accent), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .section-divider .section-num { font-family: var(--r-code-font); font-size: 0.7em; color: var(--dim); letter-spacing: 0.15em; }
 </style>
+<style>.reveal .slide-number{background-color:transparent}</style>
 </head>
 <body>
 <div class="reveal">
@@ -254,30 +255,30 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 
   <svg viewBox="0 0 800 260" style="width:100%; margin:10px 0;">
     <defs>
-      <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#64ffda"/></marker>
+      <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#013225"/></marker>
     </defs>
     <!-- AES-CTR Block -->
-    <rect x="30" y="20" width="180" height="80" rx="8" fill="none" stroke="#64ffda" stroke-width="2"/>
-    <text x="120" y="52" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">AES-CTR Engine</text>
-    <text x="120" y="72" text-anchor="middle" fill="#6a6a7a" font-size="11" class="mono">Counter → AES → XOR</text>
+    <rect x="30" y="20" width="180" height="80" rx="8" fill="none" stroke="#013225" stroke-width="2"/>
+    <text x="120" y="52" text-anchor="middle" fill="#013225" font-size="14" font-weight="700">AES-CTR Engine</text>
+    <text x="120" y="72" text-anchor="middle" fill="#94948d" font-size="11" class="mono">Counter → AES → XOR</text>
     <!-- Arrow -->
-    <line x1="210" y1="60" x2="280" y2="60" stroke="#64ffda" stroke-width="2" marker-end="url(#arrow)"/>
-    <text x="245" y="50" text-anchor="middle" fill="#6a6a7a" font-size="10">ciphertext</text>
+    <line x1="210" y1="60" x2="280" y2="60" stroke="#013225" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="245" y="50" text-anchor="middle" fill="#94948d" font-size="10">ciphertext</text>
     <!-- GHASH Block -->
-    <rect x="280" y="20" width="200" height="80" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
-    <text x="380" y="52" text-anchor="middle" fill="#ff6b9d" font-size="14" font-weight="700">GHASH Unit</text>
-    <text x="380" y="72" text-anchor="middle" fill="#6a6a7a" font-size="11" class="mono">GF(2¹²⁸) multiply-accumulate</text>
+    <rect x="280" y="20" width="200" height="80" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
+    <text x="380" y="52" text-anchor="middle" fill="#c6145f" font-size="14" font-weight="700">GHASH Unit</text>
+    <text x="380" y="72" text-anchor="middle" fill="#94948d" font-size="11" class="mono">GF(2¹²⁸) multiply-accumulate</text>
     <!-- Arrow -->
-    <line x1="480" y1="60" x2="540" y2="60" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="480" y1="60" x2="540" y2="60" stroke="#c6145f" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Tag -->
-    <rect x="540" y="30" width="100" height="50" rx="8" fill="none" stroke="#ffd93d" stroke-width="2"/>
-    <text x="590" y="60" text-anchor="middle" fill="#ffd93d" font-size="13" font-weight="700">Auth Tag</text>
+    <rect x="540" y="30" width="100" height="50" rx="8" fill="none" stroke="#573e05" stroke-width="2"/>
+    <text x="590" y="60" text-anchor="middle" fill="#573e05" font-size="13" font-weight="700">Auth Tag</text>
     <!-- Parallel note -->
-    <rect x="30" y="130" width="620" height="110" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <text x="50" y="155" fill="#fff" font-size="13" font-weight="700">Parallelism Options for GHASH:</text>
-    <text x="50" y="178" fill="#e0e0e8" font-size="11">• <tspan fill="#64ffda">Bit-serial:</tspan> 128 cycles/block — minimal area, low throughput</text>
-    <text x="50" y="198" fill="#e0e0e8" font-size="11">• <tspan fill="#64ffda">Karatsuba:</tspan> Recursive decomposition — 3 sub-multiplications instead of 4</text>
-    <text x="50" y="218" fill="#e0e0e8" font-size="11">• <tspan fill="#64ffda">4-parallel pipelined:</tspan> Process 4 blocks/cycle — enables 100+ Gbps authenticated encryption</text>
+    <rect x="30" y="130" width="620" height="110" rx="8" fill="rgba(0,0,0,0.03)" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <text x="50" y="155" fill="#000000" font-size="13" font-weight="700">Parallelism Options for GHASH:</text>
+    <text x="50" y="178" fill="#1c1c1b" font-size="11">• <tspan fill="#013225">Bit-serial:</tspan> 128 cycles/block — minimal area, low throughput</text>
+    <text x="50" y="198" fill="#1c1c1b" font-size="11">• <tspan fill="#013225">Karatsuba:</tspan> Recursive decomposition — 3 sub-multiplications instead of 4</text>
+    <text x="50" y="218" fill="#1c1c1b" font-size="11">• <tspan fill="#013225">4-parallel pipelined:</tspan> Process 4 blocks/cycle — enables 100+ Gbps authenticated encryption</text>
   </svg>
 </section>
 
@@ -371,32 +372,32 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 
   <svg viewBox="0 0 800 300" style="width:100%; margin:10px 0;">
     <!-- Level 1 -->
-    <rect x="250" y="10" width="300" height="50" rx="8" fill="none" stroke="#64ffda" stroke-width="2"/>
-    <text x="400" y="40" text-anchor="middle" fill="#64ffda" font-size="14" font-weight="700">Scalar Multiplication (k·P)</text>
+    <rect x="250" y="10" width="300" height="50" rx="8" fill="none" stroke="#013225" stroke-width="2"/>
+    <text x="400" y="40" text-anchor="middle" fill="#013225" font-size="14" font-weight="700">Scalar Multiplication (k·P)</text>
     <!-- Arrows down -->
-    <line x1="330" y1="60" x2="200" y2="90" stroke="#6a6a7a" stroke-width="1.5" marker-end="url(#arrow)"/>
-    <line x1="470" y1="60" x2="600" y2="90" stroke="#6a6a7a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="330" y1="60" x2="200" y2="90" stroke="#94948d" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="470" y1="60" x2="600" y2="90" stroke="#94948d" stroke-width="1.5" marker-end="url(#arrow)"/>
     <!-- Level 2 -->
-    <rect x="100" y="90" width="200" height="45" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
-    <text x="200" y="118" text-anchor="middle" fill="#ff6b9d" font-size="13" font-weight="700">Point Addition</text>
-    <rect x="500" y="90" width="200" height="45" rx="8" fill="none" stroke="#ff6b9d" stroke-width="2"/>
-    <text x="600" y="118" text-anchor="middle" fill="#ff6b9d" font-size="13" font-weight="700">Point Doubling</text>
+    <rect x="100" y="90" width="200" height="45" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
+    <text x="200" y="118" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Point Addition</text>
+    <rect x="500" y="90" width="200" height="45" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
+    <text x="600" y="118" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Point Doubling</text>
     <!-- Arrows down -->
-    <line x1="200" y1="135" x2="200" y2="165" stroke="#6a6a7a" stroke-width="1.5" marker-end="url(#arrow)"/>
-    <line x1="600" y1="135" x2="600" y2="165" stroke="#6a6a7a" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="200" y1="135" x2="200" y2="165" stroke="#94948d" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="600" y1="135" x2="600" y2="165" stroke="#94948d" stroke-width="1.5" marker-end="url(#arrow)"/>
     <!-- Level 3 -->
-    <rect x="50" y="165" width="140" height="40" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
-    <text x="120" y="190" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Mod Multiply</text>
-    <rect x="210" y="165" width="140" height="40" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
-    <text x="280" y="190" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Mod Add/Sub</text>
-    <rect x="450" y="165" width="140" height="40" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
-    <text x="520" y="190" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Mod Square</text>
-    <rect x="610" y="165" width="140" height="40" rx="6" fill="none" stroke="#ffd93d" stroke-width="1.5"/>
-    <text x="680" y="190" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Mod Inversion</text>
+    <rect x="50" y="165" width="140" height="40" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
+    <text x="120" y="190" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Mod Multiply</text>
+    <rect x="210" y="165" width="140" height="40" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
+    <text x="280" y="190" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Mod Add/Sub</text>
+    <rect x="450" y="165" width="140" height="40" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
+    <text x="520" y="190" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Mod Square</text>
+    <rect x="610" y="165" width="140" height="40" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
+    <text x="680" y="190" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Mod Inversion</text>
     <!-- Bottom note -->
-    <rect x="150" y="230" width="500" height="55" rx="8" fill="rgba(108,92,231,0.08)" stroke="#6c5ce7" stroke-width="1.5"/>
-    <text x="400" y="252" text-anchor="middle" fill="#6c5ce7" font-size="12" font-weight="700">Projective Coordinates eliminate per-point inversion</text>
-    <text x="400" y="270" text-anchor="middle" fill="#6a6a7a" font-size="11">Only one final inversion needed — massive speedup</text>
+    <rect x="150" y="230" width="500" height="55" rx="8" fill="rgba(136,109,252,0.08)" stroke="#886dfc" stroke-width="1.5"/>
+    <text x="400" y="252" text-anchor="middle" fill="#886dfc" font-size="12" font-weight="700">Projective Coordinates eliminate per-point inversion</text>
+    <text x="400" y="270" text-anchor="middle" fill="#94948d" font-size="11">Only one final inversion needed — massive speedup</text>
   </svg>
 
   <p class="small">Edwards25519 hardware: unified point add/double in 646 cycles, full scalar multiplication in 164,730 cycles at 117 MHz → <em>1.4 ms</em> per operation on Virtex-5.</p>
@@ -508,41 +509,41 @@ svg .mono { font-family: 'JetBrains Mono', monospace; }
 
   <svg viewBox="0 0 800 280" style="width:100%; margin:10px 0;">
     <!-- CPU -->
-    <rect x="30" y="30" width="160" height="100" rx="8" fill="rgba(108,92,231,0.1)" stroke="#6c5ce7" stroke-width="2"/>
-    <text x="110" y="60" text-anchor="middle" fill="#6c5ce7" font-size="13" font-weight="700">RISC-V CPU</text>
-    <text x="110" y="80" text-anchor="middle" fill="#6a6a7a" font-size="10">Control plane</text>
-    <text x="110" y="95" text-anchor="middle" fill="#6a6a7a" font-size="10">Rejection sampling</text>
-    <text x="110" y="110" text-anchor="middle" fill="#6a6a7a" font-size="10">Protocol logic</text>
+    <rect x="30" y="30" width="160" height="100" rx="8" fill="rgba(136,109,252,0.1)" stroke="#886dfc" stroke-width="2"/>
+    <text x="110" y="60" text-anchor="middle" fill="#886dfc" font-size="13" font-weight="700">RISC-V CPU</text>
+    <text x="110" y="80" text-anchor="middle" fill="#94948d" font-size="10">Control plane</text>
+    <text x="110" y="95" text-anchor="middle" fill="#94948d" font-size="10">Rejection sampling</text>
+    <text x="110" y="110" text-anchor="middle" fill="#94948d" font-size="10">Protocol logic</text>
     <!-- Bus -->
-    <rect x="30" y="150" width="740" height="24" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-    <text x="400" y="166" text-anchor="middle" fill="#6a6a7a" font-size="10" font-weight="700">AXI / Wishbone Interconnect</text>
-    <line x1="110" y1="130" x2="110" y2="150" stroke="#6c5ce7" stroke-width="2"/>
+    <rect x="30" y="150" width="740" height="24" rx="4" fill="rgba(0,0,0,0.05)" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+    <text x="400" y="166" text-anchor="middle" fill="#94948d" font-size="10" font-weight="700">AXI / Wishbone Interconnect</text>
+    <line x1="110" y1="130" x2="110" y2="150" stroke="#886dfc" stroke-width="2"/>
     <!-- NTT Engine -->
-    <rect x="220" y="30" width="160" height="100" rx="8" fill="rgba(100,255,218,0.1)" stroke="#64ffda" stroke-width="2"/>
-    <text x="300" y="55" text-anchor="middle" fill="#64ffda" font-size="13" font-weight="700">NTT Engine</text>
-    <text x="300" y="75" text-anchor="middle" fill="#6a6a7a" font-size="10">4× Radix-2 BF</text>
-    <text x="300" y="90" text-anchor="middle" fill="#6a6a7a" font-size="10">Montgomery reduce</text>
-    <text x="300" y="105" text-anchor="middle" fill="#6a6a7a" font-size="10">Coefficient RAM</text>
-    <line x1="300" y1="130" x2="300" y2="150" stroke="#64ffda" stroke-width="2"/>
+    <rect x="220" y="30" width="160" height="100" rx="8" fill="rgba(1,50,37,0.1)" stroke="#013225" stroke-width="2"/>
+    <text x="300" y="55" text-anchor="middle" fill="#013225" font-size="13" font-weight="700">NTT Engine</text>
+    <text x="300" y="75" text-anchor="middle" fill="#94948d" font-size="10">4× Radix-2 BF</text>
+    <text x="300" y="90" text-anchor="middle" fill="#94948d" font-size="10">Montgomery reduce</text>
+    <text x="300" y="105" text-anchor="middle" fill="#94948d" font-size="10">Coefficient RAM</text>
+    <line x1="300" y1="130" x2="300" y2="150" stroke="#013225" stroke-width="2"/>
     <!-- Keccak -->
-    <rect x="410" y="30" width="160" height="100" rx="8" fill="rgba(255,107,157,0.1)" stroke="#ff6b9d" stroke-width="2"/>
-    <text x="490" y="55" text-anchor="middle" fill="#ff6b9d" font-size="13" font-weight="700">Keccak/SHAKE</text>
-    <text x="490" y="75" text-anchor="middle" fill="#6a6a7a" font-size="10">SHA-3 256/512</text>
-    <text x="490" y="90" text-anchor="middle" fill="#6a6a7a" font-size="10">SHAKE-128/256</text>
-    <text x="490" y="105" text-anchor="middle" fill="#6a6a7a" font-size="10">Sampling engine</text>
-    <line x1="490" y1="130" x2="490" y2="150" stroke="#ff6b9d" stroke-width="2"/>
+    <rect x="410" y="30" width="160" height="100" rx="8" fill="rgba(198,20,95,0.1)" stroke="#c6145f" stroke-width="2"/>
+    <text x="490" y="55" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Keccak/SHAKE</text>
+    <text x="490" y="75" text-anchor="middle" fill="#94948d" font-size="10">SHA-3 256/512</text>
+    <text x="490" y="90" text-anchor="middle" fill="#94948d" font-size="10">SHAKE-128/256</text>
+    <text x="490" y="105" text-anchor="middle" fill="#94948d" font-size="10">Sampling engine</text>
+    <line x1="490" y1="130" x2="490" y2="150" stroke="#c6145f" stroke-width="2"/>
     <!-- TRNG -->
-    <rect x="600" y="30" width="160" height="100" rx="8" fill="rgba(255,217,61,0.1)" stroke="#ffd93d" stroke-width="2"/>
-    <text x="680" y="55" text-anchor="middle" fill="#ffd93d" font-size="13" font-weight="700">TRNG / AES</text>
-    <text x="680" y="75" text-anchor="middle" fill="#6a6a7a" font-size="10">Entropy source</text>
-    <text x="680" y="90" text-anchor="middle" fill="#6a6a7a" font-size="10">AES-256 engine</text>
-    <text x="680" y="105" text-anchor="middle" fill="#6a6a7a" font-size="10">Key storage</text>
-    <line x1="680" y1="130" x2="680" y2="150" stroke="#ffd93d" stroke-width="2"/>
+    <rect x="600" y="30" width="160" height="100" rx="8" fill="rgba(87,62,5,0.1)" stroke="#573e05" stroke-width="2"/>
+    <text x="680" y="55" text-anchor="middle" fill="#573e05" font-size="13" font-weight="700">TRNG / AES</text>
+    <text x="680" y="75" text-anchor="middle" fill="#94948d" font-size="10">Entropy source</text>
+    <text x="680" y="90" text-anchor="middle" fill="#94948d" font-size="10">AES-256 engine</text>
+    <text x="680" y="105" text-anchor="middle" fill="#94948d" font-size="10">Key storage</text>
+    <line x1="680" y1="130" x2="680" y2="150" stroke="#573e05" stroke-width="2"/>
     <!-- Memory -->
-    <rect x="220" y="195" width="350" height="65" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-    <text x="395" y="220" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Shared Polynomial Memory</text>
-    <text x="395" y="240" text-anchor="middle" fill="#6a6a7a" font-size="10">Dual-port SRAM · Conflict-free access pattern · DMA interface</text>
-    <line x1="395" y1="174" x2="395" y2="195" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+    <rect x="220" y="195" width="350" height="65" rx="8" fill="rgba(0,0,0,0.03)" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+    <text x="395" y="220" text-anchor="middle" fill="#000000" font-size="12" font-weight="700">Shared Polynomial Memory</text>
+    <text x="395" y="240" text-anchor="middle" fill="#94948d" font-size="10">Dual-port SRAM · Conflict-free access pattern · DMA interface</text>
+    <line x1="395" y1="174" x2="395" y2="195" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>
   </svg>
   <p class="tiny" style="text-align:center;">Architecture based on CRYSTALS-Dilithium post-quantum SoC designs for wired-communication critical systems.</p>
 </section>
@@ -714,36 +715,36 @@ endmodule</code></pre>
 
   <svg viewBox="0 0 800 200" style="width:100%; margin:15px 0;">
     <!-- Network In -->
-    <rect x="10" y="70" width="100" height="50" rx="6" fill="none" stroke="#6a6a7a" stroke-width="1.5"/>
-    <text x="60" y="100" text-anchor="middle" fill="#6a6a7a" font-size="11" font-weight="700">Network RX</text>
+    <rect x="10" y="70" width="100" height="50" rx="6" fill="none" stroke="#94948d" stroke-width="1.5"/>
+    <text x="60" y="100" text-anchor="middle" fill="#94948d" font-size="11" font-weight="700">Network RX</text>
     <!-- Arrow -->
-    <line x1="110" y1="95" x2="160" y2="95" stroke="#64ffda" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="110" y1="95" x2="160" y2="95" stroke="#013225" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Parser -->
-    <rect x="160" y="60" width="120" height="70" rx="8" fill="rgba(100,255,218,0.08)" stroke="#64ffda" stroke-width="2"/>
-    <text x="220" y="85" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="700">Packet Parser</text>
-    <text x="220" y="102" text-anchor="middle" fill="#6a6a7a" font-size="9">SA Lookup</text>
-    <text x="220" y="115" text-anchor="middle" fill="#6a6a7a" font-size="9">SPI → Key/IV</text>
+    <rect x="160" y="60" width="120" height="70" rx="8" fill="rgba(1,50,37,0.08)" stroke="#013225" stroke-width="2"/>
+    <text x="220" y="85" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">Packet Parser</text>
+    <text x="220" y="102" text-anchor="middle" fill="#94948d" font-size="9">SA Lookup</text>
+    <text x="220" y="115" text-anchor="middle" fill="#94948d" font-size="9">SPI → Key/IV</text>
     <!-- Arrow -->
-    <line x1="280" y1="95" x2="330" y2="95" stroke="#64ffda" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="280" y1="95" x2="330" y2="95" stroke="#013225" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Crypto -->
-    <rect x="330" y="40" width="180" height="110" rx="8" fill="rgba(255,107,157,0.08)" stroke="#ff6b9d" stroke-width="2"/>
-    <text x="420" y="65" text-anchor="middle" fill="#ff6b9d" font-size="13" font-weight="700">Crypto Engine</text>
-    <text x="420" y="85" text-anchor="middle" fill="#e0e0e8" font-size="10">AES-GCM / ChaCha20-Poly1305</text>
-    <text x="420" y="100" text-anchor="middle" fill="#6a6a7a" font-size="9">Multi-context pipeline</text>
-    <text x="420" y="115" text-anchor="middle" fill="#6a6a7a" font-size="9">Anti-replay window</text>
-    <text x="420" y="130" text-anchor="middle" fill="#6a6a7a" font-size="9">IV generation + auth tag verify</text>
+    <rect x="330" y="40" width="180" height="110" rx="8" fill="rgba(198,20,95,0.08)" stroke="#c6145f" stroke-width="2"/>
+    <text x="420" y="65" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Crypto Engine</text>
+    <text x="420" y="85" text-anchor="middle" fill="#1c1c1b" font-size="10">AES-GCM / ChaCha20-Poly1305</text>
+    <text x="420" y="100" text-anchor="middle" fill="#94948d" font-size="9">Multi-context pipeline</text>
+    <text x="420" y="115" text-anchor="middle" fill="#94948d" font-size="9">Anti-replay window</text>
+    <text x="420" y="130" text-anchor="middle" fill="#94948d" font-size="9">IV generation + auth tag verify</text>
     <!-- Arrow -->
-    <line x1="510" y1="95" x2="560" y2="95" stroke="#ff6b9d" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="510" y1="95" x2="560" y2="95" stroke="#c6145f" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Reassembly -->
-    <rect x="560" y="60" width="120" height="70" rx="8" fill="rgba(255,217,61,0.08)" stroke="#ffd93d" stroke-width="2"/>
-    <text x="620" y="85" text-anchor="middle" fill="#ffd93d" font-size="11" font-weight="700">Reassembly</text>
-    <text x="620" y="102" text-anchor="middle" fill="#6a6a7a" font-size="9">Header rewrite</text>
-    <text x="620" y="115" text-anchor="middle" fill="#6a6a7a" font-size="9">Checksum update</text>
+    <rect x="560" y="60" width="120" height="70" rx="8" fill="rgba(87,62,5,0.08)" stroke="#573e05" stroke-width="2"/>
+    <text x="620" y="85" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Reassembly</text>
+    <text x="620" y="102" text-anchor="middle" fill="#94948d" font-size="9">Header rewrite</text>
+    <text x="620" y="115" text-anchor="middle" fill="#94948d" font-size="9">Checksum update</text>
     <!-- Arrow -->
-    <line x1="680" y1="95" x2="720" y2="95" stroke="#ffd93d" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="680" y1="95" x2="720" y2="95" stroke="#573e05" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Network Out -->
-    <rect x="720" y="70" width="70" height="50" rx="6" fill="none" stroke="#6a6a7a" stroke-width="1.5"/>
-    <text x="755" y="100" text-anchor="middle" fill="#6a6a7a" font-size="11" font-weight="700">TX</text>
+    <rect x="720" y="70" width="70" height="50" rx="6" fill="none" stroke="#94948d" stroke-width="1.5"/>
+    <text x="755" y="100" text-anchor="middle" fill="#94948d" font-size="11" font-weight="700">TX</text>
   </svg>
 
   <div class="card-row">
