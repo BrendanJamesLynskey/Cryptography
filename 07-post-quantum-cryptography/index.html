@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Azeret+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <style>
 :root {
   --q-cyan: #023052;
@@ -20,12 +20,12 @@
   --bg-card: rgba(0,0,0,0.04);
   --text-dim: rgba(0,0,0,0.55);
 }
-.reveal { font-family: 'DM Sans', sans-serif; font-weight: 300; color: #1d1d1c; }
-.reveal h1, .reveal h2, .reveal h3 { font-family: 'Playfair Display', serif; font-weight: 700; color: #000000; text-transform: none; letter-spacing: -0.01em; }
+.reveal { font-family: 'Schibsted Grotesk', sans-serif; font-weight: 300; color: #1d1d1c; }
+.reveal h1, .reveal h2, .reveal h3 { font-family: 'Schibsted Grotesk', serif; font-weight: 700; color: #000000; text-transform: none; letter-spacing: -0.01em; }
 .reveal h1 { font-size: 2.4em; }
 .reveal h2 { font-size: 1.7em; border-bottom: 2px solid var(--q-cyan); padding-bottom: 0.2em; display: inline-block; margin-bottom: 0.5em; }
 .reveal h3 { font-size: 1.2em; color: var(--q-cyan); }
-.reveal code, .reveal pre code { font-family: 'JetBrains Mono', monospace; font-size: 0.55em; }
+.reveal code, .reveal pre code { font-family: 'Azeret Mono', monospace; font-size: 0.55em; }
 .reveal pre { box-shadow: none; width: 95%; }
 .reveal .slides section { text-align: left; }
 .reveal .slides section.center-slide { text-align: center; }
@@ -51,7 +51,7 @@
 .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
 .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 .card { background: var(--bg-card); border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 16px 18px; }
-.card h4 { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.7em; margin: 0 0 6px 0; color: var(--q-cyan); }
+.card h4 { font-family: 'Schibsted Grotesk', sans-serif; font-weight: 700; font-size: 0.7em; margin: 0 0 6px 0; color: var(--q-cyan); }
 .card p, .card ul { font-size: 0.6em; margin: 0; }
 .card ul li { margin-bottom: 2px; }
 .card.warn-card { border-color: rgba(244,35,19,0.3); background: rgba(244,35,19,0.06); }
@@ -98,10 +98,10 @@
 .timeline-item .desc { font-size: 0.58em; color: #2d2d2b; }
 
 /* Math */
-.math-block { font-family: 'JetBrains Mono', monospace; font-size: 0.65em; background: rgba(255,255,255,0.3); padding: 14px 18px; border-radius: 8px; border-left: 3px solid var(--q-cyan); margin: 0.5em 0; color: #1d1d1c; line-height: 1.8; overflow-x: auto; }
+.math-block { font-family: 'Azeret Mono', monospace; font-size: 0.65em; background: rgba(255,255,255,0.3); padding: 14px 18px; border-radius: 8px; border-left: 3px solid var(--q-cyan); margin: 0.5em 0; color: #1d1d1c; line-height: 1.8; overflow-x: auto; }
 
 /* Slide number */
-.reveal .slide-number { font-family: 'JetBrains Mono', monospace; font-size: 0.6em; color: var(--q-cyan); background: rgba(255,255,255,0.4); padding: 4px 10px; border-radius: 4px; }
+.reveal .slide-number { font-family: 'Azeret Mono', monospace; font-size: 0.6em; color: var(--q-cyan); background: rgba(255,255,255,0.4); padding: 4px 10px; border-radius: 4px; }
 
 /* Animations */
 @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 8px rgba(2,48,82,0.2); } 50% { box-shadow: 0 0 20px rgba(2,48,82,0.5); } }
@@ -463,16 +463,16 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
       <h3>Butterfly Operation</h3>
       <div class="diagram-box" style="padding:14px;">
         <svg viewBox="0 0 320 140" style="width:100%; max-width:320px;">
-          <text x="10" y="30" fill="#1d1d1c" font-family="JetBrains Mono" font-size="13">a[j]</text>
-          <text x="10" y="110" fill="#1d1d1c" font-family="JetBrains Mono" font-size="13">a[j+m]</text>
+          <text x="10" y="30" fill="#1d1d1c" font-family="Azeret Mono" font-size="13">a[j]</text>
+          <text x="10" y="110" fill="#1d1d1c" font-family="Azeret Mono" font-size="13">a[j+m]</text>
           <line x1="65" y1="26" x2="200" y2="26" stroke="#023052" stroke-width="2"/>
           <line x1="65" y1="106" x2="200" y2="106" stroke="#8a09cf" stroke-width="2"/>
           <line x1="65" y1="106" x2="200" y2="26" stroke="#8a09cf" stroke-width="1.5" stroke-dasharray="4,3"/>
           <line x1="65" y1="26" x2="200" y2="106" stroke="#023052" stroke-width="1.5" stroke-dasharray="4,3"/>
-          <text x="115" y="60" fill="#5b4104" font-family="JetBrains Mono" font-size="11">×ζ^k</text>
-          <text x="115" y="98" fill="#5b4104" font-family="JetBrains Mono" font-size="11">×ζ^k</text>
-          <text x="210" y="30" fill="#044931" font-family="JetBrains Mono" font-size="12">a[j] + ζᵏ·a[j+m]</text>
-          <text x="210" y="110" fill="#f42313" font-family="JetBrains Mono" font-size="12">a[j] − ζᵏ·a[j+m]</text>
+          <text x="115" y="60" fill="#5b4104" font-family="Azeret Mono" font-size="11">×ζ^k</text>
+          <text x="115" y="98" fill="#5b4104" font-family="Azeret Mono" font-size="11">×ζ^k</text>
+          <text x="210" y="30" fill="#044931" font-family="Azeret Mono" font-size="12">a[j] + ζᵏ·a[j+m]</text>
+          <text x="210" y="110" fill="#f42313" font-family="Azeret Mono" font-size="12">a[j] − ζᵏ·a[j+m]</text>
         </svg>
       </div>
       <p style="font-size:0.55em; margin-top:0.3em;">ML-KEM uses 7 layers of 128 butterflies. Each butterfly: 1 multiply + 1 add + 1 subtract in ℤ<sub>3329</sub>. Total: 128 × 7 = 896 butterflies per NTT.</p>
@@ -956,7 +956,7 @@ Reveal.initialize({
     if (target) {
       ctx.beginPath(); ctx.arc(target[0], target[1], 5, 0, Math.PI * 2);
       ctx.fillStyle = '#5b4104'; ctx.fill();
-      ctx.font = '11px DM Sans'; ctx.fillStyle = '#5b4104';
+      ctx.font = '11px Schibsted Grotesk'; ctx.fillStyle = '#5b4104';
       ctx.fillText('target', target[0] + 8, target[1] - 8);
       // Find closest
       let minD = Infinity, closest = null;
@@ -989,7 +989,7 @@ Reveal.initialize({
     ctx.moveTo(x2, y2);
     ctx.lineTo(x2 - 8 * Math.cos(angle + 0.4), y2 - 8 * Math.sin(angle + 0.4));
     ctx.stroke();
-    ctx.font = 'bold 12px JetBrains Mono'; ctx.fillStyle = color;
+    ctx.font = 'bold 12px Azeret Mono'; ctx.fillStyle = color;
     ctx.fillText(label, (x1 + x2) / 2 + 6, (y1 + y2) / 2 - 6);
   }
 
@@ -1048,7 +1048,7 @@ function lweGenerate(sigma) {
   
   if (sigma === 0) {
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.font = '14px DM Sans';
+    ctx.font = '14px Schibsted Grotesk';
     ctx.textAlign = 'center';
     ctx.fillText('No errors — trivially solvable', canvas.width / 2, canvas.height / 2);
     return;
@@ -1075,7 +1075,7 @@ function lweGenerate(sigma) {
     ctx.fillRect(x, y, barW - 2, h);
     if (barW > 12) {
       ctx.fillStyle = 'rgba(0,0,0,0.4)';
-      ctx.font = '9px JetBrains Mono';
+      ctx.font = '9px Azeret Mono';
       ctx.textAlign = 'center';
       ctx.fillText(k, x + barW / 2 - 1, canvas.height - 6);
     }

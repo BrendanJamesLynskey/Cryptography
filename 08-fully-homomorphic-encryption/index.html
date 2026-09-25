@@ -6,7 +6,7 @@
 <title>Fully Homomorphic Encryption — Modern Cryptography Series</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Azeret+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
@@ -29,11 +29,11 @@
 
 /* ── Reveal overrides ── */
 .reveal-viewport { background: var(--bg); }
-.reveal .slides { font-family: 'DM Sans', sans-serif; }
+.reveal .slides { font-family: 'Schibsted Grotesk', sans-serif; }
 .reveal .slides section { color: var(--text); }
 
 .reveal h1, .reveal h2, .reveal h3 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Schibsted Grotesk', serif;
   text-transform: none;
   letter-spacing: -0.02em;
   color: #000000;
@@ -49,7 +49,7 @@
 .reveal ul ul li::before { content: "◦ "; color: var(--dim); }
 .reveal ul ul { margin-top: 0.3em; }
 
-.reveal code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+.reveal code { font-family: 'Azeret Mono', monospace; font-size: 0.88em; }
 .reveal pre { box-shadow: none; border: 1px solid var(--border); border-radius: 6px; }
 .reveal pre code { font-size: 0.78em; line-height: 1.55; max-height: 420px; }
 
@@ -86,7 +86,7 @@
   padding: 0.18em 0.7em;
   border-radius: 999px;
   font-size: 0.68em;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Azeret Mono', monospace;
   font-weight: 700;
   vertical-align: middle;
 }
@@ -120,7 +120,7 @@
   border: 1px solid rgba(135,76,252,.25);
   border-radius: 6px;
   padding: 0.5em 1em;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Azeret Mono', monospace;
   font-size: 0.78em;
   color: #261841;
   text-align: center;
@@ -137,7 +137,7 @@
 .reveal table th {
   background: var(--surface);
   color: var(--accent);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Azeret Mono', monospace;
   font-size: 0.9em;
   padding: 0.5em 0.7em;
   border-bottom: 1px solid var(--border);
@@ -153,7 +153,7 @@
 /* ── Title slide ── */
 .title-slide { text-align: center; }
 .title-slide .series-tag {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Azeret Mono', monospace;
   font-size: 0.65em;
   letter-spacing: 0.2em;
   color: var(--accent);
@@ -171,7 +171,7 @@
 .title-slide .tagline {
   font-size: 0.75em;
   color: var(--dim);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Azeret Mono', monospace;
 }
 .icon-huge { font-size: 3.5em; margin-bottom: 0.2em; line-height: 1; }
 
@@ -180,7 +180,7 @@
   text-align: center;
 }
 .section-div .section-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Azeret Mono', monospace;
   font-size: 0.65em;
   letter-spacing: 0.2em;
   color: var(--purple);
@@ -205,7 +205,7 @@
 .back-link {
   font-size: 0.6em;
   color: var(--dim);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Azeret Mono', monospace;
 }
 .back-link a { color: var(--dim); text-decoration: none; }
 .back-link a:hover { color: var(--text2); }
@@ -1286,7 +1286,7 @@ endmodule
 .sel-btn {
   padding: 0.35em 1em; border-radius:6px; border:1px solid var(--border);
   background: var(--surface); color: var(--text2); cursor:pointer;
-  font-family:'JetBrains Mono',monospace; font-size:0.82em; transition:all 0.15s;
+  font-family:'Azeret Mono',monospace; font-size:0.82em; transition:all 0.15s;
 }
 .sel-btn.active, .sel-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(197,126,9,.08); }
 .sel-label { color:var(--dim); font-size:0.75em; margin-bottom:0.3em; }
@@ -1330,7 +1330,7 @@ endmodule
   root.appendChild(res);
   function render(){
     const match = rules.find(r=>Object.entries(r.when).every(([k,v])=>state[k]===v||!r.when[k]));
-    if(match) res.innerHTML=`<span style="color:var(--accent);font-weight:700;font-family:'JetBrains Mono',monospace;">${match.scheme}</span><br/>${match.note}`;
+    if(match) res.innerHTML=`<span style="color:var(--accent);font-weight:700;font-family:'Azeret Mono',monospace;">${match.scheme}</span><br/>${match.note}`;
     else res.textContent='← Select your requirements above';
   }
 })();

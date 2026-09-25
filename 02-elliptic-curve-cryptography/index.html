@@ -8,22 +8,22 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" id="theme">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Azeret+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
 <style>
 :root{--bg:#fafaf8;--text:#1c1c1b;--dim:#94948d;--accent:#013225;--accent2:#c6145f;--accent3:#573e05;--accent4:#886dfc;--panel:rgba(0,0,0,0.04);--border:rgba(1,50,37,0.15)}
-.reveal{font-family:'DM Sans',sans-serif;font-size:28px;color:var(--text)}
+.reveal{font-family:'Schibsted Grotesk',sans-serif;font-size:28px;color:var(--text)}
 .reveal .slides{text-align:left}
-.reveal h1,.reveal h2,.reveal h3{font-family:'Playfair Display',serif;font-weight:900;text-transform:none;letter-spacing:-.01em}
+.reveal h1,.reveal h2,.reveal h3{font-family:'Schibsted Grotesk',serif;font-weight:900;text-transform:none;letter-spacing:-.01em}
 .reveal h1{font-size:2.2em;background:linear-gradient(135deg,#013225 0%,#886dfc 50%,#c6145f 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .reveal h2{font-size:1.6em;color:#000000;margin-bottom:.4em}
 .reveal h3{font-size:1.15em;color:var(--accent);margin-bottom:.3em}
 .reveal p,.reveal li{line-height:1.6;color:var(--text)}
 .reveal ul,.reveal ol{margin-left:1em}
 .reveal li{margin-bottom:.35em}
-.reveal code{font-family:'JetBrains Mono',monospace}
+.reveal code{font-family:'Azeret Mono',monospace}
 .reveal pre{width:100%;font-size:.48em;background:#f1f1ee;border:1px solid var(--border);border-radius:8px;padding:14px;box-shadow:0 4px 24px rgba(255,255,255,.4)}
-.reveal pre code{font-family:'JetBrains Mono',monospace;line-height:1.5}
+.reveal pre code{font-family:'Azeret Mono',monospace;line-height:1.5}
 .reveal .dim{color:var(--dim)}
 .reveal .accent{color:var(--accent)}
 .reveal .accent2{color:var(--accent2)}
@@ -43,10 +43,10 @@
 .reveal table th{background:rgba(1,50,37,.08);color:var(--accent);font-weight:700;text-align:left;padding:8px 12px;border-bottom:2px solid var(--border)}
 .reveal table td{padding:6px 12px;border-bottom:1px solid rgba(0,0,0,.04)}
 .reveal table tr:hover td{background:rgba(1,50,37,.03)}
-.formula{background:rgba(136,109,252,.08);border:1px solid rgba(136,109,252,.25);border-radius:8px;padding:12px 18px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:.85em;text-align:center}
+.formula{background:rgba(136,109,252,.08);border:1px solid rgba(136,109,252,.25);border-radius:8px;padding:12px 18px;margin:12px 0;font-family:'Azeret Mono',monospace;font-size:.85em;text-align:center}
 .cols{display:flex;gap:24px;align-items:flex-start}
 .cols>*{flex:1}
-.reveal .slide-number{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--dim);background:rgba(255,255,255,.3);padding:6px 10px;border-radius:4px}
+.reveal .slide-number{font-family:'Azeret Mono',monospace;font-size:12px;color:var(--dim);background:rgba(255,255,255,.3);padding:6px 10px;border-radius:4px}
 .math-block{background:rgba(136,109,252,.06);border-left:3px solid var(--accent4);padding:10px 16px;margin:8px 0;border-radius:0 6px 6px 0;font-size:.9em}
 canvas{border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,.3)}
 .key-point{border-left:3px solid var(--accent);padding-left:14px;margin:10px 0}
@@ -247,7 +247,7 @@ y₃ = λ(x₁ − x₃) − y₁
 <p class="small fragment">The set E(𝔽<sub>p</sub>) consists of all pairs (x, y) ∈ 𝔽<sub>p</sub> × 𝔽<sub>p</sub> satisfying the curve equation, plus 𝒪.</p>
 <div class="fragment key-point small">
   <strong>Hasse's Theorem:</strong> The number of points on E(𝔽<sub>p</sub>) satisfies<br>
-  <span style="font-family:'JetBrains Mono';margin-left:1em">|#E(𝔽<sub>p</sub>) − (p + 1)| ≤ 2√p</span>
+  <span style="font-family:'Azeret Mono';margin-left:1em">|#E(𝔽<sub>p</sub>) − (p + 1)| ≤ 2√p</span>
 </div>
 <p class="fragment small">The <strong class="accent3">same algebraic formulas</strong> apply — just replace division with modular inverse (via extended Euclidean algorithm or Fermat's little theorem: a<sup>−1</sup> ≡ a<sup>p−2</sup> mod p).</p>
 <div class="fragment small" style="margin-top:.6em">
@@ -688,7 +688,7 @@ Public key: Q = dG</p>
 </ol>
 <div class="fragment warning small" style="margin-top:.5em">
 <strong>Critical:</strong> The nonce k must be truly random and unique per signature. Reusing k leaks the private key directly:<br>
-<span class="dim" style="font-family:'JetBrains Mono'">d = (s·k − e) · r⁻¹ mod n</span>
+<span class="dim" style="font-family:'Azeret Mono'">d = (s·k − e) · r⁻¹ mod n</span>
 </div>
 <p class="fragment tiny"><strong>RFC 6979:</strong> Deterministic ECDSA — derives k = HMAC-DRBG(d, HASH(m)), eliminating random nonce failures.</p>
 </div>
@@ -1060,11 +1060,11 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 <div class="panel" style="font-size:.78em">
 <p><strong>Curve:</strong> y² ≡ x³ + 2x + 3 (mod 97)</p>
 <p id="interInfo" style="margin-top:.4em">Click a point on the canvas to select P, then click again for Q. The sum P + Q will be shown.</p>
-<p id="interP" class="accent" style="font-family:'JetBrains Mono'"></p>
-<p id="interQ" class="accent2" style="font-family:'JetBrains Mono'"></p>
-<p id="interR" class="accent3" style="font-family:'JetBrains Mono';font-weight:700"></p>
-<button id="interReset" style="margin-top:8px;padding:6px 14px;background:rgba(1,50,37,.1);color:var(--accent);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'DM Sans'">Reset</button>
-<button id="interDouble" style="margin-top:8px;padding:6px 14px;background:rgba(136,109,252,.1);color:var(--accent4);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'DM Sans'">Double P</button>
+<p id="interP" class="accent" style="font-family:'Azeret Mono'"></p>
+<p id="interQ" class="accent2" style="font-family:'Azeret Mono'"></p>
+<p id="interR" class="accent3" style="font-family:'Azeret Mono';font-weight:700"></p>
+<button id="interReset" style="margin-top:8px;padding:6px 14px;background:rgba(1,50,37,.1);color:var(--accent);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'Schibsted Grotesk'">Reset</button>
+<button id="interDouble" style="margin-top:8px;padding:6px 14px;background:rgba(136,109,252,.1);color:var(--accent4);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'Schibsted Grotesk'">Double P</button>
 </div>
 <div class="panel fragment" style="font-size:.7em;margin-top:8px">
 <p><strong>All 100 points on E(𝔽₉₇):</strong></p>
@@ -1090,9 +1090,9 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 <p><strong>Generator G:</strong> (3, 6)</p>
 <div style="margin-top:.6em">
   <label>k = <input id="scalarK" type="range" min="1" max="100" value="1" style="width:200px;vertical-align:middle"></label>
-  <span id="scalarKVal" style="font-family:'JetBrains Mono';color:var(--accent)">1</span>
+  <span id="scalarKVal" style="font-family:'Azeret Mono';color:var(--accent)">1</span>
 </div>
-<p id="scalarResult" style="margin-top:.6em;font-family:'JetBrains Mono'" class="accent3"></p>
+<p id="scalarResult" style="margin-top:.6em;font-family:'Azeret Mono'" class="accent3"></p>
 <div id="scalarSteps" style="margin-top:.5em;font-size:.75em;max-height:200px;overflow-y:auto" class="dim"></div>
 </div>
 </div>
@@ -1382,7 +1382,7 @@ for (let x = 0; x < FP; x++) {
     }
   }
   // Labels
-  ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"';
+  ctx.fillStyle = '#94948d'; ctx.font = '11px "Schibsted Grotesk"';
   ctx.fillText('y² = x³ − x + 1', 10, 18);
 })();
 
@@ -1429,7 +1429,7 @@ for (let x = 0; x < FP; x++) {
       drawPoint(ctx, tx(Qx), ty(Qy), '#c6145f', 'Q');
       drawPoint(ctx, tx(Rx), ty(-Ry_neg), '#94948d', "R'");
       drawPoint(ctx, tx(Rx), ty(Ry_neg), '#573e05', 'P+Q');
-      ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"'; ctx.fillText('Point Addition', 10, 18);
+      ctx.fillStyle = '#94948d'; ctx.font = '11px "Schibsted Grotesk"'; ctx.fillText('Point Addition', 10, 18);
     } else if (mode === 1) { // Doubling
       const Px = -0.5, Py = Math.sqrt((-0.5)*(-0.5)*(-0.5) - (-0.5) + 1);
       const lam = (3*Px*Px - 1) / (2*Py);
@@ -1443,7 +1443,7 @@ for (let x = 0; x < FP; x++) {
       drawPoint(ctx, tx(Px), ty(Py), '#886dfc', 'P');
       drawPoint(ctx, tx(Rx), ty(-Ry_neg), '#94948d', "R'");
       drawPoint(ctx, tx(Rx), ty(Ry_neg), '#573e05', '2P');
-      ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"'; ctx.fillText('Point Doubling (tangent)', 10, 18);
+      ctx.fillStyle = '#94948d'; ctx.font = '11px "Schibsted Grotesk"'; ctx.fillText('Point Doubling (tangent)', 10, 18);
     } else { // Inverse
       const Px = 0.5, Py = Math.sqrt(0.5*0.5*0.5 - 0.5 + 1);
       ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.setLineDash([4,4]);
@@ -1451,12 +1451,12 @@ for (let x = 0; x < FP; x++) {
       ctx.setLineDash([]);
       drawPoint(ctx, tx(Px), ty(Py), '#013225', 'P');
       drawPoint(ctx, tx(Px), ty(-Py), '#c6145f', '−P');
-      ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"'; ctx.fillText('Inverse: −(x,y) = (x,−y)', 10, 18);
+      ctx.fillStyle = '#94948d'; ctx.font = '11px "Schibsted Grotesk"'; ctx.fillText('Inverse: −(x,y) = (x,−y)', 10, 18);
     }
   }
   function drawPoint(ctx, x, y, color, label) {
     ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = color; ctx.font = 'bold 12px "DM Sans"'; ctx.fillText(label, x + 8, y - 8);
+    ctx.fillStyle = color; ctx.font = 'bold 12px "Schibsted Grotesk"'; ctx.fillText(label, x + 8, y - 8);
   }
   cv.addEventListener('click', () => { mode = (mode + 1) % 3; draw(); });
   draw();
@@ -1478,7 +1478,7 @@ for (let x = 0; x < FP; x++) {
     ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill();
   });
   ctx.globalAlpha = 1;
-  ctx.fillStyle = '#94948d'; ctx.font = '11px "DM Sans"';
+  ctx.fillStyle = '#94948d'; ctx.font = '11px "Schibsted Grotesk"';
   ctx.fillText(`${allPts.length} points + 𝒪`, 10, 16);
   ctx.fillText('x →', W - 30, H - 8);
   ctx.fillText('y ↑', 4, margin - 5);
@@ -1526,13 +1526,13 @@ for (let x = 0; x < FP; x++) {
     if (selP) {
       const [px, py] = ptToCanvas(selP[0], selP[1]);
       ctx.fillStyle = '#013225'; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#013225'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('P', px+10, py-6);
+      ctx.fillStyle = '#013225'; ctx.font = 'bold 13px "Azeret Mono"'; ctx.fillText('P', px+10, py-6);
     }
     // Selected Q
     if (selQ) {
       const [qx, qy] = ptToCanvas(selQ[0], selQ[1]);
       ctx.fillStyle = '#c6145f'; ctx.beginPath(); ctx.arc(qx, qy, 6, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#c6145f'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('Q', qx+10, qy-6);
+      ctx.fillStyle = '#c6145f'; ctx.font = 'bold 13px "Azeret Mono"'; ctx.fillText('Q', qx+10, qy-6);
     }
     // Result
     if (selP && selQ) {
@@ -1540,7 +1540,7 @@ for (let x = 0; x < FP; x++) {
       if (R) {
         const [rx, ry] = ptToCanvas(R[0], R[1]);
         ctx.fillStyle = '#573e05'; ctx.beginPath(); ctx.arc(rx, ry, 7, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#573e05'; ctx.font = 'bold 13px "JetBrains Mono"'; ctx.fillText('P+Q', rx+10, ry-6);
+        ctx.fillStyle = '#573e05'; ctx.font = 'bold 13px "Azeret Mono"'; ctx.fillText('P+Q', rx+10, ry-6);
         document.getElementById('interR').textContent = `P + Q = (${R[0]}, ${R[1]})`;
       } else {
         document.getElementById('interR').textContent = 'P + Q = 𝒪 (point at infinity)';
@@ -1637,7 +1637,7 @@ for (let x = 0; x < FP; x++) {
       ctx.fillStyle = isLast ? '#573e05' : `rgba(108,92,231,${0.3 + 0.7*idx/trail.length})`;
       ctx.beginPath(); ctx.arc(px, py, isLast ? 6 : 3.5, 0, Math.PI*2); ctx.fill();
       if (isLast) {
-        ctx.fillStyle = '#573e05'; ctx.font = 'bold 12px "JetBrains Mono"';
+        ctx.fillStyle = '#573e05'; ctx.font = 'bold 12px "Azeret Mono"';
         ctx.fillText(`${k}G`, px+9, py-8);
       }
     });
@@ -1645,7 +1645,7 @@ for (let x = 0; x < FP; x++) {
     const [gx, gy] = ptToCanvas(G[0], G[1]);
     ctx.strokeStyle = '#013225'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(gx, gy, 7, 0, Math.PI*2); ctx.stroke();
-    ctx.fillStyle = '#013225'; ctx.font = 'bold 12px "JetBrains Mono"'; ctx.fillText('G', gx+10, gy-8);
+    ctx.fillStyle = '#013225'; ctx.font = 'bold 12px "Azeret Mono"'; ctx.fillText('G', gx+10, gy-8);
 
     const R = scalarMult(k, G);
     resEl.textContent = R ? `${k}G = (${R[0]}, ${R[1]})` : `${k}G = 𝒪`;
