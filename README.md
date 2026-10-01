@@ -26,6 +26,8 @@ Part of the [Mathematics & Engineering](https://brendanjameslynskey.github.io/) 
 | 12 | Secure Multi-Party Computation | 27 | ✅ Complete |
 | 13 | TLS 1.3 Handshake | 25 | ✅ Complete |
 
+**Related series:** [FHE Accelerator Simulators](https://github.com/BrendanJamesLynskey/FHE_Hub_Accelerator_Simulators) ([live](https://brendanjameslynskey.github.io/FHE_Hub_Accelerator_Simulators/)) takes the FHE material of decks 08 and 10 into hardware: CKKS bootstrapping as a workload, a SimPy accelerator simulator, and optical NTT engines.
+
 ## Slide Controls
 
 | Action | Key |
