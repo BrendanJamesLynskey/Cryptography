@@ -314,8 +314,8 @@
       <p>Given many samples <span class="hl-purple">(aᵢ, bᵢ)</span> where:</p>
       <div class="formula" style="font-size:0.82em; margin:0.4em 0;">bᵢ = aᵢ · s + eᵢ (mod q)</div>
       <ul>
-        <li><span class="hl-purple">s</span> — secret vector ∈ ℤₙ</li>
-        <li><span class="hl-amber">aᵢ</span> — uniformly random ∈ ℤₙₙ</li>
+        <li><span class="hl-purple">s</span> — secret vector ∈ ℤ<sub>q</sub><sup>n</sup></li>
+        <li><span class="hl-amber">aᵢ</span> — uniformly random ∈ ℤ<sub>q</sub><sup>n</sup></li>
         <li><span class="hl-green">eᵢ</span> — small error from χ (Gaussian)</li>
       </ul>
       <p style="margin-top:0.5em;">Finding <span class="hl-purple">s</span> is computationally hard — as hard as worst-case lattice problems (Regev 2005).</p>
@@ -362,7 +362,7 @@
       <ul>
         <li>NTT-friendly — enables O(n log n) polynomial multiplication</li>
         <li>Negacyclic convolution keeps coefficients bounded</li>
-        <li>Provably as hard as LWE (Lyubashevsky, Peikert, Regev 2010)</li>
+        <li>Hardness rests on worst-case problems on <em>ideal</em> lattices (a quantum reduction, Lyubashevsky–Peikert–Regev 2010), not on general LWE</li>
       </ul>
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
@@ -376,6 +376,7 @@
           <tr><td>8192</td><td>218</td><td>~128-bit</td></tr>
         </tbody>
       </table>
+      <p style="font-size:0.62em; color:var(--dim); margin-top:0.3em;">Source: HE Security Standard v1.1 (2018), ternary secret, classical 128-bit.</p>
     </div>
   </div>
 </div>
@@ -392,22 +393,22 @@
       <h3>Noise after operations</h3>
       <ul>
         <li><span class="hl-green">Addition:</span> noise grows <em>linearly</em> — eᵣ = e₁ + e₂</li>
-        <li><span class="hl-red">Multiplication:</span> noise grows <em>multiplicatively</em> — eᵣ ≈ e₁ · e₂ · q</li>
+        <li><span class="hl-red">Multiplication:</span> noise grows <em>multiplicatively</em> — in BGV it roughly squares (hence modulus switching); in BFV it is multiplied by roughly t·n (eᵣ ≈ t·(I₁e₂ + I₂e₁)). Relinearisation adds a little more</li>
       </ul>
-      <p style="margin-top:0.5em;">After L multiplications: noise ≈ (initial noise) × qᴸ</p>
+      <p style="margin-top:0.5em;">In BFV, noise <em>bits</em> grow linearly with depth: a depth-L circuit needs about L·log₂(t·n) extra bits of q (Fan–Vercauteren 2012).</p>
     </div>
     <div class="panel panel-red" style="margin-top:0.6em;">
       <h3>Decryption failure</h3>
-      <p>Decryption requires <span class="hl-red">|noise| &lt; q/2</span>. When noise exceeds this bound, decryption produces garbage. This is the hard ceiling on circuit depth for SHE/LHE.</p>
+      <p>Decryption needs the noise below half the gap between message steps: <span class="hl-red">|m + t·e| &lt; q/2</span> in BGV, <span class="hl-red">|e| &lt; Δ/2 ≈ q/(2t)</span> in BFV — the same headroom. Beyond it, decryption returns garbage — the hard ceiling on depth for SHE/LHE.</p>
     </div>
   </div>
   <div class="col">
     <div class="panel panel-blue">
       <h3>Noise management techniques</h3>
       <ul>
-        <li><span class="hl-blue">Modulus switching</span> — scale down q after each multiplication to reduce noise magnitude proportionally</li>
-        <li><span class="hl-green">Key switching</span> — refresh keys after relinearisation (eliminates degree-2 ciphertexts)</li>
-        <li><span class="hl-amber">Rescaling</span> — CKKS variant: divide by Δ to absorb noise into precision loss</li>
+        <li><span class="hl-blue">Modulus switching</span> — divide by one prime of q after each multiplication; the noise magnitude stays roughly constant while q loses one prime per level (BGV)</li>
+        <li><span class="hl-green">Relinearisation</span> — a key switch that turns the degree-2 product (needs s²) back into a ciphertext under s</li>
+        <li><span class="hl-amber">Rescaling</span> — CKKS: divide by Δ (drop one prime); noise becomes rounding error in the low bits</li>
         <li><span class="hl-purple">Bootstrapping</span> — homomorphically decrypt to reset noise to fresh level</li>
       </ul>
     </div>
@@ -456,11 +457,12 @@
     <div class="panel panel-green" style="margin-top:0.6em;">
       <h3>Historical impact</h3>
       <ul>
-        <li>2009: Gentry STOC (IDEAL lattices)</li>
+        <li>2009: Gentry STOC (ideal lattices)</li>
         <li>2011: BGV — ring-based, practical</li>
-        <li>2012: BFV — Brakerski full-RNS</li>
+        <li>2012: BFV — Brakerski; Fan–Vercauteren</li>
+        <li>2016: TFHE — fast gate bootstrapping (ASIACRYPT 2016)</li>
+        <li>2016–18: full-RNS BFV — Bajard et al.; Halevi–Polyakov–Shoup</li>
         <li>2017: CKKS — approximate arithmetic</li>
-        <li>2019: TFHE — fast gate-level FHE</li>
       </ul>
     </div>
   </div>
@@ -490,7 +492,7 @@
       <ul>
         <li>Plaintext space: same — <span class="hl-blue">ℤₜ[x]/(xⁿ+1)</span></li>
         <li>Key difference: noise managed via <span class="hl-blue">scale invariance</span> — divide by Δ = q/t after multiplication</li>
-        <li>Simpler modulus structure; single large q</li>
+        <li>Simpler modulus structure: one q throughout (implemented in RNS by the full-RNS variants)</li>
         <li>Preferred for: integer lookup tables, exact arithmetic, database queries</li>
       </ul>
     </div>
@@ -498,7 +500,7 @@
 </div>
 <div class="panel panel-amber" style="margin-top:0.6em;">
   <h3>BGV vs BFV — practical guidance</h3>
-  <p>BGV is faster when circuit depth L is known at compile time (levelled mode). BFV's simpler structure makes it easier to implement and tune. Both are available in Microsoft SEAL, OpenFHE, and HElib. Choose <span class="hl-amber">BGV for deep circuits</span>, <span class="hl-blue">BFV for shallow encrypted integer operations</span>.</p>
+  <p>BGV is faster when circuit depth L is known at compile time (levelled mode). BFV's simpler structure makes it easier to implement and tune. Both are available in Microsoft SEAL (BGV since v4.0) and OpenFHE; HElib implements BGV (and CKKS), not BFV. Choose <span class="hl-amber">BGV for deep circuits</span>, <span class="hl-blue">BFV for shallow encrypted integer operations</span>.</p>
 </div>
 </section>
 
@@ -512,7 +514,7 @@
     <div class="panel panel-purple">
       <h3>Cheon-Kim-Kim-Song (2017)</h3>
       <p>Treats noise as <span class="hl-purple">rounding error</span> rather than decryption failure. Enables native floating-point-like operations over encrypted real (and complex) numbers.</p>
-      <div class="formula">Dec(ct) ≈ m (within precision Δ)</div>
+      <div class="formula">Dec(ct) ≈ m (error small relative to Δ)</div>
       <ul>
         <li>Encode real vector <strong>m</strong> via SIMD slots using CRT/FFT</li>
         <li>Scaling factor Δ = 2³⁰ or 2⁶⁰ encodes the fractional precision</li>
@@ -527,7 +529,7 @@
       <ul>
         <li>n = 8192 → 4096 slots</li>
         <li>n = 16384 → 8192 slots</li>
-        <li>Throughput: millions of multiplications per second on encrypted real data</li>
+        <li>Throughput counts per slot: one HMult (N = 2¹⁶, 32,768 slots) takes 17.4 ms on a V100 GPU ≈ 2 million slot-multiplies/s (Jung et al. 2021)</li>
       </ul>
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
@@ -554,7 +556,7 @@
       <h3>FHEW (Ducas-Micciancio 2015)</h3>
       <ul>
         <li>Encrypts single bits (or small integers) using plain LWE</li>
-        <li>Bootstrapping takes <span class="hl-green">~100ms on CPU</span> — fast enough to be practical</li>
+        <li>Bootstrapping in <span class="hl-green">about 0.5 s per gate</span> on a PC (the paper's "less than a second") — the first practical gate bootstrapping</li>
         <li>Key tool: <span class="hl-green">ring GSW</span> external product for blind rotation</li>
         <li>Evaluate any Boolean gate and bootstrap simultaneously</li>
       </ul>
@@ -562,11 +564,11 @@
   </div>
   <div class="col">
     <div class="panel panel-purple">
-      <h3>TFHE (Chillotti et al. 2016/2020)</h3>
+      <h3>TFHE (Chillotti et al., ASIACRYPT 2016; J. Cryptology 2020)</h3>
       <ul>
         <li>Torus LWE: coefficients in ℝ/ℤ (the torus 𝕋)</li>
-        <li>Bootstrapping in <span class="hl-purple">&lt;10ms on CPU</span>, &lt;1ms on GPU</li>
-        <li>Any programmable bootstrapping: gate + function evaluation in one step</li>
+        <li>Gate bootstrapping in <span class="hl-purple">13 ms on one CPU core</span> (the TFHE authors measured FHEW at 690 ms)</li>
+        <li>Later work (Chillotti et al. 2021) named <em>programmable bootstrapping</em>: gate + function evaluation in one step</li>
         <li>Used in: Concrete (Zama), OpenFHE</li>
       </ul>
     </div>
@@ -580,7 +582,7 @@
       <tr><td>Plaintext</td><td>Bits / small integers</td><td>Reals / complex (SIMD)</td></tr>
       <tr><td>Per-gate boot</td><td>Yes — automatic</td><td>No — amortised over slots</td></tr>
       <tr><td>Best for</td><td>Control flow, exact logic</td><td>ML inference, statistics</td></tr>
-      <tr><td>Bootstrapping</td><td>&lt;10ms / gate</td><td>Seconds / level refresh</td></tr>
+      <tr><td>Bootstrapping</td><td>~10 ms / gate (CPU)</td><td>Seconds / level refresh</td></tr>
     </tbody>
   </table>
 </div>
@@ -627,32 +629,32 @@
 <div class="cols">
   <div class="col">
     <div class="panel panel-amber">
-      <h3>CKKS Bootstrapping (Han-Ki 2020)</h3>
-      <p>Three homomorphic steps:</p>
+      <h3>CKKS Bootstrapping (Cheon, Han, Kim, Kim, Song — EUROCRYPT 2018)</h3>
+      <p>Four steps (improved by Han–Ki, CT-RSA 2020):</p>
       <ol style="list-style:decimal; padding-left:1.2em; font-size:0.78em; color:var(--text2);">
-        <li><span class="hl-amber">CoeffToSlot</span> — linear map via DFT-like matrix</li>
-        <li><span class="hl-purple">EvalMod</span> — sine approximation to wrap coefficients mod q (polynomial approximation of periodic function)</li>
+        <li><span class="hl-teal">ModRaise</span> — read the exhausted ciphertext modulo the full top modulus; the plaintext becomes m + q·I for a small unknown integer polynomial I</li>
+        <li><span class="hl-amber">CoeffToSlot</span> — homomorphic DFT-like linear map that moves coefficients into slots</li>
+        <li><span class="hl-purple">EvalMod</span> — remove q·I with a polynomial approximation of a scaled sine (reduction mod q)</li>
         <li><span class="hl-blue">SlotToCoeff</span> — inverse linear map</li>
       </ol>
-      <p style="margin-top:0.4em;">Bootstraps <span class="hl-amber">n/2 slots in parallel</span>. Throughput: ~10⁶ slot-bootstraps/sec on 1 CPU core.</p>
+      <p style="margin-top:0.4em;">Bootstraps <span class="hl-amber">n/2 slots in parallel</span>, so the cost is shared: 135.4 s for 65,536 slots is ~2 ms per slot on one CPU thread.</p>
     </div>
   </div>
   <div class="col">
     <div class="panel panel-blue">
       <h3>Bootstrapping cost (CKKS)</h3>
       <table>
-        <thead><tr><th>n</th><th>Slots</th><th>Time (CPU)</th></tr></thead>
+        <thead><tr><th>N</th><th>Slots</th><th>CPU, 1 thread</th><th>V100 GPU</th></tr></thead>
         <tbody>
-          <tr><td>2¹⁴</td><td>8192</td><td>~2s</td></tr>
-          <tr><td>2¹⁵</td><td>16384</td><td>~6s</td></tr>
-          <tr><td>2¹⁶</td><td>32768</td><td>~25s</td></tr>
+          <tr><td>2¹⁶</td><td>32768</td><td>79.4 s</td><td>328 ms</td></tr>
+          <tr><td>2¹⁷</td><td>65536</td><td>135.4 s</td><td>527 ms</td></tr>
         </tbody>
       </table>
-      <p style="margin-top:0.5em; font-size:0.72em; color:var(--dim);">GPU and hardware acceleration reduce these by 100–1000× — see Hardware section.</p>
+      <p style="margin-top:0.5em; font-size:0.72em; color:var(--dim);">Source: Jung et al., TCHES 2021, Table 3 (2¹⁷ set: 173-bit security, 19-bit precision). Times vary widely with library, precision and parameters — see Hardware section.</p>
     </div>
     <div class="panel panel-green" style="margin-top:0.6em;">
       <h3>Amortisation</h3>
-      <p>Bootstrapping all n/2 slots simultaneously means cost-per-slot can be &lt;1μs on optimised hardware, enabling practical encrypted ML inference.</p>
+      <p>Bootstrapping all n/2 slots at once divides the cost: Jung et al. (TCHES 2021) bootstrap 65,536 slots in 527 ms on one V100 GPU, about 8 μs per slot.</p>
     </div>
   </div>
 </div>
@@ -664,7 +666,7 @@
 <section>
 <div class="section-div">
   <div class="section-label">Part III</div>
-  <h2>Key Operations &amp; Operations</h2>
+  <h2>Key Operations &amp; Building Blocks</h2>
   <p>Relinearisation, key switching, rotation, RNS representation and NTT — the building blocks of every FHE library</p>
 </div>
 </section>
@@ -695,11 +697,11 @@
         <li>Galois rotations (slot rotation)</li>
         <li>Bootstrapping key change</li>
       </ul>
-      <p style="margin-top:0.4em;">Cost: n large polynomial multiplications — typically the bottleneck.</p>
+      <p style="margin-top:0.4em;">Cost: split the input into <span class="hl-blue">dnum</span> digits, multiply each by its own key part (≈ 2·dnum NTT-domain products, plus NTTs and base conversions). Typically the bottleneck (Han–Ki 2020).</p>
     </div>
     <div class="panel panel-green" style="margin-top:0.6em;">
       <h3>Galois Rotations</h3>
-      <p>Apply automorphism x→x^(2k+1) to rotate SIMD slots cyclically. Required for inner product, convolution over plaintext slots.</p>
+      <p>Rotating the slots by k applies the automorphism X ↦ X<sup>e</sup> with e = 5<sup>k</sup> mod 2N (conjugation uses e = −1), then a key switch; each rotation amount needs its own key, or is composed from power-of-two rotation keys. Required for inner products and convolutions across slots.</p>
     </div>
   </div>
 </div>
@@ -718,7 +720,7 @@
       <div class="formula">q = q₀ · q₁ · … · q_{L-1} (each ~60 bits)</div>
       <ul>
         <li>All arithmetic stays within 64-bit machine words</li>
-        <li>Modular reduction is free — no multi-precision arithmetic</li>
+        <li>No multi-precision arithmetic — but modular reduction is not free: every multiply needs a Barrett or Montgomery reduction, a large share of the datapath</li>
         <li>Modulus switching = drop one qᵢ, rescale</li>
         <li>Used by: OpenFHE, SEAL, HElib (CKKS, BGV, BFV)</li>
       </ul>
@@ -731,14 +733,14 @@
       <div class="formula">a · b = INTT(NTT(a) ⊙ NTT(b))</div>
       <ul>
         <li>O(n log n) vs O(n²) schoolbook</li>
-        <li>Each NTT: n · log₂n butterfly operations</li>
+        <li>Each NTT: (n/2)·log₂n butterfly operations</li>
         <li>Hardware: same butterfly datapath as post-quantum (ML-KEM, ML-DSA)</li>
         <li>NTT is shared IP across FHE, PQC, ZK-SNARKs</li>
       </ul>
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
       <h3>Dominant cost breakdown</h3>
-      <p>Key switching: 70% · NTT ops: 60% of key switching · Bandwidth: often the true bottleneck at scale</p>
+      <p>Key switching takes most of the time in HMult and rotation (Jung et al., TCHES 2021); NTTs and base conversions dominate its arithmetic. At bootstrappable parameters, memory bandwidth is often the true bottleneck (de Castro et al. 2021).</p>
     </div>
   </div>
 </div>
@@ -763,7 +765,7 @@
 <table>
   <thead><tr><th>Library</th><th>Schemes</th><th>Language</th><th>Focus</th></tr></thead>
   <tbody>
-    <tr><td><span class="hl-blue">Microsoft SEAL</span></td><td>BFV, CKKS</td><td>C++17, Python</td><td>Industry-grade, well-documented</td></tr>
+    <tr><td><span class="hl-blue">Microsoft SEAL</span></td><td>BFV, BGV, CKKS</td><td>C++17, Python</td><td>Industry-grade, well-documented</td></tr>
     <tr><td><span class="hl-green">OpenFHE</span></td><td>BFV, BGV, CKKS, FHEW, TFHE</td><td>C++17</td><td>Research + production; successor to PALISADE</td></tr>
     <tr><td><span class="hl-purple">HElib</span></td><td>BGV, CKKS</td><td>C++</td><td>IBM; first practical FHE library</td></tr>
     <tr><td><span class="hl-amber">HEAAN</span></td><td>CKKS</td><td>C++</td><td>Original CKKS reference (Seoul Nat'l Univ)</td></tr>
@@ -773,7 +775,7 @@
 </table>
 <div class="panel panel-amber" style="margin-top:0.7em;">
   <h3>HE-Std / HomomorphicEncryption.org</h3>
-  <p>Industry consortium (Microsoft, IBM, Intel, Google, Stanford, MIT…) producing <span class="hl-amber">API standards and security parameter recommendations</span>. Security estimates for RLWE at 128/192/256-bit levels — the basis for all library default parameters.</p>
+  <p>Open consortium of industry, government and academia. Its <span class="hl-amber">Homomorphic Encryption Security Standard</span> (v1.1, 2018) gives RLWE parameters for 128/192/256-bit security — the basis for library default parameters.</p>
 </div>
 </section>
 
@@ -819,17 +821,17 @@ ct_prod = evl.multiply(ct_a, ct_b)
 evl.relinearize_inplace(ct_prod, relin_ks)
 evl.rescale_to_next_inplace(ct_prod)               # scale: Δ² → Δ
 
-# Sum all slots: accumulate with rotations
+# Sum the 4 used slots: log-step rotate-and-add (by 1, then by 2)
 ct_sum = ct_prod
 for i in [1, 2]:
-    ct_rot = evl.rotate_vector(ct_prod, i, gal_ks)
+    ct_rot = evl.rotate_vector(ct_sum, i, gal_ks)
     ct_sum = evl.add(ct_sum, ct_rot)
 
 # ── Decrypt ─────────────────────────────────────────────────────────────────
 pt_result = dec.decrypt(ct_sum)
 result = coder.decode(pt_result)
 
-print(f"Encrypted dot product ≈ {result[0]:.4f}")  # expect ≈ 4.13 (a·b summed)
+print(f"Encrypted dot product ≈ {result[0]:.4f}")  # expect ≈ 5.4750 (a·b summed)
 print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
 </code></pre>
 <p style="font-size:0.72em; color:var(--dim); margin-top:0.4em;">Uses Microsoft SEAL Python bindings. All arithmetic — multiply, relinearise, rescale, rotate — runs entirely on ciphertext. The server never sees <code>a</code> or <code>b</code>.</p>
@@ -861,7 +863,7 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
         <li><span class="hl-purple">HEIR</span> (Google, 2024) — MLIR-based FHE compiler; CKKS/CGGI backends, open source</li>
         <li><span class="hl-green">Concrete</span> (Zama) — Python to TFHE; transparent parameter selection</li>
         <li><span class="hl-blue">EVA</span> (Microsoft) — CKKS vectoriser; automatic rescaling insertion</li>
-        <li><span class="hl-amber">HECO</span> — HElib-targeting, slot rotation optimiser</li>
+        <li><span class="hl-amber">HECO</span> (ETH Zürich, USENIX Security 2023) — MLIR-based; batching and rotation optimiser, SEAL back end</li>
         <li><span class="hl-teal">Cingulata / Parasol</span> — Boolean circuit compilers for FHEW/TFHE</li>
       </ul>
     </div>
@@ -896,32 +898,31 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
       <ul>
         <li>NTT and polynomial multiply are embarrassingly parallel — thousands of independent butterfly units map directly to GPU SIMD lanes</li>
         <li>RNS decomposition: all qᵢ operations are independent → SIMD across RNS limbs</li>
-        <li>Ciphertext elements fit in L2/L3 (10–100 MB) — GPU HBM bandwidth avoids DRAM bottleneck</li>
+        <li>A ciphertext at N = 2¹⁶, L = 44 is 2·N·(L+1)·8 B ≈ 47 MB — larger than GPU L2, so HBM bandwidth, not arithmetic, sets the speed (Jung et al. 2021)</li>
       </ul>
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
       <h3>GPU libraries</h3>
       <ul>
-        <li><span class="hl-amber">cuFHE</span> — CUDA TFHE bootstrapping; &lt;1ms/gate</li>
-        <li><span class="hl-purple">100x</span> — Nvidia CKKS on A100: 150× CPU speedup</li>
-        <li><span class="hl-blue">OpenFHE-GPU</span> — CUDA backend (RTX 3090)</li>
-        <li><span class="hl-green">PhantomFHE</span> — CKKS CUDA; 25× SEAL CPU</li>
+        <li><span class="hl-amber">cuFHE</span> — CUDA TFHE gate bootstrapping</li>
+        <li><span class="hl-purple">"100x"</span> paper — Jung et al. (SNU, TCHES 2021), CKKS on a V100: HMult 152× and bootstrapping 257× faster than one CPU thread</li>
+        <li><span class="hl-green">PhantomFHE</span> — CUDA library for CKKS, BFV and BGV</li>
       </ul>
     </div>
   </div>
   <div class="col">
     <div class="panel panel-blue">
-      <h3>Benchmarks (CKKS, n=2¹⁵)</h3>
+      <h3>Benchmarks (CKKS, Jung et al. 2021)</h3>
       <table>
-        <thead><tr><th>Platform</th><th>NTT (ms)</th><th>KeySwitch (ms)</th><th>Boot (s)</th></tr></thead>
+        <thead><tr><th>Operation</th><th>CPU, 1 thread (ms)</th><th>V100 GPU (ms)</th><th>Speedup</th></tr></thead>
         <tbody>
-          <tr><td>CPU (single core)</td><td>12</td><td>380</td><td>18</td></tr>
-          <tr><td>CPU (32-core)</td><td>0.5</td><td>14</td><td>0.8</td></tr>
-          <tr><td>RTX 3090</td><td>0.08</td><td>1.2</td><td>0.15</td></tr>
-          <tr><td>A100 SXM4</td><td>0.03</td><td>0.4</td><td>0.05</td></tr>
+          <tr><td>HMult</td><td>2,645</td><td>17.4</td><td>152×</td></tr>
+          <tr><td>HRotate</td><td>2,579</td><td>16.8</td><td>153×</td></tr>
+          <tr><td>Rescale</td><td>145</td><td>0.64</td><td>229×</td></tr>
+          <tr><td>Bootstrap (2¹⁶ slots, N=2¹⁷)</td><td>135,400</td><td>527</td><td>257×</td></tr>
         </tbody>
       </table>
-      <p style="font-size:0.7em; color:var(--dim); margin-top:0.4em;">Sources: Bossuat et al. (2023), PhantomFHE (2024), estimated from literature</p>
+      <p style="font-size:0.7em; color:var(--dim); margin-top:0.4em;">Source: Jung et al., "Over 100x Faster Bootstrapping…", TCHES 2021 (4). First three rows: Table 2 (N=2¹⁶, L=44, dnum=45, λ≈98 — below 128-bit). Bootstrap: Table 3 (N=2¹⁷, L=29, dnum=3, λ=173). Newer GPUs and libraries are faster still.</p>
     </div>
   </div>
 </div>
@@ -937,9 +938,9 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
     <div class="panel panel-purple">
       <h3>FPGA advantages for FHE</h3>
       <ul>
-        <li>Custom bit-widths — 27-bit Barrett modular multipliers for each RNS prime exactly fit DSP slices</li>
+        <li>Custom bit-widths — word sizes chosen to map onto the DSP blocks' 27×18 multipliers (FAB uses 54-bit limbs built from them)</li>
         <li>Deterministic latency — no OS jitter, predictable timing for real-time FHE services</li>
-        <li>Power efficiency — 5–10× better perf/W vs GPU for NTT workloads</li>
+        <li>Power efficiency — an integer-only datapath, with no idle floating-point units (the case made by FAB)</li>
         <li>Reconfigurability — adapt n, q chain, or scheme per workload</li>
       </ul>
     </div>
@@ -947,8 +948,8 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
       <h3>Architecture: NTT unit</h3>
       <ul>
         <li>Radix-2 DIT butterfly with configurable twiddle factor ROM</li>
-        <li>Fully pipelined: one butterfly per cycle at 300–500 MHz</li>
-        <li>Multi-bank memory: n/2 parallel butterfly lanes (VU13P: 128 lanes)</li>
+        <li>Fully pipelined: one butterfly per cycle per unit at a few hundred MHz (FAB runs at 300 MHz)</li>
+        <li>Multi-bank memory feeds several butterfly units per cycle (at most n/2 per NTT stage)</li>
       </ul>
     </div>
   </div>
@@ -956,21 +957,21 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
     <div class="panel panel-blue">
       <h3>Published results</h3>
       <table>
-        <thead><tr><th>Platform</th><th>Operation</th><th>Throughput</th></tr></thead>
+        <thead><tr><th>Design</th><th>FPGA</th><th>Reported (paper abstract)</th></tr></thead>
         <tbody>
-          <tr><td>Xilinx Alveo U250</td><td>NTT n=2¹⁴</td><td>1.3M NTTs/s</td></tr>
-          <tr><td>Intel Stratix 10</td><td>CKKS HomMul</td><td>35ms</td></tr>
-          <tr><td>Xilinx VCU118</td><td>TFHE boot</td><td>6ms</td></tr>
-          <tr><td>Alveo U280</td><td>BGV HomMul</td><td>8ms</td></tr>
+          <tr><td>HEAX</td><td>Intel Arria 10, Stratix 10</td><td>CKKS mult + key switching 164–268× over CPU</td></tr>
+          <tr><td>FAB</td><td>Xilinx Alveo U280</td><td>Fully-packed CKKS bootstrapping 213× over CPU, 1.5× over GPU</td></tr>
+          <tr><td>FAB (8 FPGAs)</td><td>8 × Alveo U280</td><td>Logistic-regression training 456× over CPU</td></tr>
+          <tr><td>Poseidon</td><td>Xilinx Alveo U280</td><td>CKKS including bootstrapping</td></tr>
         </tbody>
       </table>
     </div>
     <div class="panel panel-green" style="margin-top:0.6em;">
       <h3>Key FPGA papers</h3>
       <ul>
-        <li>HEAX (Microsoft, ISCA 2020) — CKKS on Stratix 10</li>
-        <li>CraterLake (MIT, ISCA 2022) — heterogeneous FHE FPGA</li>
-        <li>FAB (Berkeley, ISCA 2022) — bootstrapping FPGA</li>
+        <li>HEAX (Riazi, Laine, Pelton, Dai — UCSD / Microsoft, ASPLOS 2020) — CKKS</li>
+        <li>FAB (Agrawal et al. — Boston Univ. / MIT, HPCA 2023) — CKKS bootstrapping</li>
+        <li>Poseidon (Yang et al., HPCA 2023) — CKKS with bootstrapping</li>
       </ul>
     </div>
   </div>
@@ -987,9 +988,9 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
     <div class="panel panel-amber">
       <h3>ASIC vs FPGA for FHE</h3>
       <ul>
-        <li>ASIC: 10–100× better perf/area than FPGA due to custom memory hierarchy optimised for FHE data access patterns</li>
-        <li>On-chip SRAM eliminates DRAM bandwidth bottleneck (1–10 TB/s vs 2 TB/s for HBM)</li>
-        <li>Custom datapath: 128-bit or 256-bit SIMD over RNS limbs</li>
+        <li>ASIC: better perf/area and perf/W than FPGA, from a custom memory hierarchy built for FHE data access patterns</li>
+        <li>Large on-chip scratchpads cut off-chip traffic: BTS models 512 MB at 38.4 TB/s against 1 TB/s of HBM</li>
+        <li>Custom datapath: many lanes of narrow modular arithmetic over RNS limbs (F1: 32-bit)</li>
         <li>Fixed cost: parameter changes require full respin</li>
       </ul>
     </div>
@@ -998,18 +999,17 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
     <div class="panel panel-blue">
       <h3>Published FHE ASICs / chips</h3>
       <ul>
-        <li><span class="hl-blue">F1</span> (MIT, MICRO 2021) — first FHE ASIC; CKKS 5400× over CPU; 6nm design point</li>
-        <li><span class="hl-purple">BTS</span> (SNU, ISSCC 2022) — CKKS bootstrapping on chip; 22nm; 2 GB SRAM</li>
-        <li><span class="hl-green">CraterLake</span> (MIT, ISCA 2022) — generalised FHE accelerator</li>
-        <li><span class="hl-amber">Poseidon</span> (ETH, 2023) — TFHE accelerator; 5nm; &lt;1ms gate-boot</li>
-        <li><span class="hl-teal">Intel HERACLES</span> — disclosed 2023; tiled NTT + key-switch engines</li>
+        <li><span class="hl-blue">F1</span> (Feldmann, Samardzic et al., MICRO 2021) — first programmable FHE accelerator; 14/12 nm, 64 MB scratchpad; 5,400× (gmean) over CPU, simulated; no packed bootstrapping</li>
+        <li><span class="hl-purple">BTS</span> (Kim et al., SNU/KAIST, ISCA 2022) — bootstrappable CKKS; 7 nm, 512 MB scratchpad, simulated</li>
+        <li><span class="hl-green">CraterLake</span> (Samardzic et al., ISCA 2022) — ASIC follow-up to F1 for unbounded depth, simulated</li>
+        <li><span class="hl-teal">Intel HERACLES</span> — DARPA DPRIVE programme; near-memory architecture</li>
       </ul>
     </div>
   </div>
 </div>
 <div class="panel panel-purple" style="margin-top:0.6em;">
   <h3>Bottleneck analysis — where silicon wins</h3>
-  <p>FHE is fundamentally <span class="hl-purple">memory-bandwidth limited</span>. Key switching materialises 20–50 GB of intermediate data per evaluation. ASICs embed SRAM close to NTT compute clusters, slashing off-chip traffic. At 6nm with 500 MB SRAM, F1 achieves &gt;10 TB/s effective internal bandwidth.</p>
+  <p>FHE is <span class="hl-purple">memory-bandwidth limited</span>: bootstrapping does under 1 op per byte and wants over 100 MB of cache (de Castro et al. 2021). ASICs put SRAM next to the NTT clusters: F1 pairs 64 MB of scratchpad and a 24 TB/s on-chip network with 1 TB/s of HBM.</p>
 </div>
 </section>
 
@@ -1019,7 +1019,7 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
 <section>
 <h2>Code: NTT Butterfly Unit (SystemVerilog)</h2>
 <pre><code class="language-verilog">// Cooley-Tukey NTT butterfly — negacyclic, Barrett reduction
-// Parameters: N=poly_degree, Q=RNS prime (~60-bit), twiddle from ROM
+// Parameters: N=poly_degree, Q=RNS prime (30-bit here; FHE uses up to ~60), twiddle from ROM
 module ntt_butterfly #(
   parameter int N     = 4096,
   parameter int Q     = 32'd1073479681,   // NTT-friendly prime: Q-1 divisible by 2N
@@ -1037,10 +1037,14 @@ module ntt_butterfly #(
   logic [63:0]  wb_red;    // w * b mod Q via Barrett
   logic         v1, v2;
 
+  logic [63:0]  a_d1, a_d2;  // delay a to match multiply + Barrett latency
+
   // Stage 1: multiply
   always_ff @(posedge clk) begin
     wb_full &lt;= w * b_in;              // 64×64 → 128-bit
     v1      &lt;= valid_in;
+    a_d1    &lt;= a_in;
+    a_d2    &lt;= a_d1;                  // assumes barrett_reduce has 1-cycle latency
   end
 
   // Stage 2: Barrett reduction (128→64-bit mod Q)
@@ -1050,13 +1054,13 @@ module ntt_butterfly #(
 
   // Stage 3: butterfly outputs
   always_ff @(posedge clk) begin
-    a_out     &lt;= (a_in + wb_red >= Q) ? a_in + wb_red - Q : a_in + wb_red;
-    b_out     &lt;= (a_in - wb_red + Q >= Q) ? a_in - wb_red : a_in - wb_red + Q;
+    a_out     &lt;= (a_d2 + wb_red >= Q) ? a_d2 + wb_red - Q : a_d2 + wb_red;
+    b_out     &lt;= (a_d2 >= wb_red) ? a_d2 - wb_red : a_d2 - wb_red + Q;
     valid_out &lt;= v2;
   end
 endmodule
 </code></pre>
-<p style="font-size:0.72em; color:var(--dim); margin-top:0.4em;">Fully pipelined 3-cycle butterfly. At 400 MHz with N=4096 and L=8 RNS limbs, a complete NTT forward pass takes ≈ 50k cycles = 125μs. Instantiate 64 butterflies per limb for 2μs NTT throughput.</p>
+<p style="font-size:0.72em; color:var(--dim); margin-top:0.4em;">Fully pipelined 3-cycle butterfly. One N = 4096 NTT is (N/2)·log₂N = 2,048 × 12 = 24,576 butterflies; 8 RNS limbs make 196,608. With one butterfly unit (one per cycle at 400 MHz) that is ≈ 492 μs; with 64 units per limb (512 in all) it is 384 cycles ≈ 0.96 μs, ignoring pipeline fill and memory stalls.</p>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -1085,7 +1089,7 @@ endmodule
       <h3>CKKS NN mapping</h3>
       <ul>
         <li><span class="hl-blue">Linear layers:</span> encrypted matrix-vector multiply via slot rotations + inner product</li>
-        <li><span class="hl-amber">Activation (ReLU):</span> polynomial approximation (Chebyshev) — degree 15–27 typically sufficient for ResNet/VGG</li>
+        <li><span class="hl-amber">Activation (ReLU):</span> high-degree polynomial approximation (Chebyshev or composite minimax); it consumes many levels and forces many bootstraps</li>
         <li><span class="hl-green">BatchNorm:</span> absorbed into linear weights (pre-compiled)</li>
         <li><span class="hl-purple">Softmax:</span> approximated; argmax via comparison circuits (expensive)</li>
       </ul>
@@ -1095,14 +1099,15 @@ endmodule
     <div class="panel panel-green">
       <h3>Published results</h3>
       <table>
-        <thead><tr><th>Network</th><th>Scheme</th><th>Accuracy</th><th>Latency</th></tr></thead>
+        <thead><tr><th>Workload (CKKS)</th><th>Platform</th><th>Time</th></tr></thead>
         <tbody>
-          <tr><td>LeNet-5 (MNIST)</td><td>CKKS</td><td>99.0%</td><td>~2s CPU</td></tr>
-          <tr><td>ResNet-20 (CIFAR)</td><td>CKKS</td><td>91.8%</td><td>~6min CPU</td></tr>
-          <tr><td>BERT (NLP, 1 layer)</td><td>CKKS+TFHE</td><td>96%</td><td>~90s CPU</td></tr>
-          <tr><td>ResNet-20 (CIFAR)</td><td>CKKS+GPU</td><td>91.8%</td><td>&lt;30s A100</td></tr>
+          <tr><td>ResNet-20, CIFAR-10 (92.43%)</td><td>CPU</td><td>10,602 s</td></tr>
+          <tr><td>ResNet-20, CIFAR-10</td><td>BTS ASIC (simulated)</td><td>1.91 s</td></tr>
+          <tr><td>Logistic-regression training, per iteration</td><td>8-thread CPU</td><td>31.0 s</td></tr>
+          <tr><td>Logistic-regression training, per iteration</td><td>V100 GPU</td><td>0.775 s</td></tr>
         </tbody>
       </table>
+      <p style="font-size:0.62em; color:var(--dim); margin-top:0.3em;">Sources: Kim et al., BTS, ISCA 2022, Table 6 (CPU figure from Lee et al. 2022; BTS also uses channel packing — without it the speedup is 311×); Jung et al., TCHES 2021.</p>
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
       <h3>Practical toolkits</h3>
@@ -1128,8 +1133,7 @@ endmodule
       <ul>
         <li><span class="hl-teal">GWAS</span> — genome-wide association study over encrypted SNP data: compute χ² statistics using encrypted integer BGV</li>
         <li><span class="hl-blue">PRS</span> (Polygenic Risk Score) — encrypted inner product of genotype × weights (CKKS, one ciphertext per chromosome)</li>
-        <li><span class="hl-green">iDASH competition</span> — annual benchmark; 2021 winner: PRS on 245k SNPs in 2 min (CKKS+GPU)</li>
-        <li>Microsoft SEAL used in Azure Genomics pilot (2021)</li>
+        <li><span class="hl-green">iDASH competition</span> — annual secure-genomics benchmark with homomorphic-encryption tracks</li>
       </ul>
     </div>
   </div>
@@ -1147,7 +1151,7 @@ endmodule
       <ul>
         <li>PIR (Private Information Retrieval) — retrieve DB record without server knowing which row</li>
         <li>CKKS + BFV for encrypted SQL-like aggregates</li>
-        <li>Spiral (Washington, 2022) — practical PIR at GB scale</li>
+        <li>Spiral (Menon &amp; Wu, IEEE S&amp;P 2022) — fast single-server PIR built from Regev and GSW encryption</li>
       </ul>
     </div>
   </div>
@@ -1169,7 +1173,7 @@ endmodule
       <h3>Threshold FHE</h3>
       <ul>
         <li>Split secret key sk among N parties: sk = sk₁ + sk₂ + … + skₙ</li>
-        <li>Decrypt only with t-of-n parties cooperating (Shamir sharing)</li>
+        <li>An additive split needs all n parties to decrypt; Shamir sharing allows t-of-n</li>
         <li>Used in: Lattigo multiparty, OpenFHE multiparty extension</li>
         <li>Applications: privacy-preserving ML training across hospitals with no central authority</li>
       </ul>
@@ -1218,7 +1222,7 @@ endmodule
     <div class="panel panel-red">
       <h3>IND-CPA security</h3>
       <p>All FHE schemes above target <span class="hl-red">IND-CPA</span> (indistinguishability under chosen-plaintext attack). An adversary given Enc(m₀) and Enc(m₁) cannot determine which is which with non-negligible advantage.</p>
-      <p style="margin-top:0.4em;"><span class="hl-amber">Warning:</span> Standard FHE is <span class="hl-red">NOT</span> IND-CCA2 — ciphertext malleability is inherent (homomorphic operations modify ciphertext). Use MACs or signatures to authenticate computation results.</p>
+      <p style="margin-top:0.4em;"><span class="hl-amber">Warning:</span> Standard FHE is <span class="hl-red">NOT</span> IND-CCA2 — ciphertext malleability is inherent (homomorphic operations modify ciphertext). Ordinary MACs do not survive homomorphic evaluation; integrity of a result needs verifiable computation (e.g. SNARK-based verifiable FHE).</p>
     </div>
   </div>
   <div class="col">
@@ -1233,7 +1237,7 @@ endmodule
     </div>
     <div class="panel panel-purple" style="margin-top:0.6em;">
       <h3>Quantum security</h3>
-      <p>RLWE hardness is believed <span class="hl-purple">quantum-resistant</span> — no known quantum speedup beyond quadratic for lattice problems (Shor's algorithm doesn't apply). Same assumption underlies ML-KEM/ML-DSA.</p>
+      <p>RLWE hardness is believed <span class="hl-purple">quantum-resistant</span> — known quantum algorithms give only modest speedups for lattice problems (Shor's algorithm doesn't apply). Same assumption underlies ML-KEM/ML-DSA.</p>
     </div>
   </div>
 </div>
@@ -1248,23 +1252,22 @@ endmodule
   <div class="col">
     <div class="panel panel-blue">
       <h3>HomomorphicEncryption.org (HE-Std)</h3>
-      <p>Community white paper (2018, updated 2021) produced by Microsoft, IBM, Intel, Google, academia. Defines:</p>
+      <p>Homomorphic Encryption Security Standard (v1.1, November 2018), written by industry, government and academic authors. It:</p>
       <ul>
-        <li>Standardised API for BFV, BGV, CKKS, TFHE</li>
-        <li>Concrete security parameter sets at 128/192/256-bit levels</li>
-        <li>Security estimator tool (lattice-estimator)</li>
-        <li>Reference encoding conventions</li>
+        <li>Specifies BGV, BFV and GSW (and mentions CKKS)</li>
+        <li>Gives concrete RLWE parameter sets at 128/192/256-bit levels, classical and post-quantum</li>
+        <li>Computes them with the LWE estimator (Albrecht et al.)</li>
       </ul>
     </div>
   </div>
   <div class="col">
     <div class="panel panel-green">
       <h3>ISO/IEC 18033-6 (2019)</h3>
-      <p>International standard for partially homomorphic encryption (Paillier, El Gamal). FHE standardisation is ongoing — NIST has not yet issued FHE-specific FIPS, though NIST IR 8481 (2023) surveys FHE for government use.</p>
+      <p>International standard for partially homomorphic encryption (Paillier, El Gamal). FHE itself is being standardised as ISO/IEC 28033 (Part 1 at Draft International Standard stage). NIST has no FHE standard.</p>
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
-      <h3>FHEW/TFHE in NIST context</h3>
-      <p>FHEW and TFHE build on the same RLWE/LWE assumptions as FIPS 203 (ML-KEM). As PQC migration proceeds, <span class="hl-amber">FHE parameter selection</span> will align with NIST SP 800-186 lattice security levels.</p>
+      <h3>FHE in the NIST context</h3>
+      <p>FHE schemes rest on the same LWE/RLWE-type assumptions as FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA), which use module lattices. NIST does not set FHE parameters; <span class="hl-amber">FHE parameter selection</span> follows the HE Security Standard and lattice-estimator runs.</p>
     </div>
   </div>
 </div>
@@ -1343,20 +1346,21 @@ endmodule
 <section>
 <h2>Performance: FHE Today vs Tomorrow</h2>
 <table>
-  <thead><tr><th>Operation</th><th>Scheme</th><th>CPU (now)</th><th>GPU A100</th><th>ASIC target</th></tr></thead>
+  <thead><tr><th>Operation</th><th>Scheme</th><th>CPU</th><th>GPU</th><th>ASIC (simulated)</th></tr></thead>
   <tbody>
-    <tr><td>HomMul (1 level)</td><td>CKKS n=2¹⁵</td><td>380ms</td><td>0.4ms</td><td>&lt;0.1ms</td></tr>
-    <tr><td>Bootstrap (4096 slots)</td><td>CKKS n=2¹⁴</td><td>2s</td><td>50ms</td><td>&lt;5ms</td></tr>
-    <tr><td>Gate bootstrap</td><td>TFHE</td><td>8ms</td><td>0.8ms</td><td>&lt;0.1ms</td></tr>
-    <tr><td>ResNet-20 inference</td><td>CKKS</td><td>6 min</td><td>30s</td><td>&lt;3s</td></tr>
-    <tr><td>PRS (245k SNPs)</td><td>CKKS</td><td>2 min</td><td>5s</td><td>&lt;1s</td></tr>
+    <tr><td>HMult (N=2¹⁶, L=44, λ≈98)</td><td>CKKS</td><td>2,645 ms (1 thread)</td><td>17.4 ms (V100)</td><td>—</td></tr>
+    <tr><td>Bootstrap (2¹⁶ slots, N=2¹⁷)</td><td>CKKS</td><td>135.4 s (1 thread)</td><td>527 ms (V100)</td><td>—</td></tr>
+    <tr><td>Gate bootstrap</td><td>TFHE</td><td>13 ms (1 core)</td><td>—</td><td>—</td></tr>
+    <tr><td>ResNet-20 inference</td><td>CKKS</td><td>10,602 s</td><td>—</td><td>1.91 s (BTS)</td></tr>
+    <tr><td>Logistic regression, 1 training iteration</td><td>CKKS</td><td>31.0 s (8 threads)</td><td>0.775 s (V100)</td><td>—</td></tr>
   </tbody>
 </table>
+<p style="font-size:0.62em; color:var(--dim); margin-top:0.3em;">Sources: Jung et al., TCHES 2021; Chillotti et al., J. Cryptology 2020; Kim et al. (BTS), ISCA 2022. Each row is from one paper; rows are not directly comparable.</p>
 <div class="cols" style="margin-top:0.7em;">
   <div class="col">
     <div class="panel panel-amber">
-      <h3>1000× gap vs plaintext</h3>
-      <p>Best-case CKKS HomMul is still ~1000× slower than plaintext float32 multiply. Hardware acceleration narrows this to ~10–50× for many workloads — acceptable for high-value, privacy-critical applications.</p>
+      <h3>Still far from plaintext</h3>
+      <p>Even on a GPU an encrypted multiply takes milliseconds, against nanoseconds in plaintext. DARPA's DPRIVE programme set the goal of FHE within 10× of plaintext speed — a target for dedicated silicon. Today FHE suits high-value, privacy-critical work.</p>
     </div>
   </div>
   <div class="col">
@@ -1366,8 +1370,8 @@ endmodule
         <li>2009 (Gentry): theoretical only</li>
         <li>2012: hours per AES block</li>
         <li>2018: minutes per NN inference</li>
-        <li>2022 (F1 ASIC): milliseconds</li>
-        <li>2026+: real-time encrypted ML</li>
+        <li>2021–22: simulated ASICs (F1, BTS) — ResNet-20 in ~2 s</li>
+        <li>Goal: real-time encrypted ML</li>
       </ul>
     </div>
   </div>
@@ -1386,7 +1390,7 @@ endmodule
       <ul>
         <li><span class="hl-red">No native comparison</span> — equality/order tests require expensive bit-decomposition or polynomial approximation in CKKS</li>
         <li><span class="hl-red">No native branching</span> — FHE circuits must be branch-free (TFHE mitigates via bit-level gates)</li>
-        <li><span class="hl-red">Large ciphertext expansion</span> — CKKS expands 1 float to ~50–200 KB ciphertext</li>
+        <li><span class="hl-red">Large ciphertext expansion</span> — a CKKS ciphertext is ~50–200 KB, amortised only when its n/2 slots are well packed</li>
         <li><span class="hl-red">Key material size</span> — evaluation keys (relin + galois) can be tens of GB for large n</li>
         <li><span class="hl-red">Parameter tuning complexity</span> — non-expert users struggle; compilers help but don't solve all cases</li>
       </ul>
@@ -1400,7 +1404,7 @@ endmodule
         <li><span class="hl-blue">Transciphering</span> — convert AES-encrypted stream to FHE ciphertext homomorphically (reduces client bandwidth)</li>
         <li><span class="hl-green">FHE-native NNs</span> — train networks with polynomial activations that are FHE-efficient from the start</li>
         <li><span class="hl-amber">Multiparty FHE at scale</span> — distributed decryption without trusted dealer</li>
-        <li><span class="hl-teal">Functional encryption</span> — FHE generalisation with restricted decryption per function</li>
+        <li><span class="hl-teal">Functional encryption</span> — a related primitive: a key reveals only f(x), not x</li>
       </ul>
     </div>
   </div>
@@ -1420,7 +1424,7 @@ endmodule
         <li><span class="hl-blue">Zama</span> — Concrete / fhEVM; FHE blockchain, ML</li>
         <li><span class="hl-purple">Duality Technologies</span> — OpenFHE commercialisation; finance/healthcare</li>
         <li><span class="hl-green">Cornami</span> — FHE streaming ASIC</li>
-        <li><span class="hl-amber">Microsoft</span> — SEAL, HEAX, Azure Confidential Computing FHE</li>
+        <li><span class="hl-amber">Microsoft</span> — SEAL, HEAX</li>
         <li><span class="hl-teal">Intel</span> — HERACLES chip, HEXL acceleration library</li>
         <li><span class="hl-red">IBM</span> — HElib, homomorphic encryption services</li>
       </ul>
@@ -1430,12 +1434,11 @@ endmodule
     <div class="panel panel-green">
       <h3>Research groups</h3>
       <ul>
-        <li>MIT CSAIL — F1, CraterLake, Cheetah</li>
-        <li>Stanford — Gentry group; FHE theory</li>
-        <li>Seoul Nat'l Univ — HEAAN/CKKS; BTS chip</li>
+        <li>MIT CSAIL — F1, CraterLake</li>
+        <li>Seoul Nat'l Univ — HEAAN/CKKS; BTS design (with KAIST)</li>
         <li>EPFL — Lattigo; multiparty FHE</li>
-        <li>NIST / DHS — NIST IR 8481 FHE evaluation</li>
-        <li>ETH Zürich — Poseidon TFHE chip</li>
+        <li>Boston Univ. / MIT — FAB FPGA accelerator</li>
+        <li>ETH Zürich — HECO compiler</li>
       </ul>
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
@@ -1463,7 +1466,7 @@ endmodule
         <li><span class="hl-amber">Foundations</span> — LWE, RLWE, noise growth, cyclotomic rings</li>
         <li><span class="hl-purple">Schemes</span> — BGV, BFV, CKKS, TFHE/FHEW: tradeoffs and selection</li>
         <li><span class="hl-blue">Operations</span> — relinearisation, key switching, RNS, NTT</li>
-        <li><span class="hl-green">Hardware</span> — GPU (150×), FPGA, ASICs (F1, BTS, Poseidon)</li>
+        <li><span class="hl-green">Hardware</span> — GPU (100–250× over one CPU thread), FPGAs (HEAX, FAB, Poseidon), ASICs (F1, BTS, CraterLake)</li>
         <li><span class="hl-teal">Applications</span> — private ML, genomics, finance, MPC+ZK</li>
         <li><span class="hl-red">Limits</span> — no branches, ciphertext expansion, key size</li>
       </ul>
@@ -1476,7 +1479,7 @@ endmodule
         <li>FHE-native AI chips — dedicated ASIC for real-time encrypted inference</li>
         <li>FHE blockchains — fully private smart contracts (fhEVM)</li>
         <li>Transciphering at scale — remove AES pre-processing overhead</li>
-        <li>NIST FHE standardisation — expected late 2020s</li>
+        <li>FHE standardisation — ISO/IEC 28033 in draft</li>
         <li>Quantum + FHE — FHE security assumptions robust to quantum; synergy with QKD?</li>
       </ul>
     </div>
@@ -1502,10 +1505,13 @@ endmodule
         <li>Regev, "On Lattices, LWE, Random Linear Codes…" STOC (2005)</li>
         <li>Lyubashevsky, Peikert, Regev, "On Ideal Lattices and RLWE" EUROCRYPT (2010)</li>
         <li>Brakerski, Gentry, Vaikuntanathan (BGV), "Fully Homomorphic without Bootstrapping" ITCS (2012)</li>
-        <li>Fan, Vercauteren (BFV), "Somewhat Practical Fully Homomorphic Encryption" (2012)</li>
+        <li>Brakerski, "Fully Homomorphic Encryption without Modulus Switching from Classical GapSVP" CRYPTO (2012)</li>
+        <li>Fan, Vercauteren (BFV), "Somewhat Practical Fully Homomorphic Encryption" ePrint 2012/144</li>
+        <li>Bajard, Eynard, Hasan, Zucca, "A Full RNS Variant of FV-like SHE Schemes" SAC (2016); Halevi, Polyakov, Shoup, "An Improved RNS Variant of BFV" CT-RSA (2019)</li>
         <li>Cheon, Kim, Kim, Song (CKKS), "Homomorphic Encryption for Arithmetic of Approximate Numbers" ASIACRYPT (2017)</li>
         <li>Ducas, Micciancio (FHEW), "FHEW: Bootstrapping Homomorphic Encryption in Less Than a Second" EUROCRYPT (2015)</li>
-        <li>Chillotti et al. (TFHE), "TFHE: Fast Fully Homomorphic Encryption over the Torus" J.Cryptology (2020)</li>
+        <li>Chillotti, Gama, Georgieva, Izabachène (TFHE), ASIACRYPT (2016); "TFHE: Fast Fully Homomorphic Encryption over the Torus" J. Cryptology (2020)</li>
+        <li>Cheon, Han, Kim, Kim, Song, "Bootstrapping for Approximate Homomorphic Encryption" EUROCRYPT (2018)</li>
         <li>Gentry, Sahai, Waters (GSW) CRYPTO (2013)</li>
         <li>Li, Micciancio, "On the Security of Homomorphic Encryption on Approximate Numbers" EUROCRYPT (2021)</li>
       </ul>
@@ -1515,15 +1521,17 @@ endmodule
     <div class="panel panel-purple" style="font-size:0.72em;">
       <h3>Hardware &amp; systems</h3>
       <ul>
-        <li>Reagen et al. (F1), MICRO 2021</li>
-        <li>Kim et al. (BTS), ISSCC 2022</li>
+        <li>Feldmann, Samardzic et al. (F1), MICRO 2021</li>
+        <li>Kim et al. (BTS), ISCA 2022</li>
         <li>Samardzic et al. (CraterLake), ISCA 2022</li>
-        <li>Agrawal et al. (FAB), ISCA 2022</li>
-        <li>Boura et al. (HEAX/Microsoft), ISCA 2020</li>
-        <li>Viand et al. (Poseidon), ETH 2023</li>
-        <li>Han, Ki, "Better Bootstrapping for CKKS" CT-RSA 2020</li>
-        <li>HE-Std White Paper, HomomorphicEncryption.org (2021)</li>
-        <li>NIST IR 8481 "Getting Ready for Post-Quantum…FHE" (2023)</li>
+        <li>Agrawal et al. (FAB), HPCA 2023</li>
+        <li>Riazi, Laine, Pelton, Dai (HEAX), ASPLOS 2020</li>
+        <li>Yang et al. (Poseidon), HPCA 2023</li>
+        <li>Jung et al., "Over 100x Faster Bootstrapping in FHE through Memory-centric Optimization with GPUs" TCHES 2021</li>
+        <li>de Castro et al., "Does Fully Homomorphic Encryption Need Compute Acceleration?" arXiv 2112.06396 (2021)</li>
+        <li>Viand, Jattke, Haller, Hithnawi (HECO), USENIX Security 2023</li>
+        <li>Han, Ki, "Better Bootstrapping for Approximate Homomorphic Encryption" CT-RSA 2020</li>
+        <li>Homomorphic Encryption Security Standard v1.1, HomomorphicEncryption.org (2018)</li>
         <li>Albrecht et al., "Estimate all the {LWE, NTRU} schemes!" SCN (2018) — lattice-estimator</li>
       </ul>
     </div>
