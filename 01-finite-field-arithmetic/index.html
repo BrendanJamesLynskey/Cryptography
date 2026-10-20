@@ -231,12 +231,20 @@
 .reveal pre { font-size: 17px !important; width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto; }
 .reveal pre code { font-size: 1em !important; line-height: 1.45 !important; max-height: none !important;
   overflow-x: auto; white-space: pre; word-wrap: normal; overflow-wrap: normal; box-sizing: border-box; }
+/* Slide numbers were near-invisible light grey in several decks. */
+.reveal .slide-number, .reveal .slide-number a { color: #6b6b65 !important; }
+/* A flex/grid column that holds a listing may shrink, so the listing scrolls instead of pushing the column off the slide. */
+.reveal .slides section *:has(pre) { min-width: 0; }
 /* Azeret Mono's ligatures turn << into an arrow and 0x80 into 0×80: show code characters as typed. */
 .reveal code, .reveal pre, .reveal .mono { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0, "dlig" 0; }
 /* Phone layout (see crypto-phone-mode script): slides are laid out at the phone's own width, at scale 1. */
 html.phone-mode .reveal { font-size: 18px !important; }
+/* Reveal handles swipes with pointer events; a scrollable slide would otherwise claim every pan, so on a
+   phone the slide itself only pans vertically and sideways swipes change slide. Code blocks, tables and
+   wide diagrams inside it are scroll boxes of their own and still pan sideways. */
 html.phone-mode .reveal .slides > section, html.phone-mode .reveal .slides > section > section {
-  padding: 14px 16px 72px !important; overflow-y: auto !important; }
+  touch-action: pan-y pinch-zoom;
+  padding: 14px 16px 72px !important; overflow-y: auto !important; box-sizing: border-box !important; width: 100% !important; }
 html.phone-mode .reveal h1 { font-size: 1.8em !important; }
 html.phone-mode .reveal h2 { font-size: 1.4em !important; }
 html.phone-mode .reveal h3 { font-size: 1.1em !important; }
@@ -642,7 +650,7 @@ endmodule</code></pre>
 <!-- SLIDE 12: PYTHON GF(2^8)                    -->
 <!-- ════════════════════════════════════════════ -->
 <section>
-  <h2>Python: GF(2<sup>8</sup>) for AES</h2>
+  <h2>Python: GF(2<sup>8</sup>) for AES <span style="opacity:.55;font-weight:400;">(1/2)</span></h2>
   <div class="grid-2-1">
     <div>
       <pre><code class="language-python">class GF2_8:
@@ -663,9 +671,23 @@ endmodule</code></pre>
             a = (a << 1) & 0xFF
             if hi:     a ^= self.POLY & 0xFF
             b >>= 1
-        return GF2_8(p)
+        return GF2_8(p)</code></pre>
+    </div>
+    <div>
+      <div class="card" style="font-size:0.8em;">
+        <h3 class="gold">Key Points</h3>
+        <p><strong class="accent">XOR Addition</strong><br>No carry chain — just bitwise XOR. Subtraction is identical.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Shift-and-XOR Multiply</strong><br>Mirrors the hardware: shift left, conditionally XOR with polynomial.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">Fermat Inverse</strong><br>a<sup>−1</sup> = a<sup>p<sup>n</sup>−2</sup> by Fermat's little theorem. For GF(2<sup>8</sup>): a<sup>254</sup>.</p>
+        <p style="margin-top:0.4em;"><strong class="accent">No Dependencies</strong><br>Pure Python — no external libraries needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    def inverse(self):               # Fermat: a^(2^8 - 2) = a^254
+<section>
+  <h2>Python: GF(2<sup>8</sup>) for AES <span style="opacity:.55;font-weight:400;">(2/2)</span></h2>
+  <pre><code class="language-python">    def inverse(self):               # Fermat: a^(2^8 - 2) = a^254
         r = GF2_8(1)
         base = GF2_8(self.val)
         for bit in bin(254)[2:]:
@@ -678,17 +700,6 @@ a, b = GF2_8(0x57), GF2_8(0x83)
 print(f"0x57 * 0x83 = 0x{(a * b).val:02X}")       # 0xC1
 print(f"inv(0x57)   = 0x{a.inverse().val:02X}")     # 0xBF
 print(f"0x57 * inv  = 0x{(a * a.inverse()).val:02X}") # 0x01 ✓</code></pre>
-    </div>
-    <div>
-      <div class="card" style="font-size:0.8em;">
-        <h3 class="gold">Key Points</h3>
-        <p><strong class="accent">XOR Addition</strong><br>No carry chain — just bitwise XOR. Subtraction is identical.</p>
-        <p style="margin-top:0.4em;"><strong class="accent">Shift-and-XOR Multiply</strong><br>Mirrors the hardware: shift left, conditionally XOR with polynomial.</p>
-        <p style="margin-top:0.4em;"><strong class="accent">Fermat Inverse</strong><br>a<sup>−1</sup> = a<sup>p<sup>n</sup>−2</sup> by Fermat's little theorem. For GF(2<sup>8</sup>): a<sup>254</sup>.</p>
-        <p style="margin-top:0.4em;"><strong class="accent">No Dependencies</strong><br>Pure Python — no external libraries needed.</p>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- ════════════════════════════════════════════ -->
@@ -832,18 +843,30 @@ assert x * x.inverse() == GFp(1, p256)    # ✓</code></pre>
 // Below 641 px wide, the 900 px-high slide would be scaled to about 0.3 and its text and code would be
 // unreadable. Instead lay each slide out at the phone's own width at scale 1: grids become one column,
 // wide diagrams and tables scroll sideways inside their own box, text is at least 12.5 px, and a
-// slide taller than the screen scrolls vertically (left/right swipes still change slide).
+// slide taller than the screen scrolls vertically (left/right swipes still change slide, see the CSS).
+// On wider screens the normal scaled layout is kept (see fit below).
 (function(){
-  if (!window.matchMedia('(max-width: 640px)').matches || /print-pdf/.test(location.search)) return;
-  document.documentElement.classList.add('phone-mode');
+  var phone = window.matchMedia('(max-width: 640px)').matches && !/print-pdf/.test(location.search);
+  // Laptop/desktop: a slide whose content runs slightly past the bottom has its text (never its code,
+  // which is a fixed 17 px) scaled down in 3 % steps, to no less than 82 %.
+  function fit(s){
+    if (!s || s.dataset.fit) return;
+    var f = 1;
+    while (s.scrollHeight > s.clientHeight + 2 && f > 0.83) { f -= 0.03; s.style.fontSize = f.toFixed(2) + 'em'; }
+    s.dataset.fit = f.toFixed(2);
+  }
+  function fitNow(){ setTimeout(function(){ fit(Reveal.getCurrentSlide()); }, 50); }
+  if (phone) document.documentElement.classList.add('phone-mode');
   var init = Reveal.initialize;
   Reveal.initialize = function(o){
-    o = Object.assign({}, o || {}, { width: window.innerWidth, height: window.innerHeight, margin: 0,
+    if (phone) o = Object.assign({}, o || {}, { width: window.innerWidth, height: window.innerHeight, margin: 0,
       minScale: 1, maxScale: 1, center: false });
     var r = init.call(this, o);
-    Reveal.on('ready', phoneLayout);
+    if (phone) Reveal.on('ready', phoneLayout);
+    else if (!/print-pdf/.test(location.search)) { Reveal.on('ready', fitNow); Reveal.on('slidechanged', fitNow); }
     return r;
   };
+  if (!phone) return;
   function tracks(v){
     v = v.replace(/repeat\(\s*(\d+)\s*,\s*([^)]*\)?[^)]*)\)/g, function(m, n, t){ return Array(+n + 1).join(t + ' '); });
     var depth = 0, count = 0, tok = false;
@@ -900,33 +923,6 @@ assert x * x.inverse() == GFp(1, p256)    # ✓</code></pre>
     }
     Reveal.layout();
   }
-  // Touch: a vertical drag scrolls a slide that is taller than the screen, a sideways drag inside a
-  // code block, table or diagram that is wider than its box scrolls it; anything else goes to Reveal.
-  function scroller(el, axis, d){
-    for (; el && el !== document.body; el = el.parentElement){
-      var cs = getComputedStyle(el), ov = axis === 'x' ? cs.overflowX : cs.overflowY;
-      if (ov !== 'auto' && ov !== 'scroll') continue;
-      if (axis === 'x' && el.scrollWidth > el.clientWidth + 1 &&
-          (d < 0 ? el.scrollLeft + el.clientWidth < el.scrollWidth - 1 : el.scrollLeft > 0)) return el;
-      if (axis === 'y' && el.scrollHeight > el.clientHeight + 1 &&
-          (d < 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0)) return el;
-    }
-    return null;
-  }
-  var sx = 0, sy = 0, mode = null;
-  document.addEventListener('DOMContentLoaded', function(){
-    var s = document.querySelector('.reveal .slides');
-    s.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; mode = null; }, { passive: true });
-    s.addEventListener('touchmove', function(e){
-      var dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
-      if (mode === null){
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) { e.stopPropagation(); return; }
-        var vert = Math.abs(dy) > Math.abs(dx);
-        mode = scroller(e.target, vert ? 'y' : 'x', vert ? dy : dx) ? 'native' : 'reveal';
-      }
-      if (mode === 'native') e.stopPropagation();
-    }, { passive: true });
-  });
 })();
 </script>
 <script>

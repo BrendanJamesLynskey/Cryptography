@@ -22,7 +22,7 @@
   --accent2: #c6145f;
   --accent3: #573e05;
   --accent4: #886dfc;
-  --dim: #94948d;
+  --dim: #6b6b65;
   --panel: rgba(0,0,0,0.04);
   --border: rgba(1,50,37,0.15);
 }
@@ -111,12 +111,20 @@ svg .mono { font-family: 'Azeret Mono', monospace; }
 .reveal pre { font-size: 17px !important; width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto; }
 .reveal pre code { font-size: 1em !important; line-height: 1.45 !important; max-height: none !important;
   overflow-x: auto; white-space: pre; word-wrap: normal; overflow-wrap: normal; box-sizing: border-box; }
+/* Slide numbers were near-invisible light grey in several decks. */
+.reveal .slide-number, .reveal .slide-number a { color: #6b6b65 !important; }
+/* A flex/grid column that holds a listing may shrink, so the listing scrolls instead of pushing the column off the slide. */
+.reveal .slides section *:has(pre) { min-width: 0; }
 /* Azeret Mono's ligatures turn << into an arrow and 0x80 into 0×80: show code characters as typed. */
 .reveal code, .reveal pre, .reveal .mono { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0, "dlig" 0; }
 /* Phone layout (see crypto-phone-mode script): slides are laid out at the phone's own width, at scale 1. */
 html.phone-mode .reveal { font-size: 18px !important; }
+/* Reveal handles swipes with pointer events; a scrollable slide would otherwise claim every pan, so on a
+   phone the slide itself only pans vertically and sideways swipes change slide. Code blocks, tables and
+   wide diagrams inside it are scroll boxes of their own and still pan sideways. */
 html.phone-mode .reveal .slides > section, html.phone-mode .reveal .slides > section > section {
-  padding: 14px 16px 72px !important; overflow-y: auto !important; }
+  touch-action: pan-y pinch-zoom;
+  padding: 14px 16px 72px !important; overflow-y: auto !important; box-sizing: border-box !important; width: 100% !important; }
 html.phone-mode .reveal h1 { font-size: 1.8em !important; }
 html.phone-mode .reveal h2 { font-size: 1.4em !important; }
 html.phone-mode .reveal h3 { font-size: 1.1em !important; }
@@ -289,14 +297,14 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <!-- AES-CTR Block -->
     <rect x="30" y="20" width="180" height="80" rx="8" fill="none" stroke="#013225" stroke-width="2"/>
     <text x="120" y="52" text-anchor="middle" fill="#013225" font-size="14" font-weight="700">AES-CTR Engine</text>
-    <text x="120" y="72" text-anchor="middle" fill="#94948d" font-size="11" class="mono">Counter → AES → XOR</text>
+    <text x="120" y="72" text-anchor="middle" fill="#6b6b65" font-size="11" class="mono">Counter → AES → XOR</text>
     <!-- Arrow -->
     <line x1="210" y1="60" x2="280" y2="60" stroke="#013225" stroke-width="2" marker-end="url(#arrow)"/>
-    <text x="245" y="50" text-anchor="middle" fill="#94948d" font-size="10">ciphertext</text>
+    <text x="245" y="50" text-anchor="middle" fill="#6b6b65" font-size="10">ciphertext</text>
     <!-- GHASH Block -->
     <rect x="280" y="20" width="200" height="80" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
     <text x="380" y="52" text-anchor="middle" fill="#c6145f" font-size="14" font-weight="700">GHASH Unit</text>
-    <text x="380" y="72" text-anchor="middle" fill="#94948d" font-size="11" class="mono">GF(2¹²⁸) multiply-accumulate</text>
+    <text x="380" y="72" text-anchor="middle" fill="#6b6b65" font-size="11" class="mono">GF(2¹²⁸) multiply-accumulate</text>
     <!-- Arrow -->
     <line x1="480" y1="60" x2="540" y2="60" stroke="#c6145f" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Tag -->
@@ -404,16 +412,16 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <rect x="250" y="10" width="300" height="50" rx="8" fill="none" stroke="#013225" stroke-width="2"/>
     <text x="400" y="40" text-anchor="middle" fill="#013225" font-size="14" font-weight="700">Scalar Multiplication (k·P)</text>
     <!-- Arrows down -->
-    <line x1="330" y1="60" x2="200" y2="90" stroke="#94948d" stroke-width="1.5" marker-end="url(#arrow)"/>
-    <line x1="470" y1="60" x2="600" y2="90" stroke="#94948d" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="330" y1="60" x2="200" y2="90" stroke="#6b6b65" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="470" y1="60" x2="600" y2="90" stroke="#6b6b65" stroke-width="1.5" marker-end="url(#arrow)"/>
     <!-- Level 2 -->
     <rect x="100" y="90" width="200" height="45" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
     <text x="200" y="118" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Point Addition</text>
     <rect x="500" y="90" width="200" height="45" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
     <text x="600" y="118" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Point Doubling</text>
     <!-- Arrows down -->
-    <line x1="200" y1="135" x2="200" y2="165" stroke="#94948d" stroke-width="1.5" marker-end="url(#arrow)"/>
-    <line x1="600" y1="135" x2="600" y2="165" stroke="#94948d" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="200" y1="135" x2="200" y2="165" stroke="#6b6b65" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="600" y1="135" x2="600" y2="165" stroke="#6b6b65" stroke-width="1.5" marker-end="url(#arrow)"/>
     <!-- Level 3 -->
     <rect x="50" y="165" width="140" height="40" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
     <text x="120" y="190" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Mod Multiply</text>
@@ -426,7 +434,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <!-- Bottom note -->
     <rect x="150" y="230" width="500" height="55" rx="8" fill="rgba(136,109,252,0.08)" stroke="#886dfc" stroke-width="1.5"/>
     <text x="400" y="252" text-anchor="middle" fill="#886dfc" font-size="12" font-weight="700">Projective Coordinates eliminate per-point inversion</text>
-    <text x="400" y="270" text-anchor="middle" fill="#94948d" font-size="11">Only one final inversion needed — massive speedup</text>
+    <text x="400" y="270" text-anchor="middle" fill="#6b6b65" font-size="11">Only one final inversion needed — massive speedup</text>
   </svg>
 
   <p class="small">Edwards25519 hardware: unified point add/double in 646 cycles, full scalar multiplication in 164,730 cycles at 117 MHz → <em>1.4 ms</em> per operation on Virtex-5.</p>
@@ -540,38 +548,38 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <!-- CPU -->
     <rect x="30" y="30" width="160" height="100" rx="8" fill="rgba(136,109,252,0.1)" stroke="#886dfc" stroke-width="2"/>
     <text x="110" y="60" text-anchor="middle" fill="#886dfc" font-size="13" font-weight="700">RISC-V CPU</text>
-    <text x="110" y="80" text-anchor="middle" fill="#94948d" font-size="10">Control plane</text>
-    <text x="110" y="95" text-anchor="middle" fill="#94948d" font-size="10">Rejection sampling</text>
-    <text x="110" y="110" text-anchor="middle" fill="#94948d" font-size="10">Protocol logic</text>
+    <text x="110" y="80" text-anchor="middle" fill="#6b6b65" font-size="10">Control plane</text>
+    <text x="110" y="95" text-anchor="middle" fill="#6b6b65" font-size="10">Rejection sampling</text>
+    <text x="110" y="110" text-anchor="middle" fill="#6b6b65" font-size="10">Protocol logic</text>
     <!-- Bus -->
     <rect x="30" y="150" width="740" height="24" rx="4" fill="rgba(0,0,0,0.05)" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
-    <text x="400" y="166" text-anchor="middle" fill="#94948d" font-size="10" font-weight="700">AXI / Wishbone Interconnect</text>
+    <text x="400" y="166" text-anchor="middle" fill="#6b6b65" font-size="10" font-weight="700">AXI / Wishbone Interconnect</text>
     <line x1="110" y1="130" x2="110" y2="150" stroke="#886dfc" stroke-width="2"/>
     <!-- NTT Engine -->
     <rect x="220" y="30" width="160" height="100" rx="8" fill="rgba(1,50,37,0.1)" stroke="#013225" stroke-width="2"/>
     <text x="300" y="55" text-anchor="middle" fill="#013225" font-size="13" font-weight="700">NTT Engine</text>
-    <text x="300" y="75" text-anchor="middle" fill="#94948d" font-size="10">4× Radix-2 BF</text>
-    <text x="300" y="90" text-anchor="middle" fill="#94948d" font-size="10">Montgomery reduce</text>
-    <text x="300" y="105" text-anchor="middle" fill="#94948d" font-size="10">Coefficient RAM</text>
+    <text x="300" y="75" text-anchor="middle" fill="#6b6b65" font-size="10">4× Radix-2 BF</text>
+    <text x="300" y="90" text-anchor="middle" fill="#6b6b65" font-size="10">Montgomery reduce</text>
+    <text x="300" y="105" text-anchor="middle" fill="#6b6b65" font-size="10">Coefficient RAM</text>
     <line x1="300" y1="130" x2="300" y2="150" stroke="#013225" stroke-width="2"/>
     <!-- Keccak -->
     <rect x="410" y="30" width="160" height="100" rx="8" fill="rgba(198,20,95,0.1)" stroke="#c6145f" stroke-width="2"/>
     <text x="490" y="55" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Keccak/SHAKE</text>
-    <text x="490" y="75" text-anchor="middle" fill="#94948d" font-size="10">SHA-3 256/512</text>
-    <text x="490" y="90" text-anchor="middle" fill="#94948d" font-size="10">SHAKE-128/256</text>
-    <text x="490" y="105" text-anchor="middle" fill="#94948d" font-size="10">Sampling engine</text>
+    <text x="490" y="75" text-anchor="middle" fill="#6b6b65" font-size="10">SHA-3 256/512</text>
+    <text x="490" y="90" text-anchor="middle" fill="#6b6b65" font-size="10">SHAKE-128/256</text>
+    <text x="490" y="105" text-anchor="middle" fill="#6b6b65" font-size="10">Sampling engine</text>
     <line x1="490" y1="130" x2="490" y2="150" stroke="#c6145f" stroke-width="2"/>
     <!-- TRNG -->
     <rect x="600" y="30" width="160" height="100" rx="8" fill="rgba(87,62,5,0.1)" stroke="#573e05" stroke-width="2"/>
     <text x="680" y="55" text-anchor="middle" fill="#573e05" font-size="13" font-weight="700">TRNG / AES</text>
-    <text x="680" y="75" text-anchor="middle" fill="#94948d" font-size="10">Entropy source</text>
-    <text x="680" y="90" text-anchor="middle" fill="#94948d" font-size="10">AES-256 engine</text>
-    <text x="680" y="105" text-anchor="middle" fill="#94948d" font-size="10">Key storage</text>
+    <text x="680" y="75" text-anchor="middle" fill="#6b6b65" font-size="10">Entropy source</text>
+    <text x="680" y="90" text-anchor="middle" fill="#6b6b65" font-size="10">AES-256 engine</text>
+    <text x="680" y="105" text-anchor="middle" fill="#6b6b65" font-size="10">Key storage</text>
     <line x1="680" y1="130" x2="680" y2="150" stroke="#573e05" stroke-width="2"/>
     <!-- Memory -->
     <rect x="220" y="195" width="350" height="65" rx="8" fill="rgba(0,0,0,0.03)" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
     <text x="395" y="220" text-anchor="middle" fill="#000000" font-size="12" font-weight="700">Shared Polynomial Memory</text>
-    <text x="395" y="240" text-anchor="middle" fill="#94948d" font-size="10">Dual-port SRAM · Conflict-free access pattern · DMA interface</text>
+    <text x="395" y="240" text-anchor="middle" fill="#6b6b65" font-size="10">Dual-port SRAM · Conflict-free access pattern · DMA interface</text>
     <line x1="395" y1="174" x2="395" y2="195" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>
   </svg>
   <p class="tiny" style="text-align:center;">Architecture based on CRYSTALS-Dilithium post-quantum SoC designs for wired-communication critical systems.</p>
@@ -745,36 +753,36 @@ endmodule</code></pre>
 
   <svg viewBox="0 0 800 200" style="width:100%; margin:15px 0;">
     <!-- Network In -->
-    <rect x="10" y="70" width="100" height="50" rx="6" fill="none" stroke="#94948d" stroke-width="1.5"/>
-    <text x="60" y="100" text-anchor="middle" fill="#94948d" font-size="11" font-weight="700">Network RX</text>
+    <rect x="10" y="70" width="100" height="50" rx="6" fill="none" stroke="#6b6b65" stroke-width="1.5"/>
+    <text x="60" y="100" text-anchor="middle" fill="#6b6b65" font-size="11" font-weight="700">Network RX</text>
     <!-- Arrow -->
     <line x1="110" y1="95" x2="160" y2="95" stroke="#013225" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Parser -->
     <rect x="160" y="60" width="120" height="70" rx="8" fill="rgba(1,50,37,0.08)" stroke="#013225" stroke-width="2"/>
     <text x="220" y="85" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">Packet Parser</text>
-    <text x="220" y="102" text-anchor="middle" fill="#94948d" font-size="9">SA Lookup</text>
-    <text x="220" y="115" text-anchor="middle" fill="#94948d" font-size="9">SPI → Key/IV</text>
+    <text x="220" y="102" text-anchor="middle" fill="#6b6b65" font-size="9">SA Lookup</text>
+    <text x="220" y="115" text-anchor="middle" fill="#6b6b65" font-size="9">SPI → Key/IV</text>
     <!-- Arrow -->
     <line x1="280" y1="95" x2="330" y2="95" stroke="#013225" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Crypto -->
     <rect x="330" y="40" width="180" height="110" rx="8" fill="rgba(198,20,95,0.08)" stroke="#c6145f" stroke-width="2"/>
     <text x="420" y="65" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Crypto Engine</text>
     <text x="420" y="85" text-anchor="middle" fill="#1c1c1b" font-size="10">AES-GCM / ChaCha20-Poly1305</text>
-    <text x="420" y="100" text-anchor="middle" fill="#94948d" font-size="9">Multi-context pipeline</text>
-    <text x="420" y="115" text-anchor="middle" fill="#94948d" font-size="9">Anti-replay window</text>
-    <text x="420" y="130" text-anchor="middle" fill="#94948d" font-size="9">IV generation + auth tag verify</text>
+    <text x="420" y="100" text-anchor="middle" fill="#6b6b65" font-size="9">Multi-context pipeline</text>
+    <text x="420" y="115" text-anchor="middle" fill="#6b6b65" font-size="9">Anti-replay window</text>
+    <text x="420" y="130" text-anchor="middle" fill="#6b6b65" font-size="9">IV generation + auth tag verify</text>
     <!-- Arrow -->
     <line x1="510" y1="95" x2="560" y2="95" stroke="#c6145f" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Reassembly -->
     <rect x="560" y="60" width="120" height="70" rx="8" fill="rgba(87,62,5,0.08)" stroke="#573e05" stroke-width="2"/>
     <text x="620" y="85" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Reassembly</text>
-    <text x="620" y="102" text-anchor="middle" fill="#94948d" font-size="9">Header rewrite</text>
-    <text x="620" y="115" text-anchor="middle" fill="#94948d" font-size="9">Checksum update</text>
+    <text x="620" y="102" text-anchor="middle" fill="#6b6b65" font-size="9">Header rewrite</text>
+    <text x="620" y="115" text-anchor="middle" fill="#6b6b65" font-size="9">Checksum update</text>
     <!-- Arrow -->
     <line x1="680" y1="95" x2="720" y2="95" stroke="#573e05" stroke-width="2" marker-end="url(#arrow)"/>
     <!-- Network Out -->
-    <rect x="720" y="70" width="70" height="50" rx="6" fill="none" stroke="#94948d" stroke-width="1.5"/>
-    <text x="755" y="100" text-anchor="middle" fill="#94948d" font-size="11" font-weight="700">TX</text>
+    <rect x="720" y="70" width="70" height="50" rx="6" fill="none" stroke="#6b6b65" stroke-width="1.5"/>
+    <text x="755" y="100" text-anchor="middle" fill="#6b6b65" font-size="11" font-weight="700">TX</text>
   </svg>
 
   <div class="card-row">
@@ -806,7 +814,7 @@ endmodule</code></pre>
 <!-- SLIDE 27: AES ROUND RTL -->
 <!-- ============================================================ -->
 <section>
-  <h2>SystemVerilog: AES Round</h2>
+  <h2>SystemVerilog: AES Round <span style="opacity:.55;font-weight:400;">(1/2)</span></h2>
   <pre><code class="language-systemverilog">module aes_round (
   input  logic [127:0] state_in,
   input  logic [127:0] round_key,
@@ -824,9 +832,12 @@ endmodule</code></pre>
         .out (after_sub[8*i +: 8])
       );
     end
-  endgenerate
+  endgenerate</code></pre>
+</section>
 
-  // ShiftRows: fixed byte permutation (zero-cost in hardware — just wiring)
+<section>
+  <h2>SystemVerilog: AES Round <span style="opacity:.55;font-weight:400;">(2/2)</span></h2>
+  <pre><code class="language-systemverilog">  // ShiftRows: fixed byte permutation (zero-cost in hardware — just wiring)
   assign after_shift = {
     after_sub[127:120], after_sub[ 87: 80], after_sub[ 47: 40], after_sub[  7:  0],
     after_sub[ 95: 88], after_sub[ 55: 48], after_sub[ 15:  8], after_sub[103: 96],
@@ -853,7 +864,7 @@ endmodule</code></pre>
 <!-- SLIDE 28: COMPOSITE FIELD S-BOX RTL -->
 <!-- ============================================================ -->
 <section>
-  <h2>SystemVerilog: Composite Field S-Box</h2>
+  <h2>SystemVerilog: Composite Field S-Box <span style="opacity:.55;font-weight:400;">(1/2)</span></h2>
   <pre><code class="language-systemverilog">// AES S-Box via tower field: GF(2^8) → GF((2^4)^2) → GF(((2^2)^2)^2)
 // No ROM — pure combinational logic (~300 gates)
 module aes_sbox_cf (
@@ -867,9 +878,12 @@ module aes_sbox_cf (
   // Step 1: Isomorphic mapping GF(2^8) → GF((2^4)^2)
   assign mapped = iso_map(in);     // 8×8 binary matrix multiply
   assign hi = mapped[7:4];
-  assign lo = mapped[3:0];
+  assign lo = mapped[3:0];</code></pre>
+</section>
 
-  // Step 2: Compute inverse in GF((2^4)^2)
+<section>
+  <h2>SystemVerilog: Composite Field S-Box <span style="opacity:.55;font-weight:400;">(2/2)</span></h2>
+  <pre><code class="language-systemverilog">  // Step 2: Compute inverse in GF((2^4)^2)
   assign sum_hl   = hi ^ lo;                        // GF(2^4) add
   assign sq_scale = gf16_sq_scale(hi);               // hi² · λ (combined)
   assign prod     = gf16_mul(sum_hl, lo);             // (hi⊕lo) · lo
@@ -889,7 +903,7 @@ endmodule</code></pre>
 <!-- SLIDE 29: NTT BUTTERFLY RTL -->
 <!-- ============================================================ -->
 <section>
-  <h2>SystemVerilog: NTT Butterfly</h2>
+  <h2>SystemVerilog: NTT Butterfly <span style="opacity:.55;font-weight:400;">(1/2)</span></h2>
   <pre><code class="language-systemverilog">// Cooley-Tukey NTT butterfly for ML-KEM (Kyber)
 // q = 3329, coefficients are 12-bit
 module ntt_butterfly #(
@@ -911,9 +925,12 @@ module ntt_butterfly #(
   montgomery_reduce #(.Q(Q), .W(WIDTH)) u_mont (
     .product (prod),
     .result  (omega_b)
-  );
+  );</code></pre>
+</section>
 
-  // Butterfly: a' = a + ω·b (mod q),  b' = a - ω·b (mod q)
+<section>
+  <h2>SystemVerilog: NTT Butterfly <span style="opacity:.55;font-weight:400;">(2/2)</span></h2>
+  <pre><code class="language-systemverilog">  // Butterfly: a' = a + ω·b (mod q),  b' = a - ω·b (mod q)
   mod_add_sub #(.Q(Q), .W(WIDTH)) u_add (
     .a(a_in), .b(omega_b), .sum(sum_val), .diff(diff_val)
   );
@@ -1177,18 +1194,30 @@ endmodule</code></pre>
 // Below 641 px wide, the 900 px-high slide would be scaled to about 0.3 and its text and code would be
 // unreadable. Instead lay each slide out at the phone's own width at scale 1: grids become one column,
 // wide diagrams and tables scroll sideways inside their own box, text is at least 12.5 px, and a
-// slide taller than the screen scrolls vertically (left/right swipes still change slide).
+// slide taller than the screen scrolls vertically (left/right swipes still change slide, see the CSS).
+// On wider screens the normal scaled layout is kept (see fit below).
 (function(){
-  if (!window.matchMedia('(max-width: 640px)').matches || /print-pdf/.test(location.search)) return;
-  document.documentElement.classList.add('phone-mode');
+  var phone = window.matchMedia('(max-width: 640px)').matches && !/print-pdf/.test(location.search);
+  // Laptop/desktop: a slide whose content runs slightly past the bottom has its text (never its code,
+  // which is a fixed 17 px) scaled down in 3 % steps, to no less than 82 %.
+  function fit(s){
+    if (!s || s.dataset.fit) return;
+    var f = 1;
+    while (s.scrollHeight > s.clientHeight + 2 && f > 0.83) { f -= 0.03; s.style.fontSize = f.toFixed(2) + 'em'; }
+    s.dataset.fit = f.toFixed(2);
+  }
+  function fitNow(){ setTimeout(function(){ fit(Reveal.getCurrentSlide()); }, 50); }
+  if (phone) document.documentElement.classList.add('phone-mode');
   var init = Reveal.initialize;
   Reveal.initialize = function(o){
-    o = Object.assign({}, o || {}, { width: window.innerWidth, height: window.innerHeight, margin: 0,
+    if (phone) o = Object.assign({}, o || {}, { width: window.innerWidth, height: window.innerHeight, margin: 0,
       minScale: 1, maxScale: 1, center: false });
     var r = init.call(this, o);
-    Reveal.on('ready', phoneLayout);
+    if (phone) Reveal.on('ready', phoneLayout);
+    else if (!/print-pdf/.test(location.search)) { Reveal.on('ready', fitNow); Reveal.on('slidechanged', fitNow); }
     return r;
   };
+  if (!phone) return;
   function tracks(v){
     v = v.replace(/repeat\(\s*(\d+)\s*,\s*([^)]*\)?[^)]*)\)/g, function(m, n, t){ return Array(+n + 1).join(t + ' '); });
     var depth = 0, count = 0, tok = false;
@@ -1245,33 +1274,6 @@ endmodule</code></pre>
     }
     Reveal.layout();
   }
-  // Touch: a vertical drag scrolls a slide that is taller than the screen, a sideways drag inside a
-  // code block, table or diagram that is wider than its box scrolls it; anything else goes to Reveal.
-  function scroller(el, axis, d){
-    for (; el && el !== document.body; el = el.parentElement){
-      var cs = getComputedStyle(el), ov = axis === 'x' ? cs.overflowX : cs.overflowY;
-      if (ov !== 'auto' && ov !== 'scroll') continue;
-      if (axis === 'x' && el.scrollWidth > el.clientWidth + 1 &&
-          (d < 0 ? el.scrollLeft + el.clientWidth < el.scrollWidth - 1 : el.scrollLeft > 0)) return el;
-      if (axis === 'y' && el.scrollHeight > el.clientHeight + 1 &&
-          (d < 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0)) return el;
-    }
-    return null;
-  }
-  var sx = 0, sy = 0, mode = null;
-  document.addEventListener('DOMContentLoaded', function(){
-    var s = document.querySelector('.reveal .slides');
-    s.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; mode = null; }, { passive: true });
-    s.addEventListener('touchmove', function(e){
-      var dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
-      if (mode === null){
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) { e.stopPropagation(); return; }
-        var vert = Math.abs(dy) > Math.abs(dx);
-        mode = scroller(e.target, vert ? 'y' : 'x', vert ? dy : dx) ? 'native' : 'reveal';
-      }
-      if (mode === 'native') e.stopPropagation();
-    }, { passive: true });
-  });
 })();
 </script>
 <script>

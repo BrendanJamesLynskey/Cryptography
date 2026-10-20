@@ -22,7 +22,7 @@
   --accent2: #c6145f;
   --accent3: #573e05;
   --accent4: #886dfc;
-  --dim: #94948d;
+  --dim: #6b6b65;
   --panel: rgba(0,0,0,0.04);
   --border: rgba(1,50,37,0.15);
 }
@@ -111,12 +111,20 @@ svg .mono { font-family: 'Azeret Mono', monospace; }
 .reveal pre { font-size: 17px !important; width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto; }
 .reveal pre code { font-size: 1em !important; line-height: 1.45 !important; max-height: none !important;
   overflow-x: auto; white-space: pre; word-wrap: normal; overflow-wrap: normal; box-sizing: border-box; }
+/* Slide numbers were near-invisible light grey in several decks. */
+.reveal .slide-number, .reveal .slide-number a { color: #6b6b65 !important; }
+/* A flex/grid column that holds a listing may shrink, so the listing scrolls instead of pushing the column off the slide. */
+.reveal .slides section *:has(pre) { min-width: 0; }
 /* Azeret Mono's ligatures turn << into an arrow and 0x80 into 0×80: show code characters as typed. */
 .reveal code, .reveal pre, .reveal .mono { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0, "dlig" 0; }
 /* Phone layout (see crypto-phone-mode script): slides are laid out at the phone's own width, at scale 1. */
 html.phone-mode .reveal { font-size: 18px !important; }
+/* Reveal handles swipes with pointer events; a scrollable slide would otherwise claim every pan, so on a
+   phone the slide itself only pans vertically and sideways swipes change slide. Code blocks, tables and
+   wide diagrams inside it are scroll boxes of their own and still pan sideways. */
 html.phone-mode .reveal .slides > section, html.phone-mode .reveal .slides > section > section {
-  padding: 14px 16px 72px !important; overflow-y: auto !important; }
+  touch-action: pan-y pinch-zoom;
+  padding: 14px 16px 72px !important; overflow-y: auto !important; box-sizing: border-box !important; width: 100% !important; }
 html.phone-mode .reveal h1 { font-size: 1.8em !important; }
 html.phone-mode .reveal h2 { font-size: 1.4em !important; }
 html.phone-mode .reveal h3 { font-size: 1.1em !important; }
@@ -204,7 +212,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <text x="250" y="115" text-anchor="middle" fill="#c6145f" font-size="11" font-weight="700">Path B</text>
         <circle cx="170" cy="200" r="12" fill="none" stroke="#886dfc" stroke-width="2"/>
         <text x="170" y="204" text-anchor="middle" fill="#886dfc" font-size="10" font-weight="700">V</text>
-        <text x="170" y="15" text-anchor="middle" fill="#94948d" font-size="10">Entrance</text>
+        <text x="170" y="15" text-anchor="middle" fill="#6b6b65" font-size="10">Entrance</text>
       </svg>
     </div>
     <div class="card">
@@ -218,7 +226,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <text x="170" y="40" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Swap?</text>
         <path d="M120,50 Q170,20 230,50" fill="none" stroke="#573e05" stroke-width="1.5" stroke-dasharray="4,3"/>
         <path d="M230,70 Q170,100 120,70" fill="none" stroke="#573e05" stroke-width="1.5" stroke-dasharray="4,3"/>
-        <text x="170" y="110" text-anchor="middle" fill="#94948d" font-size="10">Prover detects swap with certainty</text>
+        <text x="170" y="110" text-anchor="middle" fill="#6b6b65" font-size="10">Prover detects swap with certainty</text>
       </svg>
     </div>
   </div>
@@ -261,11 +269,11 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <rect x="280" y="35" width="70" height="100" rx="6" fill="none" stroke="#c6145f" stroke-width="1.5"/>
     <text x="315" y="90" text-anchor="middle" fill="#c6145f" font-size="12" font-weight="700">V</text>
     <line x1="100" y1="55" x2="280" y2="55" stroke="#013225" stroke-width="1.5" marker-end="url(#arr)"/>
-    <text x="190" y="50" text-anchor="middle" fill="#94948d" font-size="10">commit</text>
+    <text x="190" y="50" text-anchor="middle" fill="#6b6b65" font-size="10">commit</text>
     <line x1="280" y1="80" x2="100" y2="80" stroke="#c6145f" stroke-width="1.5" marker-end="url(#arr2)"/>
-    <text x="190" y="75" text-anchor="middle" fill="#94948d" font-size="10">challenge</text>
+    <text x="190" y="75" text-anchor="middle" fill="#6b6b65" font-size="10">challenge</text>
     <line x1="100" y1="105" x2="280" y2="105" stroke="#013225" stroke-width="1.5" marker-end="url(#arr)"/>
-    <text x="190" y="100" text-anchor="middle" fill="#94948d" font-size="10">response</text>
+    <text x="190" y="100" text-anchor="middle" fill="#6b6b65" font-size="10">response</text>
     <!-- Non-Interactive -->
     <text x="440" y="20" fill="#c6145f" font-size="13" font-weight="700">Non-Interactive</text>
     <rect x="440" y="35" width="70" height="100" rx="6" fill="none" stroke="#013225" stroke-width="1.5"/>
@@ -366,11 +374,11 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </defs>
     <!-- Interactive side -->
     <rect x="20" y="20" width="330" height="160" rx="8" fill="rgba(0,0,0,0.02)" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
-    <text x="185" y="15" text-anchor="middle" fill="#94948d" font-size="12" font-weight="700">INTERACTIVE</text>
+    <text x="185" y="15" text-anchor="middle" fill="#6b6b65" font-size="12" font-weight="700">INTERACTIVE</text>
     <text x="40" y="55" fill="#1c1c1b" font-size="12" class="mono">1. a = g^r</text>
     <text x="40" y="85" fill="#c6145f" font-size="12" class="mono">2. e &larr; Verifier</text>
     <text x="40" y="115" fill="#1c1c1b" font-size="12" class="mono">3. z = r + e&middot;x</text>
-    <text x="40" y="150" fill="#94948d" font-size="11">Proof = (a, z), verified live</text>
+    <text x="40" y="150" fill="#6b6b65" font-size="11">Proof = (a, z), verified live</text>
     <!-- Arrow -->
     <line x1="370" y1="100" x2="440" y2="100" stroke="#573e05" stroke-width="2" marker-end="url(#fa)"/>
     <text x="405" y="90" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">H()</text>
@@ -464,13 +472,13 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <!-- Multiply gate -->
         <circle cx="100" cy="80" r="20" fill="none" stroke="#013225" stroke-width="1.5"/>
         <text x="100" y="85" text-anchor="middle" fill="#013225" font-size="14" font-weight="700">&times;</text>
-        <line x1="50" y1="35" x2="85" y2="62" stroke="#94948d" stroke-width="1"/>
-        <line x1="150" y1="35" x2="115" y2="62" stroke="#94948d" stroke-width="1"/>
+        <line x1="50" y1="35" x2="85" y2="62" stroke="#6b6b65" stroke-width="1"/>
+        <line x1="150" y1="35" x2="115" y2="62" stroke="#6b6b65" stroke-width="1"/>
         <!-- Add gate -->
         <circle cx="160" cy="150" r="20" fill="none" stroke="#c6145f" stroke-width="1.5"/>
         <text x="160" y="155" text-anchor="middle" fill="#c6145f" font-size="14" font-weight="700">+</text>
-        <line x1="100" y1="100" x2="145" y2="132" stroke="#94948d" stroke-width="1"/>
-        <line x1="230" y1="35" x2="175" y2="132" stroke="#94948d" stroke-width="1"/>
+        <line x1="100" y1="100" x2="145" y2="132" stroke="#6b6b65" stroke-width="1"/>
+        <line x1="230" y1="35" x2="175" y2="132" stroke="#6b6b65" stroke-width="1"/>
         <!-- Output -->
         <text x="160" y="195" text-anchor="middle" fill="#573e05" font-size="12" font-weight="700">out = x&middot;y + 1</text>
       </svg>
@@ -545,28 +553,28 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <!-- Phase 1 -->
     <rect x="20" y="20" width="160" height="60" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
     <text x="100" y="45" text-anchor="middle" fill="#c6145f" font-size="12" font-weight="700">Participant 1</text>
-    <text x="100" y="65" text-anchor="middle" fill="#94948d" font-size="10" class="mono">&tau;_1 &larr; random</text>
+    <text x="100" y="65" text-anchor="middle" fill="#6b6b65" font-size="10" class="mono">&tau;_1 &larr; random</text>
     <line x1="180" y1="50" x2="220" y2="50" stroke="#013225" stroke-width="1.5" marker-end="url(#ts)"/>
     <!-- Phase 2 -->
     <rect x="220" y="20" width="160" height="60" rx="8" fill="none" stroke="#573e05" stroke-width="2"/>
     <text x="300" y="45" text-anchor="middle" fill="#573e05" font-size="12" font-weight="700">Participant 2</text>
-    <text x="300" y="65" text-anchor="middle" fill="#94948d" font-size="10" class="mono">&tau;_2 &larr; random</text>
+    <text x="300" y="65" text-anchor="middle" fill="#6b6b65" font-size="10" class="mono">&tau;_2 &larr; random</text>
     <line x1="380" y1="50" x2="420" y2="50" stroke="#013225" stroke-width="1.5" marker-end="url(#ts)"/>
     <!-- Phase N -->
-    <text x="435" y="55" fill="#94948d" font-size="14">...</text>
+    <text x="435" y="55" fill="#6b6b65" font-size="14">...</text>
     <line x1="455" y1="50" x2="490" y2="50" stroke="#013225" stroke-width="1.5" marker-end="url(#ts)"/>
     <rect x="490" y="20" width="160" height="60" rx="8" fill="none" stroke="#886dfc" stroke-width="2"/>
     <text x="570" y="45" text-anchor="middle" fill="#886dfc" font-size="12" font-weight="700">Participant N</text>
-    <text x="570" y="65" text-anchor="middle" fill="#94948d" font-size="10" class="mono">&tau;_n &larr; random</text>
+    <text x="570" y="65" text-anchor="middle" fill="#6b6b65" font-size="10" class="mono">&tau;_n &larr; random</text>
     <line x1="650" y1="50" x2="700" y2="50" stroke="#013225" stroke-width="1.5" marker-end="url(#ts)"/>
     <!-- SRS -->
     <rect x="700" y="15" width="80" height="70" rx="8" fill="rgba(1,50,37,0.08)" stroke="#013225" stroke-width="2"/>
     <text x="740" y="45" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">SRS</text>
-    <text x="740" y="62" text-anchor="middle" fill="#94948d" font-size="9" class="mono">[&tau;^i]_1, [&tau;^i]_2</text>
+    <text x="740" y="62" text-anchor="middle" fill="#6b6b65" font-size="9" class="mono">[&tau;^i]_1, [&tau;^i]_2</text>
     <!-- Bottom note -->
     <text x="400" y="115" text-anchor="middle" fill="#1c1c1b" font-size="12">&tau; = &tau;_1 &middot; &tau;_2 &middot; ... &middot; &tau;_n &mdash; secure if <tspan fill="#013225" font-weight="700">at least one</tspan> participant is honest</text>
     <text x="400" y="140" text-anchor="middle" fill="#c6145f" font-size="11">Each participant must destroy their &tau;_i &mdash; the <tspan fill="#c6145f" font-weight="700">"toxic waste"</tspan></text>
-    <text x="400" y="162" text-anchor="middle" fill="#94948d" font-size="10">Zcash Sprout (6 participants) &rarr; Zcash Sapling (87) &rarr; Ethereum KZG ceremony (~141,000 contributions, 2023)</text>
+    <text x="400" y="162" text-anchor="middle" fill="#6b6b65" font-size="10">Zcash Sprout (6 participants) &rarr; Zcash Sapling (87) &rarr; Ethereum KZG ceremony (~141,000 contributions, 2023)</text>
   </svg>
 
   <div class="card-row">
@@ -701,31 +709,31 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <!-- Layer 0 -->
       <rect x="10" y="30" width="140" height="55" rx="6" fill="none" stroke="#013225" stroke-width="1.5"/>
       <text x="80" y="52" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">f₀(x)</text>
-      <text x="80" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree &lt; d</text>
+      <text x="80" y="72" text-anchor="middle" fill="#6b6b65" font-size="9">degree &lt; d</text>
       <!-- Arrow -->
       <line x1="150" y1="57" x2="185" y2="57" stroke="#573e05" stroke-width="1.5" marker-end="url(#fri)"/>
       <text x="168" y="50" text-anchor="middle" fill="#573e05" font-size="8">split</text>
       <!-- Layer 1 -->
       <rect x="185" y="30" width="140" height="55" rx="6" fill="none" stroke="#c6145f" stroke-width="1.5"/>
       <text x="255" y="52" text-anchor="middle" fill="#c6145f" font-size="11" font-weight="700">f₁(x)</text>
-      <text x="255" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree &lt; d/2</text>
+      <text x="255" y="72" text-anchor="middle" fill="#6b6b65" font-size="9">degree &lt; d/2</text>
       <!-- Arrow -->
       <line x1="325" y1="57" x2="360" y2="57" stroke="#573e05" stroke-width="1.5" marker-end="url(#fri)"/>
       <text x="343" y="50" text-anchor="middle" fill="#573e05" font-size="8">split</text>
       <!-- Layer 2 -->
       <rect x="360" y="30" width="140" height="55" rx="6" fill="none" stroke="#886dfc" stroke-width="1.5"/>
       <text x="430" y="52" text-anchor="middle" fill="#886dfc" font-size="11" font-weight="700">f₂(x)</text>
-      <text x="430" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree &lt; d/4</text>
+      <text x="430" y="72" text-anchor="middle" fill="#6b6b65" font-size="9">degree &lt; d/4</text>
       <!-- Dots -->
-      <text x="520" y="57" fill="#94948d" font-size="16">...</text>
+      <text x="520" y="57" fill="#6b6b65" font-size="16">...</text>
       <!-- Final -->
       <rect x="560" y="30" width="140" height="55" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
       <text x="630" y="52" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">f_k = constant</text>
-      <text x="630" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree 0</text>
+      <text x="630" y="72" text-anchor="middle" fill="#6b6b65" font-size="9">degree 0</text>
       <!-- Bottom explanation -->
       <text x="80" y="115" fill="#1c1c1b" font-size="11">Each round: write f_i(x) = g(x²) + x&middot;h(x²), then fold: f_{i+1}(y) = g(y) + &alpha;_i &middot; h(y)</text>
-      <text x="80" y="135" fill="#94948d" font-size="10">Verifier challenge &alpha;_i folds the polynomial, halving its degree</text>
-      <text x="80" y="155" fill="#94948d" font-size="10">After log(d) rounds, the polynomial is constant &mdash; verifier checks consistency via Merkle proofs</text>
+      <text x="80" y="135" fill="#6b6b65" font-size="10">Verifier challenge &alpha;_i folds the polynomial, halving its degree</text>
+      <text x="80" y="155" fill="#6b6b65" font-size="10">After log(d) rounds, the polynomial is constant &mdash; verifier checks consistency via Merkle proofs</text>
     </svg>
   </div>
 
@@ -874,8 +882,8 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <text x="60" y="35" text-anchor="middle" fill="#013225" font-size="10" font-weight="700">Signed ID</text>
         <rect x="10" y="55" width="100" height="30" rx="6" fill="none" stroke="#c6145f" stroke-width="1.5"/>
         <text x="60" y="75" text-anchor="middle" fill="#c6145f" font-size="9">Private witness</text>
-        <line x1="110" y1="40" x2="170" y2="50" stroke="#94948d" stroke-width="1"/>
-        <line x1="110" y1="70" x2="170" y2="55" stroke="#94948d" stroke-width="1"/>
+        <line x1="110" y1="40" x2="170" y2="50" stroke="#6b6b65" stroke-width="1"/>
+        <line x1="110" y1="70" x2="170" y2="55" stroke="#6b6b65" stroke-width="1"/>
         <rect x="170" y="30" width="60" height="40" rx="6" fill="none" stroke="#573e05" stroke-width="1.5"/>
         <text x="200" y="55" text-anchor="middle" fill="#573e05" font-size="10" font-weight="700">ZK</text>
         <line x1="230" y1="50" x2="260" y2="50" stroke="#013225" stroke-width="1.5"/>
@@ -939,35 +947,35 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <!-- Step 1 -->
     <rect x="20" y="30" width="130" height="70" rx="8" fill="none" stroke="#013225" stroke-width="1.5"/>
     <text x="85" y="55" text-anchor="middle" fill="#013225" font-size="11" font-weight="700">Step 1</text>
-    <text x="85" y="75" text-anchor="middle" fill="#94948d" font-size="9">Prove f(x₀)=x₁</text>
+    <text x="85" y="75" text-anchor="middle" fill="#6b6b65" font-size="9">Prove f(x₀)=x₁</text>
     <text x="85" y="90" text-anchor="middle" fill="#573e05" font-size="9">&pi;₁</text>
     <!-- Arrow -->
     <line x1="150" y1="65" x2="190" y2="65" stroke="#013225" stroke-width="1.5" marker-end="url(#rc)"/>
     <!-- Step 2 -->
     <rect x="190" y="30" width="160" height="70" rx="8" fill="none" stroke="#c6145f" stroke-width="1.5"/>
     <text x="270" y="50" text-anchor="middle" fill="#c6145f" font-size="11" font-weight="700">Step 2</text>
-    <text x="270" y="68" text-anchor="middle" fill="#94948d" font-size="9">Verify &pi;₁ inside circuit</text>
-    <text x="270" y="83" text-anchor="middle" fill="#94948d" font-size="9">+ Prove f(x₁)=x₂</text>
+    <text x="270" y="68" text-anchor="middle" fill="#6b6b65" font-size="9">Verify &pi;₁ inside circuit</text>
+    <text x="270" y="83" text-anchor="middle" fill="#6b6b65" font-size="9">+ Prove f(x₁)=x₂</text>
     <text x="270" y="96" text-anchor="middle" fill="#573e05" font-size="9">&pi;₂</text>
     <!-- Arrow -->
     <line x1="350" y1="65" x2="390" y2="65" stroke="#c6145f" stroke-width="1.5" marker-end="url(#rc)"/>
     <!-- Step N -->
-    <text x="405" y="70" fill="#94948d" font-size="14">...</text>
-    <line x1="425" y1="65" x2="465" y2="65" stroke="#94948d" stroke-width="1.5" marker-end="url(#rc)"/>
+    <text x="405" y="70" fill="#6b6b65" font-size="14">...</text>
+    <line x1="425" y1="65" x2="465" y2="65" stroke="#6b6b65" stroke-width="1.5" marker-end="url(#rc)"/>
     <!-- Final -->
     <rect x="465" y="30" width="160" height="70" rx="8" fill="none" stroke="#573e05" stroke-width="1.5"/>
     <text x="545" y="50" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">Step N</text>
-    <text x="545" y="68" text-anchor="middle" fill="#94948d" font-size="9">Verify &pi;_{N-1} inside circuit</text>
-    <text x="545" y="83" text-anchor="middle" fill="#94948d" font-size="9">+ Prove f(x_{N-1})=x_N</text>
+    <text x="545" y="68" text-anchor="middle" fill="#6b6b65" font-size="9">Verify &pi;_{N-1} inside circuit</text>
+    <text x="545" y="83" text-anchor="middle" fill="#6b6b65" font-size="9">+ Prove f(x_{N-1})=x_N</text>
     <text x="545" y="96" text-anchor="middle" fill="#573e05" font-size="9">&pi;_N</text>
     <!-- Arrow to final proof -->
     <line x1="625" y1="65" x2="680" y2="65" stroke="#573e05" stroke-width="2" marker-end="url(#rc)"/>
     <rect x="680" y="40" width="100" height="45" rx="8" fill="rgba(1,50,37,0.08)" stroke="#013225" stroke-width="2"/>
     <text x="730" y="60" text-anchor="middle" fill="#013225" font-size="10" font-weight="700">Single proof</text>
-    <text x="730" y="75" text-anchor="middle" fill="#94948d" font-size="9">attests N steps</text>
+    <text x="730" y="75" text-anchor="middle" fill="#6b6b65" font-size="9">attests N steps</text>
     <!-- Bottom -->
     <text x="400" y="130" text-anchor="middle" fill="#1c1c1b" font-size="11">Constant-size proof regardless of N &mdash; <tspan fill="#013225" font-weight="700">infinite compression</tspan></text>
-    <text x="400" y="150" text-anchor="middle" fill="#94948d" font-size="10">Key challenge: the verifier circuit must be efficient to embed inside the prover</text>
+    <text x="400" y="150" text-anchor="middle" fill="#6b6b65" font-size="10">Key challenge: the verifier circuit must be efficient to embed inside the prover</text>
   </svg>
 
   <div class="card-row">
@@ -1015,7 +1023,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <!-- SLIDE 26: CODE EXAMPLE -->
 <!-- ============================================================ -->
 <section>
-  <h2>ZK Proof Construction</h2>
+  <h2>ZK Proof Construction <span style="opacity:.55;font-weight:400;">(1/2)</span></h2>
   <p class="small">A simplified Schnorr-style ZK proof of discrete log knowledge, showing the Fiat-Shamir transformation. This is real cryptographic structure, not abstraction.</p>
 
   <div class="card">
@@ -1032,9 +1040,17 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     # 3. Response
     z = (r + e * x) % q           # z = r + e·x mod q
 
-    return Proof(A, z)             # π = (A, z)
+    return Proof(A, z)             # π = (A, z)</code></pre>
+  </div>
 
-def verify_dlog(G, H, proof, q):
+  <div class="highlight-box">
+    <strong>Correctness:</strong> <code>z&middot;G = (r + e&middot;x)&middot;G = r&middot;G + e&middot;x&middot;G = A + e&middot;H</code>. The simulator picks z, e randomly, computes <code>A = z&middot;G - e&middot;H</code> &mdash; indistinguishable from a real proof. This is the foundation on which Ed25519 and Taproot signatures are built.
+  </div>
+</section>
+
+<section>
+  <h2>ZK Proof Construction <span style="opacity:.55;font-weight:400;">(2/2)</span></h2>
+  <pre><code class="language-python">def verify_dlog(G, H, proof, q):
     """Verify proof that prover knows x with H = x*G"""
     A, z = proof.A, proof.z
 
@@ -1045,25 +1061,19 @@ def verify_dlog(G, H, proof, q):
     lhs = z * G                    # z·G
     rhs = A + e * H                # A + e·H = r·G + e·x·G
     return lhs == rhs              # True iff prover knows x</code></pre>
-  </div>
-
-  <div class="highlight-box">
-    <strong>Correctness:</strong> <code>z&middot;G = (r + e&middot;x)&middot;G = r&middot;G + e&middot;x&middot;G = A + e&middot;H</code>. The simulator picks z, e randomly, computes <code>A = z&middot;G - e&middot;H</code> &mdash; indistinguishable from a real proof. This is the foundation on which Ed25519 and Taproot signatures are built.
-  </div>
 </section>
 
 <!-- ============================================================ -->
 <!-- SLIDE 27: ADVANCED CODE EXAMPLE — CIRCUIT -->
 <!-- ============================================================ -->
 <section>
-  <h2>Arithmetic Circuit Definition</h2>
+  <h2>Arithmetic Circuit Definition <span style="opacity:.55;font-weight:400;">(1/2)</span></h2>
   <p class="small">How a modern ZK framework (e.g., Circom, Halo2, Noir) defines constraints. This example proves knowledge of two numbers whose product equals a public output.</p>
 
   <div class="card-row">
     <div class="card">
       <h3>Circom (R1CS)</h3>
       <pre><code class="language-javascript">pragma circom 2.1.0;
-
 template Multiply() {
     signal input a;   // private
     signal input b;   // private
@@ -1072,7 +1082,6 @@ template Multiply() {
     // R1CS constraint: a * b === c
     c &lt;== a * b;
 }
-
 // Range proof (a is n bits)
 template RangeProof(n) {
     signal input a;
@@ -1086,6 +1095,14 @@ template RangeProof(n) {
     sum === a;
 }</code></pre>
     </div>
+  </div>
+
+</section>
+
+<section>
+  <h2>Arithmetic Circuit Definition <span style="opacity:.55;font-weight:400;">(2/2)</span></h2>
+
+  <div class="card-row">
     <div class="card">
       <h3 style="color:var(--accent2);">Noir (ACIR)</h3>
       <pre><code class="language-rust">// Aztec's Noir language
@@ -1185,18 +1202,30 @@ fn main(
 // Below 641 px wide, the 900 px-high slide would be scaled to about 0.3 and its text and code would be
 // unreadable. Instead lay each slide out at the phone's own width at scale 1: grids become one column,
 // wide diagrams and tables scroll sideways inside their own box, text is at least 12.5 px, and a
-// slide taller than the screen scrolls vertically (left/right swipes still change slide).
+// slide taller than the screen scrolls vertically (left/right swipes still change slide, see the CSS).
+// On wider screens the normal scaled layout is kept (see fit below).
 (function(){
-  if (!window.matchMedia('(max-width: 640px)').matches || /print-pdf/.test(location.search)) return;
-  document.documentElement.classList.add('phone-mode');
+  var phone = window.matchMedia('(max-width: 640px)').matches && !/print-pdf/.test(location.search);
+  // Laptop/desktop: a slide whose content runs slightly past the bottom has its text (never its code,
+  // which is a fixed 17 px) scaled down in 3 % steps, to no less than 82 %.
+  function fit(s){
+    if (!s || s.dataset.fit) return;
+    var f = 1;
+    while (s.scrollHeight > s.clientHeight + 2 && f > 0.83) { f -= 0.03; s.style.fontSize = f.toFixed(2) + 'em'; }
+    s.dataset.fit = f.toFixed(2);
+  }
+  function fitNow(){ setTimeout(function(){ fit(Reveal.getCurrentSlide()); }, 50); }
+  if (phone) document.documentElement.classList.add('phone-mode');
   var init = Reveal.initialize;
   Reveal.initialize = function(o){
-    o = Object.assign({}, o || {}, { width: window.innerWidth, height: window.innerHeight, margin: 0,
+    if (phone) o = Object.assign({}, o || {}, { width: window.innerWidth, height: window.innerHeight, margin: 0,
       minScale: 1, maxScale: 1, center: false });
     var r = init.call(this, o);
-    Reveal.on('ready', phoneLayout);
+    if (phone) Reveal.on('ready', phoneLayout);
+    else if (!/print-pdf/.test(location.search)) { Reveal.on('ready', fitNow); Reveal.on('slidechanged', fitNow); }
     return r;
   };
+  if (!phone) return;
   function tracks(v){
     v = v.replace(/repeat\(\s*(\d+)\s*,\s*([^)]*\)?[^)]*)\)/g, function(m, n, t){ return Array(+n + 1).join(t + ' '); });
     var depth = 0, count = 0, tok = false;
@@ -1253,33 +1282,6 @@ fn main(
     }
     Reveal.layout();
   }
-  // Touch: a vertical drag scrolls a slide that is taller than the screen, a sideways drag inside a
-  // code block, table or diagram that is wider than its box scrolls it; anything else goes to Reveal.
-  function scroller(el, axis, d){
-    for (; el && el !== document.body; el = el.parentElement){
-      var cs = getComputedStyle(el), ov = axis === 'x' ? cs.overflowX : cs.overflowY;
-      if (ov !== 'auto' && ov !== 'scroll') continue;
-      if (axis === 'x' && el.scrollWidth > el.clientWidth + 1 &&
-          (d < 0 ? el.scrollLeft + el.clientWidth < el.scrollWidth - 1 : el.scrollLeft > 0)) return el;
-      if (axis === 'y' && el.scrollHeight > el.clientHeight + 1 &&
-          (d < 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0)) return el;
-    }
-    return null;
-  }
-  var sx = 0, sy = 0, mode = null;
-  document.addEventListener('DOMContentLoaded', function(){
-    var s = document.querySelector('.reveal .slides');
-    s.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; mode = null; }, { passive: true });
-    s.addEventListener('touchmove', function(e){
-      var dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
-      if (mode === null){
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) { e.stopPropagation(); return; }
-        var vert = Math.abs(dy) > Math.abs(dx);
-        mode = scroller(e.target, vert ? 'y' : 'x', vert ? dy : dx) ? 'native' : 'reveal';
-      }
-      if (mode === 'native') e.stopPropagation();
-    }, { passive: true });
-  });
 })();
 </script>
 <script>
