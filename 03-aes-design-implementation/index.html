@@ -452,7 +452,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div>
       <h3>S-box Properties</h3>
       <div class="box">
-        <p><span class="accent2">Non-linearity:</span> 112 (maximum for 8-bit bijection)</p>
+        <p><span class="accent2">Non-linearity:</span> 112 (best known for an 8-bit bijection)</p>
         <p><span class="accent2">Algebraic degree:</span> 7</p>
         <p><span class="accent2">Differential uniformity:</span> 4</p>
         <p><span class="accent2">Fixed points:</span> 0 (no byte maps to itself)</p>
@@ -649,7 +649,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box" style="margin-top:0.8em;">
         <h3>Properties</h3>
         <p class="small">✓ XOR is its own inverse — same for encrypt/decrypt</p>
-        <p class="small">✓ Zero-cost in hardware — just wire connections</p>
+        <p class="small">✓ Cheap in hardware — one XOR gate per bit</p>
         <p class="small">✓ Introduces the secret key into every round</p>
         <p class="small">✓ Without it, the cipher would be a public permutation</p>
       </div>
@@ -691,7 +691,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         temp = W[i - 1]
         if i % 4 == 0:
             temp = sub_word(rot_word(temp))
-            temp ^= RCON[i // 4]
+            temp ^= RCON[i // 4 - 1] &lt;&lt; 24   # word [rc, 00, 00, 00]
         W[i] = W[i - 4] ^ temp
     return W</code></pre>
     </div>
@@ -738,7 +738,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p class="small">Expands 256-bit key into 60 words (15 round keys)</p>
         <p class="small"><span class="accent4">Extra SubWord</span> applied at position 4 within each 8-word group:</p>
         <p class="mono small dim">if i mod 8 == 0: apply g()<br/>if i mod 8 == 4: SubWord only</p>
-        <p class="small">This extra non-linear step was added to resist related-key attacks.</p>
+        <p class="small">This extra non-linear step keeps the long 8-word key expansion from being too close to linear.</p>
       </div>
     </div>
   </div>
@@ -853,15 +853,15 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div>
       <h3>Performance Impact</h3>
       <div class="box">
-        <p><span class="accent">AESENC</span> — single cycle latency, fully pipelined</p>
-        <p class="small">With AES-NI, AES-128-CTR achieves <span class="accent2">~4 cycles/byte</span> on modern x86.</p>
-        <p class="small">That's <span class="accent2">~8 GB/s</span> single-core at 4 GHz.</p>
+        <p><span class="accent">AESENC</span> — 3–7 cycle latency (by core generation), one or two issued per cycle</p>
+        <p class="small">With AES-NI, AES-128-CTR achieves <span class="accent2">~0.6–0.7 cycles/byte</span> on modern x86.</p>
+        <p class="small">That's <span class="accent2">~6 GB/s (≈50 Gbps)</span> single-core at 4 GHz.</p>
       </div>
       <h3 style="margin-top:0.5em;">Security Benefits</h3>
       <div class="box">
         <p class="small">✓ Constant-time execution — immune to cache-timing attacks</p>
         <p class="small">✓ No S-box/T-table in memory — no table access patterns</p>
-        <p class="small">✓ S-box computed in hardware via GF(2<sup>4</sup>)² composite field</p>
+        <p class="small">✓ S-box computed in logic, not looked up in memory</p>
       </div>
     </div>
   </div>
@@ -925,7 +925,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p class="small">Store the 256×8-bit table directly:</p>
         <p class="small">✓ Simple — direct memory lookup</p>
         <p class="small">✓ FPGA: fits in one 18Kb BRAM</p>
-        <p class="small dim">✗ 16 S-boxes needed → 16 BRAMs per round</p>
+        <p class="small dim">✗ 16 S-boxes needed → 8 dual-port BRAMs per round</p>
         <p class="small dim">✗ Larger area on ASIC</p>
         <p class="small dim">✗ Susceptible to power side-channels</p>
       </div>
@@ -935,21 +935,21 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box">
         <p class="small">Decompose GF(2<sup>8</sup>) into tower field GF((2<sup>4</sup>)²):</p>
         <p class="small">Inversion in GF(2<sup>8</sup>) → operations in GF(2<sup>4</sup>)</p>
-        <p class="small accent2">✓ ~20% fewer gates (Canright, 2005)</p>
-        <p class="small accent2">✓ Used in Intel AES-NI hardware</p>
+        <p class="small accent2">✓ Far smaller than a 256-byte ROM (Canright, 2005)</p>
+        <p class="small accent2">✓ Used in Intel's 53 Gbps AES datapath (Mathew et al.)</p>
         <p class="small accent2">✓ Better for ASIC — pure logic</p>
         <p class="small dim">✗ More complex design verification</p>
       </div>
     </div>
   </div>
   <div class="highlight-box" style="margin-top:0.5em;text-align:center;">
-    <span class="small"><span class="accent">Canright's S-box:</span> Only 92 GE per S-box using GF(2²) subfield decomposition — the most compact known.</span>
+    <span class="small"><span class="accent">Canright's S-box:</span> about 230 GE using GF(2²) subfield decomposition, ~20% smaller than earlier composite designs; later circuits (Boyar–Peralta, ~115 gates) are smaller still.</span>
   </div>
   <div class="box" style="margin-top:0.5em;">
     <h3>Tower Field Decomposition</h3>
     <p class="small">
       <span class="mono">GF(2<sup>8</sup>)</span> → isomorphic to <span class="mono">GF((2<sup>4</sup>)<sup>2</sup>)</span> → further to <span class="mono">GF(((2<sup>2</sup>)<sup>2</sup>)<sup>2</sup>)</span><br/>
-      Each inversion reduces to multiplications and squarings in progressively smaller subfields, eventually reaching GF(2²) where inversion is just XOR + AND gates.
+      Each inversion reduces to multiplications and squarings in progressively smaller subfields, eventually reaching GF(2²) where inversion is just a swap of the two bits (normal basis).
     </p>
   </div>
   <p class="ref">Canright, "A Very Compact Rijndael S-box" (2005) · Mathew et al., IEEE JSSC (2011)</p>
@@ -1012,7 +1012,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h3>Attack Vectors</h3>
       <div class="box">
         <p><span class="badge badge-red">TIMING</span></p>
-        <p class="small">T-table cache access patterns reveal key-dependent indices. Bernstein's attack (2005) recovers full AES-256 key from network timing.</p>
+        <p class="small">T-table cache access patterns reveal key-dependent indices. Bernstein's attack (2005) recovered a full AES key from network timing of a server using OpenSSL T-tables.</p>
       </div>
       <div class="box">
         <p><span class="badge badge-red">POWER / EM</span></p>
@@ -1022,7 +1022,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box">
         <p><span class="badge badge-red">FAULT</span></p>
         <p class="small"><em>Differential Fault Analysis (DFA)</em> — inject faults in round 8/9, compare correct/faulty ciphertexts → recover key.</p>
-        <p class="small">A single byte fault in round 9 can reduce key search to ~2<sup>32</sup>.</p>
+        <p class="small">A single byte fault injected in round 8 reduces the key search to ~2<sup>32</sup> (Tunstall et al., 2011).</p>
       </div>
     </div>
     <div>
@@ -1127,7 +1127,7 @@ def add_round_key(s, k):  return [a ^ b for a, b in zip(s, k)]
 
 def aes_encrypt(plaintext, key):  # both 16-byte lists
     state = add_round_key(plaintext, key[:16])
-    rkeys = key_expansion(key)     # returns list of 11 × 16-byte round keys
+    rkeys = key_expansion(key)     # 11 round keys of 16 bytes (slide 12's 44 words, 4 per key)
     for r in range(1, 10):
         state = sub_bytes(state)
         state = shift_rows(state)
@@ -1209,7 +1209,7 @@ endmodule</code></pre>
     </tr>
     <tr>
       <td>x86 (AES-NI)</td><td>AESENC pipeline</td>
-      <td class="mono accent2">~8 Gbps</td><td>~40 cycles</td><td class="dim">Single-core CTR</td>
+      <td class="mono accent2">~50 Gbps</td><td>~40 cycles</td><td class="dim">Single-core CTR</td>
     </tr>
     <tr>
       <td>Virtex-5 FPGA</td><td>Iterative 128-bit</td>
@@ -1249,7 +1249,7 @@ endmodule</code></pre>
       <div class="box" style="margin-top:0.4em;">
         <p><span class="accent">Related-key attacks</span> (Biryukov &amp; Khovratovich, 2009)</p>
         <p class="small">AES-256: 2<sup>99.5</sup> (chosen related keys)</p>
-        <p class="small dim">Impractical — requires attacker to choose related keys. Addressed in key schedule design.</p>
+        <p class="small dim">Impractical — requires the attacker to choose related keys; irrelevant when keys are generated independently.</p>
       </div>
       <div class="box" style="margin-top:0.4em;">
         <p><span class="accent">Square / integral attacks</span></p>
@@ -1267,7 +1267,7 @@ endmodule</code></pre>
         <p class="small"><span class="accent3">Grover's algorithm</span> reduces brute-force to 2<sup>n/2</sup>:</p>
         <p class="small">AES-128 → ~2<sup>64</sup> quantum ops</p>
         <p class="small">AES-256 → ~2<sup>128</sup> quantum ops</p>
-        <p class="small accent2">Recommendation: use AES-256 for quantum-resistant symmetric encryption.</p>
+        <p class="small accent2">Grover parallelises poorly, so NIST still rates AES-128 adequate (it defines PQC security category 1); AES-256 gives the widest margin.</p>
         <p class="small dim">CNSA 2.0 (NSA) mandates AES-256.</p>
       </div>
     </div>
@@ -1320,7 +1320,7 @@ endmodule</code></pre>
     <div class="box" style="text-align:center;">
       <p style="font-size:2em;">🔬</p>
       <h3 style="color:var(--accent);">Resistance to Attacks</h3>
-      <p class="small">S-box from GF(2<sup>8</sup>) inverse — optimal non-linearity. MDS matrix for max diffusion. Wide trail strategy provides provable bounds against differential and linear cryptanalysis.</p>
+      <p class="small">S-box from GF(2<sup>8</sup>) inverse — best-known non-linearity. MDS matrix for max diffusion. Wide trail strategy provides provable bounds against differential and linear cryptanalysis.</p>
     </div>
     <div class="box" style="text-align:center;">
       <p style="font-size:2em;">⚡</p>
@@ -1344,7 +1344,7 @@ endmodule</code></pre>
   <div class="two-col small">
     <div>
       <p><span class="accent">Standards</span></p>
-      <p class="dim">FIPS 197 — Advanced Encryption Standard (AES), NIST, 2001</p>
+      <p class="dim">FIPS 197 — Advanced Encryption Standard (AES), NIST, 2001 (editorial update FIPS 197-upd1, 2023)</p>
       <p class="dim">NIST SP 800-38A — Modes of Operation</p>
       <p class="dim">NIST SP 800-38D — GCM Recommendation</p>
       <p class="dim">CNSA 2.0 — NSA Quantum-Resistant Algorithm Suite</p>

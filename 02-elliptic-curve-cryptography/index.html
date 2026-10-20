@@ -285,7 +285,7 @@ y₃ = λ(x₁ − x₃) − y₁
 </div>
 <div>
 <canvas id="cvFiniteField" width="360" height="340"></canvas>
-<p class="tiny" style="text-align:center">y² ≡ x³ + 2x + 3 (mod 97) — 100 points shown</p>
+<p class="tiny" style="text-align:center">y² ≡ x³ + 2x + 3 (mod 97) — all 99 affine points shown (100 with 𝒪)</p>
 </div>
 </div>
 </section>
@@ -320,7 +320,7 @@ y₃ = λ(x₁ − x₃) − y₁
 </table>
 </div>
 </div>
-<p class="fragment small dim">No subexponential classical algorithm exists for properly chosen curves. Compare: RSA-3072 has security ~2<sup>128</sup> but uses the GNFS which is subexponential — this is why ECC keys are so much shorter.</p>
+<p class="fragment small dim">No subexponential classical algorithm is known for properly chosen curves. Compare: RSA-3072 has security ~2<sup>128</sup> but uses the GNFS which is subexponential — this is why ECC keys are so much shorter.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -348,11 +348,11 @@ y₃ = λ(x₁ − x₃) − y₁
 <p class="small">Recode k using digits {−1, 0, 1} with no two consecutive non-zero digits. Average density: 1/3 vs 1/2 for binary.</p>
 <div class="math-block small">
   Example: k = 7<br>
-  Binary: 111 → 3 adds<br>
-  NAF: 100̄1 (= 8 − 1) → 1 add + 1 sub
+  Binary: 111 → 2 adds<br>
+  NAF: 100̄1 (= 8 − 1) → 1 subtraction
 </div>
 <h3 class="fragment" style="margin-top:.4em">Windowed Methods</h3>
-<p class="small fragment">w-NAF: precompute {G, 3G, 5G, …, (2<sup>w</sup>−1)G}, then scan k in windows of w bits. Reduces additions to ≈ n/(w+1).</p>
+<p class="small fragment">w-NAF: precompute the odd multiples {G, 3G, 5G, …, (2<sup>w−1</sup>−1)G}, then recode k so that any w consecutive digits hold at most one non-zero. Reduces additions to ≈ n/(w+1).</p>
 </div>
 </div>
 </section>
@@ -429,7 +429,7 @@ y₃ = λ(x₁ − x₃) − y₁
   <span class="dim">instead of 3x₁² + a·Z₁⁴</span>
 </div>
 <p class="small fragment" style="margin-top:.4em"><strong class="accent2">Limitation:</strong> Addition formulas have <em>exceptional cases</em> — P = Q, P = −Q, P = 𝒪 — requiring conditional branches, which leak via side-channels.</p>
-<p class="small fragment">Complete addition formulas for prime-order Weierstrass curves exist (Renes, Costello, Batina 2016) but cost more: 12M + 2S + 6a + 1b.</p>
+<p class="small fragment">Complete addition formulas for prime-order Weierstrass curves exist (Renes, Costello, Batina 2016) but cost more: about 12M plus multiplications by the curve constants a and 3b.</p>
 </div>
 </div>
 </section>
@@ -466,7 +466,7 @@ Z₊ = X₋ · (X_P·Z_Q − Z_P·X_Q)²
 <thead><tr><th>Curve</th><th>A</th><th>p</th><th>Security</th></tr></thead>
 <tbody>
 <tr><td><strong class="accent">Curve25519</strong></td><td>486662</td><td>2²⁵⁵ − 19</td><td>~128 bit</td></tr>
-<tr><td><strong class="accent">Curve448</strong></td><td>39081</td><td>2⁴⁴⁸ − 2²²⁴ − 1</td><td>~224 bit</td></tr>
+<tr><td><strong class="accent">Curve448</strong></td><td>156326</td><td>2⁴⁴⁸ − 2²²⁴ − 1</td><td>~224 bit</td></tr>
 </tbody>
 </table>
 <p class="small" style="margin-top:.5em"><strong class="accent3">Why these primes?</strong> Pseudo-Mersenne form enables fast modular reduction with a few additions/shifts instead of expensive division.</p>
@@ -492,7 +492,7 @@ Curve448: Goldilocks prime → Karatsuba-friendly 2×224-bit limb decomposition.
 &nbsp;&nbsp; (y₁y₂ − ax₁x₂) / (1 − dx₁x₂y₁y₂) )
 </div>
 <div class="fragment key-point small" style="margin-top:.5em">
-  <strong>Complete addition law:</strong> When d is not a square in 𝔽<sub>p</sub>, the denominators are <em>never zero</em> for any inputs on the curve. No exceptional cases — the same formula handles addition, doubling, identity, and inverses.
+  <strong>Complete addition law:</strong> When a is a square and d is not a square in 𝔽<sub>p</sub>, the denominators are <em>never zero</em> for any inputs on the curve. No exceptional cases — the same formula handles addition, doubling, identity, and inverses.
 </div>
 <p class="fragment small"><strong class="accent">Neutral element:</strong> (0, 1)<br>
 <strong class="accent">Inverse:</strong> −(x, y) = (−x, y)</p>
@@ -588,7 +588,7 @@ b<sub>W</sub> = (2A³ − 9A)/(27B³)
 <table style="font-size:.56em">
 <thead><tr><th>Curve</th><th>Form</th><th>Field</th><th>Order Bits</th><th>Cofactor</th><th>Security</th><th>Standards</th></tr></thead>
 <tbody>
-<tr><td><strong class="accent">P-256</strong></td><td>Weierstrass</td><td>𝔽<sub>p</sub>, p = 2²⁵⁶ − 2²²⁴ + 2¹⁹² + 2⁹⁶ − 1</td><td>256</td><td>1</td><td>128</td><td>FIPS 186-5, SP 800-186, Suite B</td></tr>
+<tr><td><strong class="accent">P-256</strong></td><td>Weierstrass</td><td>𝔽<sub>p</sub>, p = 2²⁵⁶ − 2²²⁴ + 2¹⁹² + 2⁹⁶ − 1</td><td>256</td><td>1</td><td>128</td><td>FIPS 186-5, SP 800-186 (formerly NSA Suite B)</td></tr>
 <tr><td><strong>P-384</strong></td><td>Weierstrass</td><td>𝔽<sub>p</sub>, 384-bit NIST prime</td><td>384</td><td>1</td><td>192</td><td>FIPS 186-5, CNSA 1.0</td></tr>
 <tr><td><strong>P-521</strong></td><td>Weierstrass</td><td>𝔽<sub>p</sub>, p = 2⁵²¹ − 1</td><td>521</td><td>1</td><td>256</td><td>FIPS 186-5</td></tr>
 <tr><td><strong class="accent">Curve25519</strong></td><td>Montgomery</td><td>𝔽<sub>p</sub>, p = 2²⁵⁵ − 19</td><td>253</td><td>8</td><td>~128</td><td>RFC 7748, SP 800-186</td></tr>
@@ -616,8 +616,8 @@ b<sub>W</sub> = (2A³ − 9A)/(27B³)
 <ul class="small">
   <li><strong class="accent">Prime shape:</strong> p = 2²⁵⁵ − 19 enables fast reduction (multiply high limbs by 19 and add to low limbs)</li>
   <li class="fragment"><strong class="accent">Laddering:</strong> Montgomery form → constant-time x-only ladder</li>
-  <li class="fragment"><strong class="accent">Cofactor 8:</strong> Clamping clears low 3 bits of scalar (multiple of 8) and sets bit 254 — prevents small-subgroup attacks and ensures constant-time</li>
-  <li class="fragment"><strong class="accent">Twist security:</strong> Both curve and quadratic twist have large prime-order subgroups — protects against invalid-curve faults</li>
+  <li class="fragment"><strong class="accent">Cofactor 8:</strong> Clamping clears low 3 bits of scalar (multiple of 8) and sets bit 254 — clearing the low bits kills small-subgroup components; the fixed top bit gives every key the same ladder length (constant time)</li>
+  <li class="fragment"><strong class="accent">Twist security:</strong> Both curve and quadratic twist have large prime-order subgroups — x-only implementations stay safe even when given a point on the twist</li>
   <li class="fragment"><strong class="accent">A = 486662:</strong> Smallest A satisfying all security criteria</li>
 </ul>
 </div>
@@ -634,7 +634,7 @@ b<sub>W</sub> = (2A³ − 9A)/(27B³)
 </table>
 <div class="panel" style="font-size:.75em;margin-top:.4em">
 <h3 style="font-size:.85em">Deployment</h3>
-<p>TLS 1.3 (default key exchange), Signal Protocol, WhatsApp, SSH (Ed25519 keys), WireGuard, age encryption, FIDO2/Passkeys, Tor</p>
+<p>TLS 1.3 (most-used key share, now usually inside the X25519MLKEM768 hybrid), Signal Protocol, WhatsApp, SSH (Ed25519 keys), WireGuard, age encryption, FIDO2/Passkeys, Tor</p>
 </div>
 </div>
 </div>
@@ -716,7 +716,7 @@ Public key: Q = dG</p>
   <li>Accept if x₁ mod n = r</li>
 </ol>
 <div class="fragment warning small" style="margin-top:.5em">
-<strong>Critical:</strong> The nonce k must be truly random and unique per signature. Reusing k leaks the private key directly:<br>
+<strong>Critical:</strong> The nonce k must be truly random and unique per signature. Reusing k leaks the private key: two signatures give k = (e₁ − e₂)·(s₁ − s₂)⁻¹, then<br>
 <span class="dim" style="font-family:'Azeret Mono'">d = (s·k − e) · r⁻¹ mod n</span>
 </div>
 <p class="fragment tiny"><strong>RFC 6979:</strong> Deterministic ECDSA — derives k = HMAC-DRBG(d, HASH(m)), eliminating random nonce failures.</p>
@@ -758,7 +758,7 @@ Public key: Q = dG</p>
 <tr><td>Signature size</td><td>~72 bytes (DER)</td><td><strong class="accent">64 bytes</strong> (fixed)</td></tr>
 <tr><td>Batch verify</td><td>Limited</td><td><strong class="accent">Native support</strong></td></tr>
 <tr><td>Malleability</td><td>s ↔ n−s</td><td><strong class="accent">Canonical S</strong></td></tr>
-<tr><td>Standards</td><td>FIPS 186-5</td><td>RFC 8032</td></tr>
+<tr><td>Standards</td><td>FIPS 186-5</td><td>RFC 8032, FIPS 186-5</td></tr>
 </tbody>
 </table>
 </div>
@@ -778,7 +778,7 @@ Public key: Q = dG</p>
 <tr><td><strong>Pollard's ρ</strong></td><td>O(√(πn/2)) time, O(1) space</td><td>Generic group</td><td>n ≥ 2²⁵⁶</td></tr>
 <tr><td><strong>Pohlig-Hellman</strong></td><td>O(√p<sub>max</sub>)</td><td>n has small prime factors</td><td>Use (near-)prime order n</td></tr>
 <tr><td><strong>MOV / Frey-Rück</strong></td><td>Subexponential (via pairings)</td><td>Low embedding degree</td><td>Embedding degree k ≥ 20</td></tr>
-<tr><td><strong>Smart's Attack</strong></td><td>O(n) — linear!</td><td>Anomalous curve: #E = p</td><td>Ensure #E ≠ p</td></tr>
+<tr><td><strong>Smart's Attack</strong></td><td>Polynomial time (p-adic lift)</td><td>Anomalous curve: #E = p</td><td>Ensure #E ≠ p</td></tr>
 <tr><td><strong>Invalid Curve</strong></td><td>Varies</td><td>No point validation</td><td>Validate public keys</td></tr>
 <tr><td><strong>Small Subgroup</strong></td><td>O(√h)</td><td>Large cofactor + no cofactor mult</td><td>Cofactor validation / clamping</td></tr>
 <tr><td><strong>Shor's (Quantum)</strong></td><td>Polynomial</td><td>CRQC (~2330 qubits for 256-bit)</td><td>Post-quantum migration</td></tr>
@@ -1003,7 +1003,7 @@ endmodule</code></pre>
 <span class="badge badge-code">SystemVerilog</span>
 <pre><code class="language-verilog">// Jacobian point addition: P3 = P1 + P2
 // P1 = (X1:Y1:Z1), P2 = (X2:Y2:1) [mixed add]
-// Cost: 7M + 4S  (a = -3 optimization)
+// Cost: 8M + 3S as scheduled (7M + 4S if Z3 = (Z1+H)^2 - Z1^2 - H^2)
 // 
 // Schedule (7 rounds with single multiplier):
 //   R1: U2 = X2*Z1^2         S2 = Y2*Z1^3
@@ -1023,7 +1023,7 @@ module ecc_point_add_ctrl (
     output logic mul_start,
     output logic done
 );
-    // FSM with 11 states for 7M + 4S operations
+    // FSM with 11 states, one per multiply/square (8M + 3S)
     // Parallelism: dual multipliers can overlap rounds
     // ... (full FSM omitted for clarity)
 endmodule</code></pre>
@@ -1046,7 +1046,7 @@ def point_add(P, Q):
     if P is None: return Q
     if Q is None: return P
     x1, y1 = P; x2, y2 = Q
-    if x1 == x2 and y1 != y2: return None  # P + (-P)
+    if x1 == x2 and (y1 + y2) % p == 0: return None  # P + (-P)
     if P == Q:
         lam = (3 * x1 * x1 + a) * modinv(2 * y1) % p
     else:
@@ -1067,12 +1067,12 @@ n = 5           # Order of G (toy example)
 
 # Alice & Bob
 a_priv = 3;  A_pub = scalar_mult(a_priv, G)  # (80, 87)
-b_priv = 4;  B_pub = scalar_mult(b_priv, G)  # (80, 10)
+b_priv = 4;  B_pub = scalar_mult(b_priv, G)  # (3, 91)
 
 shared_A = scalar_mult(a_priv, B_pub)  # Alice computes
 shared_B = scalar_mult(b_priv, A_pub)  # Bob computes
 assert shared_A == shared_B            # Same point!
-print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
+print(f"Shared secret: {shared_A}")    # (80, 10) = 12G = 2G</code></pre>
 </section>
 
 <!-- ============================================================ -->
@@ -1096,7 +1096,7 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 <button id="interDouble" style="margin-top:8px;padding:6px 14px;background:rgba(136,109,252,.1);color:var(--accent4);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'Schibsted Grotesk'">Double P</button>
 </div>
 <div class="panel fragment" style="font-size:.7em;margin-top:8px">
-<p><strong>All 100 points on E(𝔽₉₇):</strong></p>
+<p><strong>All 99 affine points on E(𝔽₉₇) (#E = 100 with 𝒪):</strong></p>
 <p class="dim tiny" id="allPoints"></p>
 </div>
 </div>
@@ -1134,7 +1134,7 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 <section>
 <h2>ECC in TLS 1.3</h2>
 <span class="badge badge-std">Deployment</span>
-<p class="small">TLS 1.3 mandates ECC — X25519 is the most common key exchange.</p>
+<p class="small">TLS 1.3 requires ECDHE support (secp256r1 MUST, X25519 SHOULD; RFC 8446 §9.1) — X25519 is the most common classical key exchange.</p>
 <div style="font-size:.72em;margin-top:.4em">
 <div class="hw-diagram">
 <p style="text-align:center;margin-bottom:8px"><strong>TLS 1.3 Handshake (1-RTT)</strong></p>
@@ -1169,7 +1169,7 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 </div>
 </div>
 <div class="fragment panel" style="font-size:.75em">
-<p><strong class="accent">Key exchange groups in TLS 1.3:</strong> x25519 (0x001D, most popular), secp256r1 (0x0017), x448 (0x001E), secp384r1 (0x0018), secp521r1 (0x0019). Post-quantum hybrids (X25519+ML-KEM-768) are being deployed.</p>
+<p><strong class="accent">Key exchange groups in TLS 1.3:</strong> x25519 (0x001D, most popular), secp256r1 (0x0017), x448 (0x001E), secp384r1 (0x0018), secp521r1 (0x0019). The post-quantum hybrid X25519MLKEM768 (0x11EC) is now the default in major browsers.</p>
 </div>
 </section>
 
@@ -1219,7 +1219,7 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 </table>
 <p class="tiny">Approximate timings on modern x86-64 (Haswell/Skylake). RSA verify is fast due to small public exponent e = 65537.</p>
 <div class="fragment key-point small">
-<p><strong>Bandwidth matters:</strong> In TLS, ECC's 32-byte keys vs RSA's 384-byte keys compound across billions of connections per day. This is why TLS 1.3 favors X25519+Ed25519.</p>
+<p><strong>Bandwidth matters:</strong> In TLS, ECC's 32-byte keys vs RSA's 384-byte keys compound across billions of connections per day. This is why TLS 1.3 deployments favour X25519 key exchange with ECDSA certificates.</p>
 </div>
 </section>
 
@@ -1248,11 +1248,11 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 <table class="small">
 <thead><tr><th>Milestone</th><th>Date</th></tr></thead>
 <tbody>
-<tr><td>NIST PQC standards finalized</td><td>Aug 2024</td></tr>
-<tr><td>CNSA 2.0: PQ for firmware/software signing</td><td>2025</td></tr>
-<tr><td>CNSA 2.0: PQ for web/cloud</td><td>2025-2030</td></tr>
-<tr><td>NIST deprecate ECC-only</td><td>2030</td></tr>
-<tr><td>NIST disallow ECC-only</td><td>2035</td></tr>
+<tr><td>NIST PQC standards FIPS 203/204/205 published</td><td>Aug 2024</td></tr>
+<tr><td>CNSA 2.0: PQ preferred for software/firmware signing (exclusive by 2030)</td><td>2025</td></tr>
+<tr><td>CNSA 2.0: web browsers/servers &amp; cloud (prefer 2025, exclusive)</td><td>2033</td></tr>
+<tr><td>NIST IR 8547 (draft): 112-bit ECC deprecated</td><td>2030</td></tr>
+<tr><td>NIST IR 8547 (draft): all ECC disallowed</td><td>2035</td></tr>
 </tbody>
 </table>
 <div class="panel" style="font-size:.75em;margin-top:.4em">
@@ -1273,13 +1273,13 @@ print(f"Shared secret: {shared_A}")    # (3, 91)</code></pre>
 <tbody>
 <tr><td><strong>Equation</strong></td><td>y² = x³ + ax + b</td><td>Bv² = u³ + Au² + u</td><td>ax² + y² = 1 + dx²y²</td></tr>
 <tr><td><strong>Prime order possible?</strong></td><td class="accent">Yes</td><td>No (h ≥ 4)</td><td>No (h ≥ 4)</td></tr>
-<tr><td><strong>Complete addition law?</strong></td><td>Yes (Renes 2016, costly)</td><td>N/A (x-only)</td><td class="accent">Yes (when d non-square)</td></tr>
+<tr><td><strong>Complete addition law?</strong></td><td>Yes (Renes 2016, costly)</td><td>N/A (x-only)</td><td class="accent">Yes (a square, d non-square)</td></tr>
 <tr><td><strong>Best add cost</strong></td><td>7M + 4S (mixed Jacobian)</td><td>4M + 2S (diff.)</td><td class="accent">8M (extended)</td></tr>
-<tr><td><strong>Best double cost</strong></td><td>1M + 8S (Jacobian, a=-3)</td><td>2M + 2S + 1D</td><td class="accent">4M + 4S (extended)</td></tr>
+<tr><td><strong>Best double cost</strong></td><td>3M + 5S (Jacobian, a=−3)</td><td>2M + 2S + 1D</td><td class="accent">4M + 4S (extended)</td></tr>
 <tr><td><strong>Constant-time ease</strong></td><td>Requires care</td><td class="accent">Natural (ladder)</td><td class="accent">Natural (complete)</td></tr>
 <tr><td><strong>Key curves</strong></td><td>P-256, P-384, secp256k1</td><td>Curve25519, Curve448</td><td>edwards25519, edwards448</td></tr>
 <tr><td><strong>Primary use</strong></td><td>ECDSA, ECDH (NIST)</td><td>X25519/X448 (ECDH)</td><td>Ed25519/Ed448 (EdDSA)</td></tr>
-<tr><td><strong>FIPS approved?</strong></td><td class="accent">Yes</td><td class="accent">Yes (SP 800-186)</td><td class="accent">Yes (SP 800-186)</td></tr>
+<tr><td><strong>FIPS approved?</strong></td><td class="accent">Yes</td><td class="accent">Curve in SP 800-186; X25519 not yet in SP 800-56A</td><td class="accent">Yes (EdDSA, FIPS 186-5)</td></tr>
 </tbody>
 </table>
 <div class="fragment key-point small" style="margin-top:.5em">
