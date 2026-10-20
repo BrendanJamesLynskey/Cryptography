@@ -248,7 +248,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p><span class="accent">Chinese Remainder Theorem (CRT)</span></p>
         <p class="small">If gcd(m, n) = 1, then for any a, b there exists a unique x (mod mn) such that:</p>
         <p class="small mono" style="text-align:center;">x &equiv; a (mod m) &emsp; x &equiv; b (mod n)</p>
-        <p class="small dim">CRT enables a 4&times; speedup in RSA private key operations.</p>
+        <p class="small dim">CRT gives up to a ~4&times; speedup in RSA private-key operations.</p>
       </div>
     </div>
   </div>
@@ -265,7 +265,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h3>Prime Generation</h3>
       <div class="box">
         <p><span class="accent">Prime Number Theorem:</span> density of primes near N is ~1/ln(N)</p>
-        <p class="small">For a 1024-bit prime: ~1 in 710 random odd numbers is prime.</p>
+        <p class="small">For a 1024-bit prime: ~1 in 710 random integers (~1 in 355 odd numbers) is prime.</p>
         <p class="small">Generation: pick random odd n, test primality, increment by 2, repeat.</p>
       </div>
       <div class="box" style="margin-top:0.4em;">
@@ -407,7 +407,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       </div>
     </div>
   </div>
-  <p class="ref">Menezes, Oorschot &amp; Vanstone, "Handbook of Applied Cryptography" ch. 3 &middot; Joux &amp; Lercier, "Discrete Logarithms in GF(p)" (2006)</p>
+  <p class="ref">Menezes, Oorschot &amp; Vanstone, "Handbook of Applied Cryptography" ch. 3 &middot; Joux &amp; Lercier, "Improvements to the General Number Field Sieve for Discrete Logarithms in Prime Fields" Math. Comp. (2003)</p>
 </section>
 
 <!-- ============================================================ -->
@@ -477,7 +477,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box">
         <p><span class="badge badge-amber">STEP 4</span> Choose <span class="mono accent">e</span> such that 1 &lt; e &lt; &phi;(n) and gcd(e, &phi;(n)) = 1</p>
         <p class="small">Standard choice: <span class="mono accent2">e = 65537 = 2<sup>16</sup> + 1</span> (Fermat prime F<sub>4</sub>)</p>
-        <p class="small dim">Only two 1-bits &rarr; fast modular exponentiation (17 squarings + 1 multiply).</p>
+        <p class="small dim">Only two 1-bits &rarr; fast modular exponentiation (16 squarings + 1 multiply).</p>
       </div>
       <div class="box">
         <p><span class="badge badge-amber">STEP 5</span> Compute <span class="mono accent">d = e<sup>&minus;1</sup> mod &phi;(n)</span></p>
@@ -683,7 +683,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         </tr>
         <tr>
           <td class="accent4">GNFS</td>
-          <td class="mono accent4">L<sub>n</sub>[1/3, 1.902]</td>
+          <td class="mono accent4">L<sub>n</sub>[1/3, 1.923]</td>
           <td class="dim">1993</td>
         </tr>
       </table>
@@ -702,7 +702,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p class="small dim">~2,700 CPU-years. Boudot, Gaudry, Guillevic, Heninger, Thom&eacute;, Zimmermann.</p>
       </div>
       <div class="box" style="margin-top:0.3em;">
-        <p class="small accent4">RSA-1024 is within reach of nation-state adversaries (estimated ~10<sup>8</sup> CPU-years with current methods).</p>
+        <p class="small accent4">RSA-1024 is within reach of nation-state adversaries (roughly 1,000&times; the RSA-768 effort, ~10<sup>6</sup> core-years; no public 1024-bit RSA factorisation yet).</p>
       </div>
       <div class="highlight-box" style="margin-top:0.5em;">
         <p class="small"><span class="accent">Current Recommendations:</span></p>
@@ -748,7 +748,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p class="small mono">m<sub>q</sub> = c<sup>d mod (q&minus;1)</sup> mod q</p>
         <p class="small mono">m = CRT(m<sub>p</sub>, m<sub>q</sub>)</p>
         <p class="small accent2">~4&times; speedup: two half-size exponentiations are 4&times; faster than one full-size.</p>
-        <p class="small dim">This is why PKCS#8 RSA private keys store p, q, d<sub>p</sub>, d<sub>q</sub>, q<sub>inv</sub>.</p>
+        <p class="small dim">This is why PKCS #1 RSA private keys (often wrapped in PKCS #8) store p, q, d<sub>p</sub>, d<sub>q</sub>, q<sub>inv</sub>.</p>
       </div>
       <div class="box" style="margin-top:0.4em;">
         <p><span class="accent">Multi-Prime RSA</span></p>
@@ -807,7 +807,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <tr>
       <td class="mono">4096</td>
       <td>~140-bit</td>
-      <td>~384</td>
+      <td>~280</td>
       <td>~120</td>
       <td>~7,500</td>
       <td>512 B</td>
@@ -947,7 +947,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box" style="margin-top:0.3em;">
         <p><span class="badge badge-red">COPPERSMITH</span> <span class="small dim">(1996)</span></p>
         <p class="small">Uses LLL lattice reduction to find small roots of polynomials mod n.</p>
-        <p class="small accent4">Applications: small e with small message padding, partial key exposure (knowing ~half of d suffices to recover the rest), stereotyped messages.</p>
+        <p class="small accent4">Applications: small e with small message padding, partial key exposure (half the bits of p, or for small e a quarter of d's low bits, suffice to factor n), stereotyped messages.</p>
       </div>
       <div class="box" style="margin-top:0.3em;">
         <p><span class="badge badge-red">H&Aring;STAD BROADCAST</span></p>
@@ -995,7 +995,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box" style="margin-top:0.3em;">
         <p><span class="badge badge-red">SMALL SUBGROUP</span></p>
         <p class="small">If the group order has small prime factors, attacker sends elements of small subgroups. Victim's shared secret leaks information about the private exponent modulo small primes.</p>
-        <p class="small accent2">Fix: use safe primes (p = 2q+1) or validate received elements (check g<sup>q</sup> = 1 in prime-order subgroup).</p>
+        <p class="small accent2">Fix: use safe primes (p = 2q+1) or validate received elements y (check 1 &lt; y &lt; p&minus;1 and y<sup>q</sup> = 1 in the prime-order subgroup).</p>
       </div>
     </div>
     <div>
@@ -1003,8 +1003,8 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box" style="border-color:rgba(251,65,46,.3);">
         <p><span class="badge badge-red">LOGJAM</span> <span class="small dim">(2015)</span></p>
         <p class="small accent4">Precomputation attack on 512-bit DH (export-grade):</p>
-        <p class="small">NFS precomputation for a fixed prime takes ~1 week. After that, individual DLPs take ~90 seconds.</p>
-        <p class="small accent4">A single 1024-bit prime used by most of the internet could be targeted by a nation-state with ~$100M in custom hardware (est.).</p>
+        <p class="small">NFS precomputation for a fixed prime takes ~1 week. After that, individual DLPs take about a minute.</p>
+        <p class="small accent4">A single 1024-bit prime used by most of the internet could be targeted by a nation-state with a few hundred million dollars of custom hardware (est.).</p>
         <p class="small accent2">Fix: use &ge; 2048-bit groups, prefer ECDH.</p>
       </div>
       <div class="box" style="margin-top:0.3em;">
@@ -1098,14 +1098,14 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <tr><td>Key generation</td><td>~150 ms</td><td class="accent2">~0.1 ms</td></tr>
         <tr><td>Sign</td><td>~3.7 ms</td><td class="accent2">~0.2 ms</td></tr>
         <tr><td>Verify</td><td class="accent2">~0.08 ms</td><td>~0.5 ms</td></tr>
-        <tr><td>Public key size</td><td>384 B</td><td class="accent2">32 B</td></tr>
+        <tr><td>Public key size</td><td>384 B</td><td class="accent2">33 B (compressed)</td></tr>
         <tr><td>Signature size</td><td>384 B</td><td class="accent2">64 B</td></tr>
       </table>
       <div class="highlight-box" style="margin-top:0.5em;">
-        <p class="small"><span class="accent">Industry migration:</span> ECC dominates in TLS 1.3 (ECDHE + ECDSA). RSA still used for legacy compatibility, certificate signatures, and code signing. NIST recommends transitioning to ECC or PQC.</p>
+        <p class="small"><span class="accent">Industry migration:</span> ECC dominates in TLS 1.3 (ECDHE + ECDSA). RSA still used for legacy compatibility, certificate signatures, and code signing. NIST IR 8547 (draft, 2024) plans to deprecate quantum-vulnerable RSA and ECC after 2030 and disallow them after 2035, in favour of PQC.</p>
       </div>
       <div class="box" style="margin-top:0.3em;">
-        <p class="small"><span class="accent">RSA advantage:</span> Verification is extremely fast (e = 65537 has only 17 squarings). Ideal when verification is done far more often than signing (certificate validation, firmware signatures).</p>
+        <p class="small"><span class="accent">RSA advantage:</span> Verification is extremely fast (e = 65537 needs only 16 squarings + 1 multiply). Ideal when verification is done far more often than signing (certificate validation, firmware signatures).</p>
       </div>
     </div>
   </div>
@@ -1178,7 +1178,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p class="small mono">RSA-3072: &emsp; ~6,200 logical qubits</p>
         <p class="small mono">ECC P-256: &emsp; ~2,330 logical qubits</p>
         <p class="small dim">With current error rates, physical qubit overhead is ~1,000&times;&ndash;10,000&times;.</p>
-        <p class="small dim">Recent work by Gidney &amp; Eker&aring; (2021): RSA-2048 in ~8 hours with 20M physical qubits.</p>
+        <p class="small dim">Gidney &amp; Eker&aring; (2021): RSA-2048 in ~8 hours with 20M physical qubits; Gidney (2025): under a week with &lt; 1M noisy qubits.</p>
       </div>
     </div>
     <div>
@@ -1188,7 +1188,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p class="small"><span class="accent3">ML-KEM</span> (FIPS 203) &mdash; lattice-based KEM (ex-CRYSTALS-Kyber)</p>
         <p class="small"><span class="accent3">ML-DSA</span> (FIPS 204) &mdash; lattice-based signatures (ex-CRYSTALS-Dilithium)</p>
         <p class="small"><span class="accent3">SLH-DSA</span> (FIPS 205) &mdash; hash-based signatures (ex-SPHINCS+)</p>
-        <p class="small dim">Finalized August 2024.</p>
+        <p class="small dim">Finalized August 2024. FN-DSA (Falcon) to follow as FIPS 206; HQC selected as a backup KEM (March 2025).</p>
       </div>
       <div class="box" style="margin-top:0.3em;">
         <p><span class="accent">Harvest Now, Decrypt Later</span></p>
@@ -1196,14 +1196,15 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       </div>
       <div class="box" style="margin-top:0.3em;">
         <p><span class="accent3">CNSA 2.0 Timeline</span> (NSA)</p>
-        <p class="small">2025: begin transition to PQC</p>
-        <p class="small">2030: PQC for all new systems</p>
+        <p class="small">2025: prefer PQC for software/firmware signing, browsers &amp; servers</p>
+        <p class="small">2027: new NSS acquisitions must be CNSA 2.0 compliant</p>
+        <p class="small">2030: exclusive PQC for software/firmware signing and networking equipment</p>
         <p class="small">2033: exclusive PQC for web browsers/servers</p>
         <p class="small">2035: exclusive PQC for all NSS</p>
       </div>
     </div>
   </div>
-  <p class="ref">Shor, "Algorithms for Quantum Computation" (FOCS 1994) &middot; Gidney &amp; Eker&aring;, "How to Factor 2048-bit RSA..." (2021) &middot; NIST FIPS 203/204/205 (2024)</p>
+  <p class="ref">Shor, "Algorithms for Quantum Computation" (FOCS 1994) &middot; Gidney &amp; Eker&aring;, "How to Factor 2048-bit RSA..." (2021) &middot; Gidney, "...with Less than a Million Noisy Qubits" (arXiv 2505.15917, 2025) &middot; NIST FIPS 203/204/205 (2024)</p>
 </section>
 
 <!-- ============================================================ -->
@@ -1223,7 +1224,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <h3>FPGA &amp; ASIC</h3>
         <p class="small">RSA-2048 on Virtex-7: ~0.3ms per modular exponentiation (CRT)</p>
         <p class="small">RSA-2048 on 28nm ASIC: ~0.05ms per operation</p>
-        <p class="small dim">Throughput limited by modular exponentiation: O(k<sup>2</sup>) multiplications for k-bit modulus.</p>
+        <p class="small dim">Throughput limited by modular exponentiation: O(k) modular multiplications of O(k<sup>2</sup>) bit operations each &rArr; O(k<sup>3</sup>) for a k-bit modulus.</p>
       </div>
     </div>
     <div>
@@ -1269,7 +1270,7 @@ module montgomery_mul #(
     output logic                done
 );
 
-    logic [WIDTH:0]   s;          // partial sum (WIDTH+1 bits for overflow)
+    logic [WIDTH:0]   s;          // partial sum, always < 2n (WIDTH+1 bits)
     logic [$clog2(WIDTH)-1:0] i;  // bit counter
     logic             running;
 
@@ -1287,14 +1288,14 @@ module montgomery_mul #(
         end else if (running) begin
             // Step 1: q_i = (s[0] + a[i]*b[0]) mod 2
             logic q_i;
-            logic [WIDTH:0] s_next;
+            logic [WIDTH+1:0] s_next;   // s + b + n < 4n: WIDTH+2 bits
 
             q_i    = s[0] ^ (a[i] & b[0]);
             // Step 2: s = (s + a[i]*b + q_i*n) >> 1
-            s_next = s + (a[i] ? {1'b0, b} : '0) + (q_i ? {1'b0, n} : '0);
-            s      <= s_next >> 1;
+            s_next = {1'b0, s} + (a[i] ? {2'b0, b} : '0) + (q_i ? {2'b0, n} : '0);
+            s      <= s_next[WIDTH+1:1];
 
-            if (i == WIDTH[$clog2(WIDTH)-1:0] - 1) begin
+            if (i == WIDTH - 1) begin
                 running <= 1'b0;
                 done    <= 1'b1;
             end
@@ -1314,7 +1315,7 @@ endmodule</code></pre>
 <!-- ============================================================ -->
 <section>
   <h2>Python &mdash; RSA Key Gen &amp; Encrypt/Decrypt</h2>
-<pre><code class="language-python">import random, math
+<pre><code class="language-python">import secrets, math   # secrets: CSPRNG (never random for keys)
 
 def is_probable_prime(n, k=64):
     """Miller-Rabin primality test with k rounds."""
@@ -1326,7 +1327,7 @@ def is_probable_prime(n, k=64):
     while d % 2 == 0:
         s += 1; d //= 2
     for _ in range(k):
-        a = random.randrange(2, n - 1)
+        a = 2 + secrets.randbelow(n - 3)          # witness in [2, n-2]
         x = pow(a, d, n)
         if x == 1 or x == n - 1:
             continue
@@ -1340,7 +1341,7 @@ def is_probable_prime(n, k=64):
 def gen_prime(bits):
     """Generate a random probable prime of given bit length."""
     while True:
-        p = random.getrandbits(bits) | (1 << (bits - 1)) | 1  # set MSB and LSB
+        p = secrets.randbits(bits) | (3 << (bits - 2)) | 1  # top 2 bits + LSB
         if is_probable_prime(p):
             return p
 
@@ -1355,11 +1356,12 @@ def mod_inverse(e, phi):
     return x % phi
 
 def rsa_keygen(bits=2048):
-    p = gen_prime(bits // 2)
-    q = gen_prime(bits // 2)
+    e = 65537
+    while True:                 # need p != q and gcd(e, phi) = 1
+        p, q = gen_prime(bits // 2), gen_prime(bits // 2)
+        phi = (p - 1) * (q - 1)
+        if p != q and math.gcd(e, phi) == 1: break
     n   = p * q
-    phi = (p - 1) * (q - 1)
-    e   = 65537
     d   = mod_inverse(e, phi)
     return {'pub': (n, e), 'priv': (n, d), 'p': p, 'q': q}
 
@@ -1437,15 +1439,16 @@ print(f"pt = {pt}  ✓")</code></pre>
 
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
 
+    function isPrime(x) { if (!(x > 1) || x !== Math.floor(x)) return false; for (var k = 2; k * k <= x; k++) if (x % k === 0) return false; return true; }
+    if (!isPrime(p) || !isPrime(q) || p === q || p * q > 1e7) { out.innerHTML = '<p style="color:var(--accent4);">p and q must be two different primes (and p &times; q &le; 10<sup>7</sup> for this demo)</p>'; return; }
     var n = p * q;
     var phi = (p - 1) * (q - 1);
-    var e = 65537;
-    if (gcd(e, phi) !== 1) { e = 3; }
-    if (gcd(e, phi) !== 1) { e = 17; }
+    var e = [65537, 17, 5, 3, 7, 11, 13, 19, 23, 29, 31].filter(function(x){ return x < phi && gcd(x, phi) === 1; })[0];
+    if (!e) { out.innerHTML = '<p style="color:var(--accent4);">Primes too small: no valid e. Try larger primes.</p>'; return; }
     var r = extgcd(e % phi, phi);
     var d = ((r[1] % phi) + phi) % phi;
 
-    if (m >= n) { out.innerHTML = '<p style="color:var(--accent4);">Error: m must be &lt; n = ' + n + '</p>'; return; }
+    if (!(m >= 0) || m >= n) { out.innerHTML = '<p style="color:var(--accent4);">Error: m must be &lt; n = ' + n + '</p>'; return; }
 
     var c = modpow(m, e, n);
     var dec = modpow(c, d, n);

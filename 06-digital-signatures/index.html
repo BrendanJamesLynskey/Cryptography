@@ -237,30 +237,30 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="grid2">
     <div>
       <div class="card">
-        <span class="badge">01–04</span> <strong>Foundations</strong><br/>
-        <span class="small">Why sign? · Properties · Threat model · Hash-then-sign paradigm</span>
+        <span class="badge">03–05</span> <strong>Foundations</strong><br/>
+        <span class="small">Why sign? · Properties · Hash-then-sign paradigm · DSA family tree</span>
       </div>
       <div class="card">
-        <span class="badge">05–08</span> <strong>Classical Schemes</strong><br/>
-        <span class="small">DSA lineage · ECDSA deep dive · Schnorr signatures · EdDSA / Ed25519</span>
+        <span class="badge">06–12</span> <strong>Classical Schemes</strong><br/>
+        <span class="small">ECDSA deep dive · RFC 6979 · Schnorr signatures · EdDSA / Ed25519 · Comparison</span>
       </div>
       <div class="card">
-        <span class="badge">09–10</span> <strong>Advanced Protocols</strong><br/>
+        <span class="badge">13</span> <strong>Advanced Protocols</strong><br/>
         <span class="small">Threshold & multi-sig (MuSig2, FROST) · Blind & ring signatures</span>
       </div>
     </div>
     <div>
       <div class="card">
-        <span class="badge">11–12</span> <strong>Standards & Real-World</strong><br/>
+        <span class="badge">14–15</span> <strong>Standards & Real-World</strong><br/>
         <span class="small">FIPS 186-5 · RFC 8032 · BIP 340 · TLS 1.3 · Blockchain</span>
       </div>
       <div class="card">
-        <span class="badge">13–14</span> <strong>Hardware</strong><br/>
+        <span class="badge">16–17</span> <strong>Hardware</strong><br/>
         <span class="small">ECDSA/EdDSA FPGA cores · ASIC accelerators · Side-channel countermeasures</span>
       </div>
       <div class="card">
-        <span class="badge">15–16</span> <strong>Post-Quantum & Code</strong><br/>
-        <span class="small">ML-DSA (FIPS 204) · SLH-DSA (FIPS 205) · Python · SystemVerilog</span>
+        <span class="badge">18–26</span> <strong>Post-Quantum, Code & Practice</strong><br/>
+        <span class="small">ML-DSA (FIPS 204) · SLH-DSA (FIPS 205) · Demo · Python · SystemVerilog · Performance · Failures</span>
       </div>
     </div>
   </div>
@@ -442,7 +442,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="ok-box small">
-    <strong>The ECDLP trapdoor:</strong> Computing Q = d·G is fast (~0.3 ms in software). Recovering d from Q requires solving the Elliptic Curve Discrete Logarithm Problem — infeasible for properly chosen curves (~2<sup>128</sup> group operations with Pollard's rho).
+    <strong>The ECDLP trapdoor:</strong> Computing Q = d·G is fast (tens of microseconds in software). Recovering d from Q requires solving the Elliptic Curve Discrete Logarithm Problem — infeasible for properly chosen curves (~2<sup>128</sup> group operations with Pollard's rho).
   </div>
 </section>
 
@@ -562,7 +562,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <h3>Advantages over ECDSA</h3>
         <p class="small">
           <span class="badge-ok badge">✓</span> <strong>Provable security</strong> — reduces to ECDLP in ROM<br/>
-          <span class="badge-ok badge">✓</span> <strong>Linearity:</strong> s₁ + s₂ is valid for P₁ + P₂<br/>
+          <span class="badge-ok badge">✓</span> <strong>Linearity:</strong> s₁ + s₂ is valid for P₁ + P₂ (with nonce R₁ + R₂ and a shared challenge e)<br/>
           → enables native multi-signatures (MuSig2)<br/>
           <span class="badge-ok badge">✓</span> <strong>Non-malleable</strong> — unique (R, s) per (m, d, k)<br/>
           <span class="badge-ok badge">✓</span> <strong>Batch verification</strong> — verify n sigs faster than n × single<br/>
@@ -709,7 +709,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <tbody>
       <tr>
         <td><strong>FIPS 186-5</strong> (2023)</td>
-        <td>RSA-PSS, ECDSA, EdDSA</td>
+        <td>RSA (PKCS #1 v1.5 &amp; PSS), ECDSA, EdDSA</td>
         <td><span class="badge-ok badge">Current</span></td>
         <td>US federal, TLS, code signing, PKI</td>
       </tr>
@@ -723,7 +723,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <td><strong>RFC 8032</strong></td>
         <td>Ed25519, Ed25519ph, Ed448</td>
         <td><span class="badge-ok badge">Active</span></td>
-        <td>SSH, TLS 1.3, GnuPG, Signal, WireGuard</td>
+        <td>OpenSSH, TLS 1.3, GnuPG, DNSSEC, Tor</td>
       </tr>
       <tr>
         <td><strong>SP 800-186</strong></td>
@@ -765,17 +765,17 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div class="card" style="text-align:center;">
       <p style="font-size:1.3em; margin:0;">🌐</p>
       <h3>TLS 1.3</h3>
-      <p class="small">Server certificates signed with ECDSA P-256 or Ed25519. ~95% of HTTPS connections use EC-based signatures. Certificate Transparency logs record every signed cert.</p>
+      <p class="small">Server certificates are signed with RSA or ECDSA (P-256/P-384); Ed25519 is allowed by TLS 1.3 but public CAs do not issue it. Certificate Transparency logs record every publicly trusted cert.</p>
     </div>
     <div class="card" style="text-align:center;">
       <p style="font-size:1.3em; margin:0;">₿</p>
       <h3>Blockchain</h3>
-      <p class="small">Bitcoin: ECDSA (secp256k1) + Schnorr (Taproot). Ethereum: ECDSA with public key recovery (saves 32 bytes per tx). Solana, Cosmos: Ed25519.</p>
+      <p class="small">Bitcoin: ECDSA (secp256k1) + Schnorr (Taproot). Ethereum: ECDSA with public key recovery (transactions carry no public key). Solana and Cosmos validators: Ed25519.</p>
     </div>
     <div class="card" style="text-align:center;">
       <p style="font-size:1.3em; margin:0;">🔑</p>
       <h3>SSH / GPG</h3>
-      <p class="small">OpenSSH defaults to Ed25519 since 2014. GnuPG supports Ed25519 since 2.1. FIDO2/WebAuthn uses ECDSA P-256 for hardware security keys.</p>
+      <p class="small">OpenSSH has supported Ed25519 since 6.5 (2014); ssh-keygen defaults to it since 9.5 (2023). GnuPG supports Ed25519 since 2.1. FIDO2/WebAuthn uses ECDSA P-256 for hardware security keys.</p>
     </div>
     <div class="card" style="text-align:center;">
       <p style="font-size:1.3em; margin:0;">📱</p>
@@ -924,9 +924,9 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       </p>
       <table class="small">
         <tr><th>Parameter Set</th><th>Security</th><th>PK</th><th>Sig</th><th>SK</th></tr>
-        <tr><td>ML-DSA-44</td><td>128-bit</td><td>1,312 B</td><td>2,420 B</td><td>2,560 B</td></tr>
-        <tr><td>ML-DSA-65</td><td>192-bit</td><td>1,952 B</td><td>3,293 B</td><td>4,032 B</td></tr>
-        <tr><td>ML-DSA-87</td><td>256-bit</td><td>2,592 B</td><td>4,595 B</td><td>4,896 B</td></tr>
+        <tr><td>ML-DSA-44</td><td>Cat. 2 (~128)</td><td>1,312 B</td><td>2,420 B</td><td>2,560 B</td></tr>
+        <tr><td>ML-DSA-65</td><td>Cat. 3 (~192)</td><td>1,952 B</td><td>3,309 B</td><td>4,032 B</td></tr>
+        <tr><td>ML-DSA-87</td><td>Cat. 5 (~256)</td><td>2,592 B</td><td>4,627 B</td><td>4,896 B</td></tr>
       </table>
       <p class="tiny muted">Sign: ~100 µs (software). Verify: ~50 µs. Competitive with ECDSA for speed, but much larger keys and signatures.</p>
     </div>
@@ -978,7 +978,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <p class="tiny muted" style="margin-top:0.3em;">
-    Toy curve: y² = x³ + 2x + 3 mod 97, Generator G = (3, 6), order n = 5 (very small for demonstration). Real ECDSA uses 256-bit primes.
+    Toy curve: y² = x³ + 5 mod 97, which has 79 points (a prime, so cofactor 1); generator G = (1, 43), order n = 79. Real ECDSA uses 256-bit primes.
   </p>
 </section>
 
@@ -988,13 +988,9 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <section>
   <h2>Python: Ed25519 Signing</h2>
   <pre><code class="language-python" data-trim data-noescape>
-import hashlib, os
-
-# --- Ed25519 via Python's standard library (3.6+) ---
-from cryptography.hazmat.primitives.asymmetric.ed25519 import (
-    Ed25519PrivateKey, Ed25519PublicKey
-)
-from cryptography.hazmat.primitives import serialization
+# Ed25519 via the pyca 'cryptography' package (pip install cryptography;
+# not the standard library). public_bytes_raw() needs version 40 or later.
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 # Key generation
 private_key = Ed25519PrivateKey.generate()
@@ -1032,22 +1028,22 @@ except Exception:
   <pre><code class="language-python" data-trim data-noescape>
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
 
 # Key generation on NIST P-256
-private_key = ec.generate_private_key(ec.SECP256R1(), default_backend())
+private_key = ec.generate_private_key(ec.SECP256R1())
 public_key  = private_key.public_key()
 
 # Extract private scalar d
 d = private_key.private_numbers().private_value
 print(f"Private key d: {d:#066x}")
 
-# Sign (uses RFC 6979 deterministic nonce internally)
+# Sign: OpenSSL draws a random nonce k. For RFC 6979 use
+# ec.ECDSA(hashes.SHA256(), deterministic_signing=True)  (v43+)
 message   = b"ECDSA on NIST P-256"
 signature = private_key.sign(message, ec.ECDSA(hashes.SHA256()))
 
 print(f"Signature (DER): {signature.hex()}")
-print(f"DER length: {len(signature)} bytes")  # 70-72 bytes
+print(f"DER length: {len(signature)} bytes")  # usually 70-72
 
 # Decode (r, s) from DER
 from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
@@ -1080,7 +1076,7 @@ module mod_inverse #(
     output logic                done
 );
     // Fermat's little theorem: k^{-1} = k^{n-2} mod n
-    // Uses Montgomery modular exponentiation (square-and-multiply)
+    // Right-to-left square-and-multiply, one exponent bit per cycle
 
     logic [WIDTH-1:0] exp;       // exponent = n - 2
     logic [WIDTH-1:0] base_reg;  // current base (squared each cycle)
@@ -1115,12 +1111,14 @@ module mod_inverse #(
 
     assign k_inv = result;
 
-    // Montgomery multiplication (simplified — see Presentation 01)
+    // Behavioural modular multiply (simulation model). A real core uses a
+    // Montgomery multiplier here: see Presentation 01 and deck 05.
     function automatic logic [WIDTH-1:0] mont_mul(
         input logic [WIDTH-1:0] a, b, m
     );
-        // ... full Montgomery reduction pipeline ...
-        return (a * b) % m;  // placeholder for synthesis
+        logic [2*WIDTH-1:0] p;
+        p = {{WIDTH{1'b0}}, a} * {{WIDTH{1'b0}}, b};  // full 2W-bit product
+        return WIDTH'(p % {{WIDTH{1'b0}}, m});
     endfunction
 endmodule
   </code></pre>
@@ -1139,7 +1137,7 @@ module ecdsa_sign_top #(
     input  logic [N-1:0]     msg_hash,    // e = H(m), pre-computed
     input  logic [N-1:0]     priv_key,    // d
     input  logic [N-1:0]     nonce_k,     // k (from TRNG or RFC 6979)
-    // Curve parameters loaded via config registers (omitted)
+    // curve_n, mont_mul, mont_add: config register / modular ALU (omitted)
     output logic [N-1:0]     sig_r,
     output logic [N-1:0]     sig_s,
     output logic             valid
@@ -1158,20 +1156,24 @@ module ecdsa_sign_top #(
     mod_inverse    #(.WIDTH(N)) u_inv(.*);  // k^{-1} mod n
 
     always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) state <= IDLE;
+        if (!rst_n) begin state <= IDLE; valid <= 1'b0; end
         else case (state)
             IDLE:       if (start) state <= SCALAR_MUL;
             SCALAR_MUL: if (ec_done)  state <= CALC_R;
             CALC_R: begin
-                sig_r <= kG_x % curve_n;  // r = x₁ mod n
-                state <= (sig_r == 0) ? IDLE : MOD_INV;
+                logic [N-1:0] r_v;
+                r_v    = kG_x % curve_n;     // r = x₁ mod n
+                sig_r <= r_v;               // test r_v, not the old sig_r
+                state <= (r_v == 0) ? IDLE : MOD_INV;  // r = 0: new k
             end
             MOD_INV:    if (inv_done) state <= CALC_S;
             CALC_S: begin
                 // s = k⁻¹ · (e + r·d) mod n
-                sig_s <= mont_mul(k_inv,
-                    mont_add(msg_hash, mont_mul(sig_r, priv_key)));
-                state <= (sig_s == 0) ? IDLE : DONE;
+                logic [N-1:0] s_v;
+                s_v    = mont_mul(k_inv,
+                         mont_add(msg_hash, mont_mul(sig_r, priv_key)));
+                sig_s <= s_v;
+                state <= (s_v == 0) ? IDLE : DONE;     // s = 0: new k
             end
             DONE: begin valid <= 1'b1; state <= IDLE; end
         endcase
@@ -1227,13 +1229,13 @@ endmodule
     <div class="card">
       <h3 style="color:var(--accent3);">ROCA (2017)</h3>
       <p class="small">
-        Infineon TPMs generated RSA keys with low-entropy primes. Though not ECDSA-specific, it demonstrates how hardware RNG flaws undermine any signature scheme. Estonian e-ID cards were vulnerable.
+        Infineon's RSA library (TPMs, smart cards) generated primes with a special structure that made the keys practical to factor. Though not ECDSA-specific, it shows how flawed key generation in hardware undermines any signature scheme. Estonian e-ID cards were vulnerable.
       </p>
     </div>
     <div class="card">
       <h3 style="color:var(--accent3);">Minerva (2019)</h3>
       <p class="small">
-        Timing side-channel in a smart card's ECDSA implementation leaked nonce bits through variable-time modular reduction. ~10,000 signatures were enough to recover the private key via lattice attacks (Hidden Number Problem).
+        Timing side-channel in a smart card's ECDSA implementation leaked the bit-length of each nonce through variable-time scalar multiplication. A few thousand signatures were enough to recover the private key via lattice attacks (Hidden Number Problem).
       </p>
     </div>
   </div>
@@ -1313,7 +1315,7 @@ endmodule
     Johnson, Menezes, Vanstone, "The ECDSA," IJIS (2001)<br/>
     Bernstein et al., "High-speed high-security signatures," CHES (2011)<br/>
     Nick, Ruffing, Seurin, "MuSig2," CRYPTO (2021)<br/>
-    Komlo, Goldberg, "FROST," SAC (2020)<br/>
+    Komlo, Goldberg, "FROST," SAC (2020); RFC 9591 (2024)<br/>
     Ducas et al., "CRYSTALS-Dilithium," TCHES (2018)</p>
 
     <p><strong>Implementation:</strong><br/>
@@ -1444,9 +1446,10 @@ Reveal.initialize({
 <!-- INTERACTIVE ECDSA DEMO (Toy curve)                            -->
 <!-- ============================================================ -->
 <script>
-// Tiny elliptic curve for demo: y² = x³ + 2x + 3 mod 97
-// Generator G = (3, 6), order n = 5 (toy values!)
-const P = 97, A_COEFF = 2, B_COEFF = 3, GX = 3, GY = 6, N_ORDER = 5;
+// Tiny elliptic curve for demo: y² = x³ + 5 mod 97 has 79 points (prime order)
+// Generator G = (1, 43), order n = 79 (toy values!). A tampered message still
+// verifies by chance with probability ~1/79.
+const P = 97, A_COEFF = 0, B_COEFF = 5, GX = 1, GY = 43, N_ORDER = 79;
 
 function modPow(base, exp, mod) {
   let result = 1n;
@@ -1572,7 +1575,7 @@ function ecdsaTamperDemo() {
     `Verification point = (${vx}, ${vy})\n` +
     `x₁ mod n = ${v}\n` +
     (valid
-      ? `<span style="color:#e37d16;font-weight:700">✗ FALSE POSITIVE (unlikely!)</span>`
+      ? `<span style="color:#e37d16;font-weight:700">✗ FALSE POSITIVE (hash collision mod n = 79: ~1 in 79 with a toy curve)</span>`
       : `<span style="color:#e37d16;font-weight:700">✗ INVALID — tampering detected! (${v} ≠ ${r})</span>`);
 }
 </script>

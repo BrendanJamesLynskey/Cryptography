@@ -255,7 +255,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h3 style="color:var(--accent3);">Second-Preimage Resistance</h3>
       <p class="small">Given <span class="mono">m<sub>1</sub></span>, find <span class="mono">m<sub>2</sub> &ne; m<sub>1</sub></span> such that <span class="mono">H(m<sub>1</sub>) = H(m<sub>2</sub>)</span>.</p>
       <p class="small accent3">Cost: O(2<sup>n</sup>)</p>
-      <p class="small dim">Harder than collision resistance &mdash; one input is fixed by the attacker's target.</p>
+      <p class="small dim">Harder for the attacker than finding a collision &mdash; one input is fixed by the target.</p>
     </div>
     <div class="box" style="border-color:rgba(251,65,46,.4);">
       <h3 style="color:var(--accent4);">Collision Resistance</h3>
@@ -340,10 +340,10 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box" style="border-color:rgba(251,65,46,.4);">
         <p class="small">160-bit digest, 512-bit blocks, 80 rounds</p>
         <p class="small">NSA design, published as FIPS 180-1</p>
-        <p class="small accent4">2005 &mdash; Wang et al. theoretical collision in 2<sup>63</sup></p>
+        <p class="small accent4">2005 &mdash; Wang et al. theoretical collision in 2<sup>69</sup> (later 2<sup>63</sup>)</p>
         <p class="small accent4">2017 &mdash; <span class="accent">SHAttered</span>: first practical collision (Google/CWI), 2<sup>63.1</sup> SHA-1 computations, ~110 GPU-years</p>
         <p class="small accent4">2020 &mdash; <span class="accent">SHA-mbles</span>: chosen-prefix collision for $45k in cloud compute</p>
-        <p class="small dim">CA/Browser Forum banned SHA-1 certs in 2017. Git transitioning to SHA-256.</p>
+        <p class="small dim">CA/Browser Forum ended SHA-1 certificate issuance in 2016; browsers rejected SHA-1 certs from 2017. Git transitioning to SHA-256.</p>
       </div>
     </div>
   </div>
@@ -377,7 +377,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div class="box">
       <h3 style="color:var(--accent2);">Why SHA-512/256?</h3>
       <p class="small accent2">Uses the 64-bit SHA-512 core (faster on 64-bit CPUs) but truncates to 256 bits.</p>
-      <p class="small">Different IV than SHA-512 &rArr; no length extension attack between variants.</p>
+      <p class="small">Truncation hides half the chaining state &rArr; no length extension; its distinct IV separates it from truncated SHA-512.</p>
       <p class="small">On x86-64: SHA-512/256 is often ~50% faster than SHA-256.</p>
     </div>
   </div>
@@ -490,22 +490,22 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <table class="clean">
     <tr><th>Platform</th><th>Implementation</th><th>Throughput</th><th>Notes</th></tr>
     <tr><td>x86-64 (no extensions)</td><td>Optimized C/ASM</td><td class="mono">~500 MB/s</td><td class="dim">Single-core, ~4 GHz</td></tr>
-    <tr><td>x86-64 (SHA-NI)</td><td>Intel SHA Extensions</td><td class="mono accent2">~2.5 GB/s</td><td class="dim">Ice Lake+, single core</td></tr>
+    <tr><td>x86-64 (SHA-NI)</td><td>Intel SHA Extensions</td><td class="mono accent2">~2.5 GB/s</td><td class="dim">Ice Lake+ / AMD Zen, single core</td></tr>
     <tr><td>ARM (Crypto Ext.)</td><td>ARMv8-A SHA2 insns</td><td class="mono accent2">~1.8 GB/s</td><td class="dim">Cortex-A76 class</td></tr>
     <tr><td>Xilinx Virtex-7</td><td>Iterative FPGA</td><td class="mono">~5 Gbps</td><td class="dim">~800 slices</td></tr>
     <tr><td>14nm ASIC</td><td>Full unrolled pipeline</td><td class="mono accent2">~40 Gbps</td><td class="dim">Custom design</td></tr>
-    <tr><td>Bitcoin ASIC (S21)</td><td>Application-specific</td><td class="mono accent2">~200 TH/s</td><td class="dim">double-SHA-256 only, ~3000W</td></tr>
+    <tr><td>Bitcoin ASIC (S21)</td><td>Application-specific</td><td class="mono accent2">~200 TH/s</td><td class="dim">double-SHA-256 only, ~3,500 W</td></tr>
   </table>
   <div class="two-col" style="margin-top:0.5em;">
     <div class="box">
       <h3>Intel SHA-NI</h3>
       <p class="small">Instructions: <span class="mono">SHA256RNDS2</span>, <span class="mono">SHA256MSG1</span>, <span class="mono">SHA256MSG2</span></p>
       <p class="small">Two rounds per <span class="mono">SHA256RNDS2</span> instruction &rArr; 32 instructions for all 64 rounds</p>
-      <p class="small dim">Available since Goldmont (Atom), Ice Lake (mainstream)</p>
+      <p class="small dim">Available since Goldmont (Atom, 2016), AMD Zen (2017), Ice Lake (Intel mainstream, 2019)</p>
     </div>
     <div class="box">
       <h3>Bitcoin Mining as Extreme Case</h3>
-      <p class="small">SHA-256d = SHA-256(SHA-256(header)). Global hashrate (2025): ~600 EH/s = 6&times;10<sup>20</sup> double-SHA-256/s.</p>
+      <p class="small">SHA-256d = SHA-256(SHA-256(header)). Global hashrate (2025): ~1 ZH/s &asymp; 10<sup>21</sup> double-SHA-256/s.</p>
       <p class="small dim">The entire world's SHA-256 mining hardware demonstrates that SHA-256's structure is extremely hardware-friendly but also that brute-force search scales massively.</p>
     </div>
   </div>
@@ -688,11 +688,11 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p class="small"><span class="accent3">cSHAKE</span> &mdash; customizable SHAKE with function name + customization string</p>
         <p class="small"><span class="accent3">TupleHash</span> &mdash; hash of tuples with unambiguous encoding</p>
         <p class="small"><span class="accent3">ParallelHash</span> &mdash; parallelizable hashing for large messages</p>
-        <p class="small"><span class="accent3">KMAC</span> &mdash; Keccak-based MAC (see slide 16)</p>
+        <p class="small"><span class="accent3">KMAC</span> &mdash; Keccak-based MAC (see KMAC &amp; Other MACs)</p>
       </div>
       <div class="box" style="margin-top:0.3em;">
         <h3 style="color:var(--accent2);">KangarooTwelve (K12)</h3>
-        <p class="small">Reduced-round (12 vs 24) Keccak-p with tree hashing. ~6&times; faster than SHA3-256. Proposed by the Keccak team as a fast, safe alternative.</p>
+        <p class="small">Reduced-round (12 vs 24) Keccak-p with tree hashing. Several times faster than SHA3-256 on long inputs. Proposed by the Keccak team as a fast, safe alternative.</p>
       </div>
     </div>
   </div>
@@ -715,7 +715,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <tr><td class="accent">XOF support</td><td>No (needs external construction)</td><td class="accent2">Native (SHAKE)</td></tr>
     <tr><td class="accent">Software speed (x86)</td><td class="accent2">~15 cycles/byte (SHA-NI: ~3.5)</td><td>~12 cycles/byte (no HW accel)</td></tr>
     <tr><td class="accent">HW area (ASIC)</td><td>~10 kGE (iterative)</td><td>~13 kGE (iterative)</td></tr>
-    <tr><td class="accent">Grover (quantum)</td><td>128-bit &rarr; 2<sup>128</sup></td><td>128-bit &rarr; 2<sup>128</sup></td></tr>
+    <tr><td class="accent">Grover preimage (quantum)</td><td>2<sup>256</sup> &rarr; 2<sup>128</sup></td><td>2<sup>256</sup> &rarr; 2<sup>128</sup></td></tr>
   </table>
   <div class="highlight-box" style="margin-top:0.5em;text-align:center;">
     <span class="small"><span class="accent2">Both SHA-2 and SHA-3 are considered secure</span> as of 2025. SHA-2 has broader hardware acceleration support; SHA-3 offers structural advantages and versatility. Modern systems should support both.</span>
@@ -754,7 +754,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box" style="border-color:rgba(37,145,106,.4);">
         <p class="small accent2">Proven secure by Bellare, Canetti &amp; Krawczyk (1996)</p>
         <p class="small">HMAC is a PRF (pseudorandom function) if the compression function of H is a PRF.</p>
-        <p class="small">Security does <em>not</em> require collision resistance of H &mdash; HMAC-MD5 remains a secure MAC even though MD5 collisions are trivial.</p>
+        <p class="small">Security does <em>not</em> require collision resistance of H &mdash; no practical forgery of HMAC-MD5 is known even though MD5 collisions are trivial (it is still deprecated).</p>
       </div>
       <div class="box" style="margin-top:0.3em;">
         <h3>Why Not Just H(K || m)?</h3>
@@ -777,13 +777,13 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h3 style="color:var(--accent3);">KMAC (SP 800-185)</h3>
       <div class="box" style="border-color:rgba(135,76,252,.4);">
         <p class="small">Keccak-based MAC &mdash; <span class="accent2">no nested construction needed</span>.</p>
-        <p class="small mono">KMAC256(K, X, L, S) = cSHAKE256(bytepad(encode(K),168) || X || right_encode(L), L, "KMAC", S)</p>
+        <p class="small mono">KMAC256(K, X, L, S) = cSHAKE256(bytepad(encode_string(K),136) || X || right_encode(L), L, "KMAC", S)</p>
         <p class="small">Because the sponge construction has capacity bits that absorb the key, KMAC is simpler and avoids HMAC's double-hash overhead.</p>
         <p class="small dim">Also supports XOF mode (KMACXOF128/256) for variable-length output.</p>
       </div>
       <h3 style="margin-top:0.5em;color:var(--accent);">Poly1305 (Bernstein)</h3>
       <div class="box">
-        <p class="small">One-time MAC based on polynomial evaluation over GF(2<sup>130</sup>-5).</p>
+        <p class="small">One-time MAC based on polynomial evaluation modulo the prime 2<sup>130</sup>&minus;5.</p>
         <p class="small">Paired with ChaCha20 as <span class="accent">ChaCha20-Poly1305</span> (RFC 8439) &mdash; the primary AEAD in TLS 1.3 alongside AES-GCM.</p>
         <p class="small accent2">Extremely fast in software: ~1 cycle/byte on modern x86.</p>
       </div>
@@ -832,7 +832,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h3 style="margin-top:0.5em;">Winternitz OTS (WOTS+)</h3>
       <div class="box">
         <p class="small">Chains of hash evaluations trade signature size for computation. Parameter <em>w</em> controls the tradeoff.</p>
-        <p class="small dim">WOTS+ with w=16: ~2.5 KB signatures (vs 8 KB for Lamport).</p>
+        <p class="small dim">WOTS+ with w=16, n=32: 67 chains &times; 32 B &asymp; 2.1 KB signatures (vs 8 KB for Lamport).</p>
       </div>
     </div>
     <div>
@@ -959,7 +959,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <p class="small">HMAC-based Key Derivation Function &mdash; two stages:</p>
         <p class="small"><span class="accent">Extract:</span> <span class="mono">PRK = HMAC-Hash(salt, IKM)</span></p>
         <p class="small">Concentrates entropy from input keying material.</p>
-        <p class="small"><span class="accent">Expand:</span> <span class="mono">OKM = HMAC-Hash(PRK, info || counter)</span></p>
+        <p class="small"><span class="accent">Expand:</span> <span class="mono">T(i) = HMAC-Hash(PRK, T(i&minus;1) || info || i)</span>, OKM = T(1) || T(2) || &hellip;</p>
         <p class="small">Derives arbitrary-length output keying material.</p>
         <p class="small dim">TLS 1.3 uses HKDF-SHA256 or HKDF-SHA384 depending on cipher suite.</p>
       </div>
@@ -980,7 +980,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </div>
   </div>
   <div class="highlight-box" style="margin-top:0.3em;text-align:center;">
-    <span class="small">TLS 1.3 key schedule: <span class="mono">PSK &rarr; <span class="accent">HKDF-Extract</span> &rarr; Early Secret &rarr; <span class="accent">Derive-Secret</span> &rarr; Handshake Secret &rarr; ... &rarr; Application Keys</span></span>
+    <span class="small">TLS 1.3 key schedule: <span class="mono">PSK &rarr; <span class="accent">HKDF-Extract</span> &rarr; Early Secret &rarr; <span class="accent">Derive-Secret</span> + (EC)DHE &rarr; Handshake Secret &rarr; ... &rarr; Application Keys</span></span>
   </div>
   <p class="ref">RFC 8446 &mdash; TLS 1.3, Section 7.1 (Key Schedule) &middot; RFC 5869 &mdash; HKDF</p>
 </section>
@@ -996,11 +996,11 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="box">
         <p class="small"><span class="accent">Iterative:</span> One compression round per clock cycle. 64 cycles per block. Compact: ~10 kGE.</p>
         <p class="small"><span class="accent">Unrolled (2x):</span> Two rounds per cycle. 32 cycles/block. Critical path doubles but throughput 2x.</p>
-        <p class="small"><span class="accent">Fully pipelined:</span> 64-stage pipeline. One block result per cycle after initial latency. Highest throughput; area ~64x iterative.</p>
+        <p class="small"><span class="accent">Fully pipelined:</span> 64-stage pipeline. One block result per cycle after initial latency &mdash; for independent messages only (e.g. mining), since each block of one message depends on the previous. Highest throughput; area ~64x iterative.</p>
       </div>
       <div class="box" style="margin-top:0.3em;">
         <h3>Critical Path</h3>
-        <p class="small">T<sub>1</sub> computation requires 5 additions in series: h + &Sigma;<sub>1</sub>(e) + Ch(e,f,g) + K<sub>t</sub> + W<sub>t</sub></p>
+        <p class="small">T<sub>1</sub> is a 5-operand sum (4 adders in series), then T<sub>1</sub>+T<sub>2</sub> for a: h + &Sigma;<sub>1</sub>(e) + Ch(e,f,g) + K<sub>t</sub> + W<sub>t</sub></p>
         <p class="small accent">Carry-save adders (CSA) reduce the chain: 5-to-2 CSA tree followed by one carry-propagate add.</p>
         <p class="small dim">CSA optimization can improve Fmax by ~40%.</p>
       </div>
@@ -1155,8 +1155,8 @@ def sha256_block(block, h):
     <div class="box">
       <h3>Try These</h3>
       <p class="small mono">"abc" &rarr; ba7816bf...</p>
-      <p class="small mono">"abd" &rarr; a52d1598...</p>
-      <p class="small dim">A single letter change (c&rarr;d) flips ~130 of 256 output bits. There is no way to predict which bits flip without computing the hash.</p>
+      <p class="small mono">"abd" &rarr; a52d159f...</p>
+      <p class="small dim">A single letter change (c&rarr;d) flips 122 of 256 output bits (expected 128 &plusmn; 8). There is no way to predict which bits flip without computing the hash.</p>
     </div>
   </div>
 </section>
@@ -1256,7 +1256,7 @@ def sha256_block(block, h):
     </tr>
     <tr>
       <td>Hash table / non-crypto</td>
-      <td class="accent2">SipHash, xxHash</td>
+      <td class="accent2">SipHash (keyed); xxHash only if inputs are trusted</td>
       <td class="accent4">CRC32, DJBX33A</td>
       <td class="dim">Keyed for DoS resistance</td>
     </tr>
@@ -1295,15 +1295,15 @@ def sha256_block(block, h):
       </div>
       <div class="box" style="margin-top:0.3em;">
         <h3>NIST Guidance</h3>
-        <p class="small"><span class="accent3">SP 800-227 (draft):</span> For 128-bit post-quantum security:</p>
+        <p class="small"><span class="accent3">NIST PQC security categories:</span> Cat. 1 = key search on AES-128; Cat. 2 = collision search on SHA-256/SHA3-256; Cat. 3 = AES-192; Cat. 4 = SHA-384 collisions; Cat. 5 = AES-256. So:</p>
         <p class="small">&bull; Hash: SHA-256 or SHA3-256 (preimage-safe)</p>
-        <p class="small">&bull; Collision: SHA-384+ (for 128-bit collision resistance against BHT)</p>
+        <p class="small">&bull; Collision: SHA-256 meets Category 2; SHA-384 for higher categories</p>
         <p class="small">&bull; HMAC: HMAC-SHA-256 remains secure</p>
-        <p class="small dim">CNSA 2.0 mandates SHA-384 for signatures by 2025.</p>
+        <p class="small dim">NSA's CNSA 2.0 suite requires SHA-384 or SHA-512.</p>
       </div>
     </div>
   </div>
-  <p class="ref">Grover, "A Fast Quantum Mechanical Algorithm for Database Search" (STOC 1996) &middot; NIST SP 800-227 (draft)</p>
+  <p class="ref">Grover, "A Fast Quantum Mechanical Algorithm for Database Search" (STOC 1996) &middot; NIST PQC Call for Proposals (2016), &sect;4.A.5 &middot; NSA CNSA 2.0 (2022)</p>
 </section>
 
 <!-- ============================================================ -->
