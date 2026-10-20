@@ -194,7 +194,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div>
       <div class="card" style="text-align:center; margin-bottom:16px;">
         <p class="icon-large">🔐</p>
-        <p class="small"><strong>Algorithm Security</strong><br/>AES-128: 2<sup>128</sup> operations<br/>≈ 10<sup>24</sup> years @ 10 GHz</p>
+        <p class="small"><strong>Algorithm Security</strong><br/>AES-128: 2<sup>128</sup> operations<br/>≈ 10<sup>21</sup> years @ 10<sup>10</sup> ops/s</p>
       </div>
       <div class="card card-accent glow" style="text-align:center;">
         <p class="icon-large">⚡</p>
@@ -394,11 +394,9 @@ result = (value_a & mask) | (value_b & ~mask);
       <h3>RSA via SPA</h3>
       <p class="small">Square-and-multiply RSA: a <strong>square</strong> operation has a shorter, lower-amplitude power pattern than a <strong>multiply</strong>. By reading the trace visually:</p>
       <div style="font-family:var(--r-code-font); font-size:0.65em; margin:10px 0; color:var(--accent3);">
-        S M S S M S M S S S M ...<br/>
-        ↓ &nbsp;↓ &nbsp;↓ &nbsp;↓ &nbsp;↓ &nbsp;↓ &nbsp;↓ &nbsp;↓ &nbsp;↓ &nbsp;↓ &nbsp;↓<br/>
-        1 &nbsp;1 &nbsp;0 &nbsp;0 &nbsp;1 &nbsp;0 &nbsp;1 &nbsp;0 &nbsp;0 &nbsp;0 &nbsp;1 ...
+        <span style="display:inline-block;width:2.2em;text-align:center;">SM<br/>↓<br/>1</span><span style="display:inline-block;width:2.2em;text-align:center;">S<br/>↓<br/>0</span><span style="display:inline-block;width:2.2em;text-align:center;">SM<br/>↓<br/>1</span><span style="display:inline-block;width:2.2em;text-align:center;">SM<br/>↓<br/>1</span><span style="display:inline-block;width:2.2em;text-align:center;">S<br/>↓<br/>0</span><span style="display:inline-block;width:2.2em;text-align:center;">S<br/>↓<br/>0</span><span style="display:inline-block;width:2.2em;text-align:center;">SM<br/>↓<br/>1</span><span style="display:inline-block;width:2.2em;text-align:center;">S<br/>↓<br/>0</span><span style="display:inline-block;width:2.2em;text-align:center;">SM<br/>↓<br/>1</span><span style="display:inline-block;width:2.2em;text-align:center;">S<br/>↓<br/>0</span><span style="display:inline-block;width:2.2em;text-align:center;">S<br/>↓<br/>0</span><span style="display:inline-block;width:2.2em;text-align:center;">SM<br/>↓<br/>1</span> …
       </div>
-      <p class="small">Each multiply reveals a <code>1</code> bit; square-only reveals <code>0</code>. A single trace can recover a 2048-bit RSA private key.</p>
+      <p class="small">A square followed by a multiply (SM) reveals a <code>1</code> bit; a square on its own (S) reveals a <code>0</code>. A single trace can recover a 2048-bit RSA private key.</p>
     </div>
     <div>
       <h3>Simulated SPA Trace</h3>
@@ -436,7 +434,7 @@ result = (value_a & mask) | (value_b & ~mask);
     </div>
     <div class="card card-cyan">
       <h3>Correlation Power Analysis (CPA)</h3>
-      <p class="small">Refinement of DPA using Pearson correlation coefficient instead of difference-of-means. More statistically efficient — requires fewer traces. Standard attack methodology today.</p>
+      <p class="small">Refinement of DPA (Brier, Clavier &amp; Olivier, CHES 2004) using the Pearson correlation coefficient instead of difference-of-means. More statistically efficient — requires fewer traces. Standard attack methodology today.</p>
       <div class="equation-box" style="font-size:0.55em; margin-top:8px;">
         ρ(t, k*) = Cov(H<sub>k*</sub>, T<sub>t</sub>) / (σ<sub>H</sub> · σ<sub>T</sub>)
       </div>
@@ -534,10 +532,10 @@ result = (value_a & mask) | (value_b & ~mask);
         <p class="tiny">Near-field H-probe → Low-noise amplifier → High-speed ADC → Statistical analysis</p>
       </div>
       <h3>STELLAR Countermeasure</h3>
-      <p class="small">Route the crypto core exclusively within <strong>lower metal layers</strong> (M1–M4), then surround it with a <em>Current-Domain Signature Attenuation</em> (CDSA) shield in upper metals. The correlated EM signature is suppressed by 100–1000× before reaching the chip surface.</p>
+      <p class="small">Route the crypto core only in the <strong>lower metal layers</strong>, so its signal-carrying wires are far from the surface probe, and power it through a <em>Current-Domain Signature Attenuation</em> (CDSA) circuit before it reaches the top-metal power grid (Das et al., 2019). The correlated EM and power signature is suppressed by orders of magnitude.</p>
       <br/>
       <h3>Cross-Device Deep Learning (X-DeepSCA)</h3>
-      <p class="small">Train a CNN on EM traces from Device A, attack Device B — same architecture, different manufacturing lot. Demonstrated to extract AES-256 keys with practical trace counts, proving device-specific noise is not a reliable defense.</p>
+      <p class="small">Train a neural network on power traces from Device A, attack Device B — same part, different chip (Das et al., 2019). Reported &gt;99% key-byte accuracy on AES-128 from a single trace, proving device-specific noise is not a reliable defense.</p>
     </div>
   </div>
 </section>
@@ -558,11 +556,11 @@ result = (value_a & mask) | (value_b & ~mask);
     <div>
       <p>Modern CPUs use <strong>multi-level caches</strong> (L1: ~1 ns, L2: ~5 ns, L3: ~15 ns, DRAM: ~60 ns). These timing differences are a side channel when crypto code performs <em>secret-dependent memory accesses</em>.</p>
       <br/>
-      <h3>AES T-Table Attack (Bernstein 2005)</h3>
+      <h3>AES T-Table Attacks (Bernstein 2005; Osvik, Shamir &amp; Tromer 2006)</h3>
       <p class="small">Standard AES implementations use <strong>lookup tables</strong> (T-tables, 4 × 1 KB). The index into each table depends on <code>plaintext ⊕ key</code>. An attacker on the same machine measures <em>which cache lines were accessed</em>, revealing which table entries were used, directly leaking key-dependent information.</p>
       <div class="equation-box" style="font-size:0.55em; margin-top:10px;">
-        T-table index = S-box[p<sub>i</sub> ⊕ k<sub>i</sub>]
-        <br/>cache line = index >> 4 → leaks 4 MSBs of (p<sub>i</sub> ⊕ k<sub>i</sub>)
+        first-round T-table index = p<sub>i</sub> ⊕ k<sub>i</sub>
+        <br/>cache line = index >> 4 (16 four-byte entries per 64-byte line) → leaks 4 MSBs of (p<sub>i</sub> ⊕ k<sub>i</sub>)
       </div>
     </div>
     <div>
@@ -603,7 +601,7 @@ result = (value_a & mask) | (value_b & ~mask);
       </div>
       <br/>
       <h3>Mitigations</h3>
-      <p class="small"><strong>KPTI</strong> (unmap kernel pages), <strong>retpoline</strong> (replace indirect branches), <strong>IBRS/IBPB</strong> (hardware predictor barriers), <strong>DAWG</strong> (cache partitioning), microcode patches. Performance cost: 5–30% on some workloads.</p>
+      <p class="small"><strong>KPTI</strong> (unmap kernel pages), <strong>retpoline</strong> (replace indirect branches), <strong>IBRS/IBPB</strong> (hardware predictor barriers), <strong>DAWG</strong> (research proposal: cache partitioning), microcode patches. Performance cost: 5–30% on some workloads.</p>
     </div>
   </div>
 </section>
@@ -652,7 +650,7 @@ result = (value_a & mask) | (value_b & ~mask);
     <div class="card card-warn">
       <p class="icon-medium">🔨</p>
       <h3>RowHammer (Software FI)</h3>
-      <p class="small">Repeated DRAM row activations cause charge leakage in adjacent cells → bit flips. <strong>No physical access needed</strong> — purely software. Demonstrated: privilege escalation, TLS key extraction, VM escape. Affects DDR3/DDR4; mitigations in DDR5 (TRR) partially bypassable.</p>
+      <p class="small">Repeated DRAM row activations cause charge leakage in adjacent cells → bit flips. <strong>No physical access needed</strong> — purely software. Demonstrated: privilege escalation, TLS key extraction, VM escape. Affects DDR3/DDR4: in-DRAM Target Row Refresh (TRR) was bypassed by TRRespass (2020), and DDR5 parts have also been shown to flip (ZenHammer, 2024).</p>
     </div>
   </div>
 </section>
@@ -665,11 +663,11 @@ result = (value_a & mask) | (value_b & ~mask);
       <p>Introduced by <strong>Biham & Shamir (1997)</strong>. Inject a fault during encryption, then compare the <em>correct</em> and <em>faulty</em> ciphertexts. The difference reveals information about the secret key.</p>
       <br/>
       <h3>DFA on AES — Piret & Quisquater (2003)</h3>
-      <p class="small">Inject a <strong>single-byte fault</strong> at the input of round 8 MixColumns. This fault propagates through rounds 9 and 10, affecting 4 bytes of ciphertext. By analyzing the difference between correct and faulty outputs:</p>
+      <p class="small">Inject a <strong>single-byte fault</strong> into the state between the round-8 and round-9 MixColumns. Round 9's MixColumns spreads it over one column, so 4 ciphertext bytes differ. By analysing the difference between correct and faulty outputs:</p>
       <ul class="small">
-        <li>One faulty ciphertext yields ~2<sup>8</sup> possible key hypotheses for 4 key bytes</li>
-        <li>Two faults at different positions → unique 32-bit key fragment</li>
-        <li><strong>2 fault pairs (4 total faults)</strong> → complete AES-128 round key → full key via key schedule inversion</li>
+        <li>One faulty ciphertext leaves ~2<sup>8</sup> candidates for the 4 matching bytes of the last round key</li>
+        <li>A second fault in the same column → a unique 32-bit key fragment; ~8 faults (2 per column) → the whole round-10 key → master key by inverting the key schedule</li>
+        <li>A fault one round earlier (before round-8 MixColumns) reaches all 16 bytes: <strong>2 faulty ciphertexts</strong> recover the full AES-128 key</li>
       </ul>
     </div>
     <div>
@@ -857,7 +855,7 @@ result = old ^ (mask & (old ^ new_val));
         <p class="small"><strong>OpenSSL (post-2014)</strong> — Constant-time BN operations, bitsliced AES, blinded RSA. Legacy codepaths still occasionally vulnerable.</p>
       </div>
       <div class="card" style="margin-bottom:10px;">
-        <p class="small"><strong>BoringSSL</strong> — Google's fork with aggressive constant-time discipline. All crypto ops verified.</p>
+        <p class="small"><strong>BoringSSL</strong> — Google's fork with aggressive constant-time discipline; curve field arithmetic is generated by the formally verified fiat-crypto tool.</p>
       </div>
       <div class="card">
         <p class="small"><strong>AES-NI</strong> — Intel hardware AES instructions are inherently constant-time (no table lookups, fixed latency). Eliminates cache-timing attacks on AES entirely.</p>
@@ -918,7 +916,7 @@ result = old ^ (mask & (old ^ new_val));
       <h3>On-Chip Noise &amp; Attenuation</h3>
       <div class="card card-accent" style="margin-bottom:12px;">
         <h3>Signature Attenuation Hardware (SAH)</h3>
-        <p class="small">Embed crypto core within a dedicated power regulation block. The SAH absorbs the data-dependent current signature internally, presenting only a flat (or noise-dominated) current profile to the external power pin. Demonstrated 100–1000× increase in traces-to-disclosure on AES-256.</p>
+        <p class="small">Embed crypto core within a dedicated power regulation block. The SAH absorbs the data-dependent current signature internally, presenting only a flat (or noise-dominated) current profile to the external power pin. AES-256 test chips have reported traces-to-disclosure rising by several orders of magnitude.</p>
       </div>
       <div class="card card-cyan" style="margin-bottom:12px;">
         <h3>On-Die Voltage Regulators</h3>
@@ -941,7 +939,7 @@ result = old ^ (mask & (old ^ new_val));
       </div>
       <div class="card card-orange">
         <h3>Secure Boot &amp; Key Storage</h3>
-        <p class="small">Keys stored in OTP/eFuse or SRAM PUF — never exposed on bus. Crypto operations execute inside a hardened island with dedicated clock, power, and bus isolation. ARM TrustZone CryptoCell, Intel AES-NI, dedicated secure elements (SE050, ATECC608).</p>
+        <p class="small">Keys stored in OTP/eFuse or SRAM PUF — never exposed on bus. Crypto operations execute inside a hardened island with dedicated clock, power, and bus isolation. Arm TrustZone CryptoCell, Apple Secure Enclave, dedicated secure elements (SE050, ATECC608).</p>
       </div>
     </div>
   </div>
@@ -952,18 +950,18 @@ result = old ^ (mask & (old ^ new_val));
   <h2>Cost of Protection — Area &amp; Performance</h2>
   <table class="taxonomy-table">
     <thead>
-      <tr><th>Implementation</th><th>Order</th><th>Area (GE)</th><th>Throughput</th><th>Randomness / enc</th><th>Traces to break</th></tr>
+      <tr><th>Implementation</th><th>Order</th><th>Area (GE)</th><th>Latency / block</th><th>Fresh randomness</th><th>Traces to break</th></tr>
     </thead>
     <tbody>
-      <tr><td>AES-128 (unprotected)</td><td>—</td><td>~2,400</td><td>54 cycles</td><td>0 bits</td><td class="highlight">~500</td></tr>
-      <tr><td>AES-128 + 1st-order TI</td><td>d=1</td><td>~7,500</td><td>266 cycles</td><td>~48 bits</td><td>~50,000</td></tr>
-      <tr><td>AES-128 + 1st-order DOM</td><td>d=1</td><td>~5,800</td><td>~108 cycles</td><td>~18 bits/round</td><td>~50,000</td></tr>
-      <tr><td>AES-128 + 2nd-order DOM</td><td>d=2</td><td>~11,000</td><td>~216 cycles</td><td>~54 bits/round</td><td>~10<sup>8</sup></td></tr>
+      <tr><td>AES-128 (unprotected)</td><td>—</td><td>~2,400</td><td>226 cycles</td><td>0 bits</td><td class="highlight">~500</td></tr>
+      <tr><td>AES-128 + 1st-order TI</td><td>d=1</td><td>~11,000</td><td>266 cycles</td><td>~48 bits / S-box</td><td>~50,000</td></tr>
+      <tr><td>AES-128 + 1st-order DOM</td><td>d=1</td><td>~6,000–7,000</td><td>~250 cycles</td><td>18 bits / S-box</td><td>~50,000</td></tr>
+      <tr><td>AES-128 + 2nd-order DOM</td><td>d=2</td><td>~11,000–13,000</td><td>~250 cycles</td><td>54 bits / S-box</td><td>~10<sup>8</sup></td></tr>
       <tr><td>AES-128 + shuffling + mask</td><td>d=1</td><td>~8,200</td><td>~160 cycles</td><td>~128 bits</td><td>~10<sup>6</sup></td></tr>
-      <tr><td>AES-128 + SAH wrapper</td><td>—</td><td>~4,000 + SAH</td><td>54 cycles</td><td>0 bits</td><td>&gt; 10<sup>7</sup></td></tr>
+      <tr><td>AES-128 + SAH wrapper</td><td>—</td><td>~2,400 + SAH</td><td>226 cycles</td><td>0 bits</td><td>&gt; 10<sup>7</sup></td></tr>
     </tbody>
   </table>
-  <p class="small" style="margin-top:12px;">GE = gate equivalents (1 GE ≈ 2-input NAND). Cycle counts for round-based architectures at 1 round/cycle. Traces-to-break assumes first-order CPA attack on the respective protection level. Values are approximate — vary with technology node, implementation style, and attack sophistication.</p>
+  <p class="small" style="margin-top:12px;">GE = gate equivalents (1 GE ≈ 2-input NAND). Rows are byte-serial (one S-box) designs, e.g. Moradi et al. 2011 (unprotected, TI) and Gross et al. 2016 (DOM). Traces-to-break: first-order CPA for unprotected and hiding rows; for masked rows, the higher-order attack the masking is meant to resist. Values are approximate — vary with technology node, implementation style, and attack sophistication.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -985,8 +983,8 @@ result = old ^ (mask & (old ^ new_val));
       <span class="tag tag-red">Power Analysis</span>
     </div>
     <div class="card card-cyan">
-      <h3>OpenSSL RSA via Cache (2005)</h3>
-      <p class="small">Bernstein demonstrated timing-based key extraction from OpenSSL AES over a network. Percival extracted RSA keys via L1 cache contention on hyperthreaded Intel CPUs. Led to constant-time bignum operations and AES-NI adoption.</p>
+      <h3>OpenSSL AES &amp; RSA via Cache (2005)</h3>
+      <p class="small">Bernstein recovered an OpenSSL AES key from the timing of a network server. Percival extracted RSA keys via L1 cache contention on hyperthreaded Intel CPUs. Led to constant-time bignum operations and AES-NI adoption.</p>
       <span class="tag tag-blue">Cache Timing</span>
     </div>
     <div class="card card-purple">
@@ -998,7 +996,7 @@ result = old ^ (mask & (old ^ new_val));
   <div class="three-col" style="margin-top:16px;">
     <div class="card card-orange">
       <h3>Spectre / Meltdown (2018)</h3>
-      <p class="small">Affected virtually all modern CPUs (Intel, AMD, ARM). Spectre exploited branch prediction; Meltdown exploited out-of-order execution. Industry-wide response: OS patches, microcode updates, CPU redesigns. Performance impact: 5–30%.</p>
+      <p class="small">Spectre (branch prediction) affected virtually all modern CPUs (Intel, AMD, Arm); Meltdown (out-of-order execution past a permission fault) mainly Intel, plus some Arm and IBM cores. Industry-wide response: OS patches, microcode updates, CPU redesigns. Performance impact: 5–30%.</p>
       <span class="tag tag-orange">Microarchitectural</span>
     </div>
     <div class="card card-warn">
@@ -1008,8 +1006,8 @@ result = old ^ (mask & (old ^ new_val));
     </div>
     <div class="card card-green">
       <h3>ROCA — Infineon TPM (2017)</h3>
-      <p class="small">RSA key generation in Infineon TPMs used a flawed fast-prime algorithm. Side-channel analysis revealed the structure, allowing factorization of 2048-bit RSA keys from the public key alone. Affected millions of Estonian ID cards, YubiKeys, and TPM-protected machines.</p>
-      <span class="tag tag-green">Algorithmic + SC</span>
+      <p class="small">RSA key generation in an Infineon library (TPMs, smart cards) built primes with a special structure. Coppersmith's method exploits it to factor 2048-bit keys from the public key alone (Nemec et al.) — no side channel needed. Affected millions of Estonian ID cards, YubiKeys, and TPM-protected machines.</p>
+      <span class="tag tag-green">Algorithmic (not SC)</span>
     </div>
   </div>
 </section>
@@ -1029,7 +1027,7 @@ result = old ^ (mask & (old ^ new_val));
     <div class="three-col small" style="margin-top:16px;">
       <div>
         <p class="highlight"><strong>Algorithm Layer</strong></p>
-        <p>• Algorithms with inherent resistance (e.g., Keccak's sponge has no S-box lookup)<br/>• Avoid RSA-CRT without verification<br/>• Prefer X25519 over NIST P-256 (easier to implement in constant time)</p>
+        <p>• Algorithms with inherent resistance (e.g., Keccak's χ is a bitsliced degree-2 map: no table lookups, cheap to mask)<br/>• Avoid RSA-CRT without verification<br/>• Prefer X25519 over NIST P-256 (easier to implement in constant time)</p>
       </div>
       <div>
         <p class="cyan"><strong>Software Layer</strong></p>
@@ -1051,7 +1049,7 @@ result = old ^ (mask & (old ^ new_val));
       <h3>RSA Blinding</h3>
       <p class="small">Randomize the input to the private-key operation so the attacker cannot correlate known inputs with power/timing traces.</p>
       <pre><code class="language-python"># RSA signature with blinding
-def rsa_sign_blinded(m, d, n):
+def rsa_sign_blinded(m, d, e, n):
     # Generate random blinding factor
     r = random_coprime(n)
     r_inv = modular_inverse(r, n)
@@ -1060,12 +1058,12 @@ def rsa_sign_blinded(m, d, n):
     m_blind = (m * pow(r, e, n)) % n
     
     # Sign the blinded message
-    s_blind = pow(m_blind, d, n)  # leaks info about r, not d!
+    s_blind = pow(m_blind, d, n)  # input is random: DPA cannot use m
     
     # Unblind the signature
     s = (s_blind * r_inv) % n
-    return s  # correct signature, no leakage</code></pre>
-      <p class="small" style="margin-top:8px;">Every invocation uses a fresh random <code>r</code>, so the intermediate values during exponentiation are completely randomized. Attacker's traces are decorrelated from the actual key bits.</p>
+    return s  # same signature as pow(m, d, n)</code></pre>
+      <p class="small" style="margin-top:8px;">Every invocation uses a fresh random <code>r</code>, so the intermediate values during exponentiation are completely randomized. Attacker's traces no longer correlate with the known message. Combine with exponent blinding (d + k·φ(n)) so the exponent bits also change each call.</p>
     </div>
     <div>
       <h3>ECC Scalar Blinding</h3>
@@ -1136,7 +1134,9 @@ def rsa_sign_blinded(m, d, n):
       • Biham & Shamir, "Differential Fault Analysis" (1997)<br/>
       • Boneh, DeMillo, Lipton, "On the Importance of Checking Crypto Computations" (1997)<br/>
       • Piret & Quisquater, "A DFA Technique Against SPN Structures" (2003)<br/>
-      • Bernstein, "Cache-Timing Attacks on AES" (2005)</p>
+      • Brier, Clavier, Olivier, "Correlation Power Analysis with a Leakage Model" (CHES 2004)<br/>
+      • Bernstein, "Cache-Timing Attacks on AES" (2005)<br/>
+      • Osvik, Shamir, Tromer, "Cache Attacks and Countermeasures: the Case of AES" (CT-RSA 2006)</p>
       <p style="margin-top:12px;"><strong>Spectre / Meltdown</strong></p>
       <p>• Kocher et al., "Spectre Attacks: Exploiting Speculative Execution" (2018)<br/>
       • Lipp et al., "Meltdown: Reading Kernel Memory from User Space" (2018)</p>

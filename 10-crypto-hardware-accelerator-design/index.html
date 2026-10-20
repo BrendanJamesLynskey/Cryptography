@@ -165,7 +165,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="card-row">
     <div class="card">
       <h3>⚡ Throughput</h3>
-      <p class="small">AES in software (OpenSSL, Xeon): ~3–6 Gbps<br>AES in 45 nm ASIC: <em>53 Gbps</em><br>AES fully-pipelined FPGA: <em>200+ Gbps</em></p>
+      <p class="small">AES-GCM in software (OpenSSL + AES-NI, one modern x86 core): ~3–6 GB/s (≈25–50 Gbps)<br>AES in 45 nm ASIC: <em>53 Gbps</em><br>AES fully-pipelined FPGA: <em>200+ Gbps</em></p>
     </div>
     <div class="card">
       <h3>🔋 Energy</h3>
@@ -191,7 +191,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="arch-grid cols-2">
     <div class="card">
       <h3>Symmetric Engines</h3>
-      <p class="small">Block ciphers (AES, SM4, ChaCha20), stream ciphers, hash functions (SHA-2, SHA-3/Keccak), authenticated encryption (AES-GCM, AES-CCM).</p>
+      <p class="small">Block ciphers (AES, SM4), stream ciphers (ChaCha20), hash functions (SHA-2, SHA-3/Keccak), authenticated encryption (AES-GCM, AES-CCM).</p>
       <p><span class="tag tag-green">High throughput</span> <span class="tag tag-dim">Fixed datapath</span></p>
     </div>
     <div class="card">
@@ -201,7 +201,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </div>
     <div class="card">
       <h3>Post-Quantum Engines</h3>
-      <p class="small">ML-KEM (Kyber), ML-DSA (Dilithium), FALCON, SLH-DSA (SPHINCS+). NTT polynomial multipliers, Keccak-based sampling, rejection loops.</p>
+      <p class="small">ML-KEM (Kyber), ML-DSA (Dilithium), FN-DSA (Falcon), SLH-DSA (SPHINCS+). NTT polynomial multipliers, Keccak-based sampling, rejection loops.</p>
       <p><span class="tag tag-purple">NTT-centric</span> <span class="tag tag-yellow">Emerging standard</span></p>
     </div>
     <div class="card">
@@ -238,7 +238,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="card-row">
     <div class="card">
       <h3>Iterative (Compact)</h3>
-      <p class="small">Single round circuit, reused 10×. Minimum area (~2,400 GE for 8-bit datapath). Throughput: 6–94 Mbps.</p>
+      <p class="small">One round circuit reused 10×, or narrower still: the smallest cores (~2,400 GE) use an 8-bit datapath and one S-box, ~226 cycles per block. Throughput: 6–94 Mbps.</p>
       <p><span class="tag tag-green">IoT</span> <span class="tag tag-dim">Smart cards</span></p>
     </div>
     <div class="card">
@@ -264,10 +264,10 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <table class="comparison-table">
     <tr><th>Method</th><th>Area (GE)</th><th>Delay (ns)</th><th>Side-Channel</th><th>Notes</th></tr>
     <tr><td><strong>Lookup Table (ROM)</strong></td><td>~4,000</td><td>~1.0</td><td class="accent2">Vulnerable</td><td>256×8 ROM; cache-timing leaks in SW</td></tr>
-    <tr><td><strong>Composite Field GF((2²)²)²</strong></td><td>~250–350</td><td>~2.5</td><td>Moderate</td><td>Tower decomposition; Canright (2005)</td></tr>
+    <tr><td><strong>Composite Field GF(((2²)²)²)</strong></td><td>~250–350</td><td>~2.5</td><td>Moderate</td><td>Tower decomposition; Canright (2005)</td></tr>
     <tr><td><strong>Boyar-Peralta Logic Min.</strong></td><td>~113 gates</td><td>~3.0</td><td>Moderate</td><td>Boolean minimization heuristics</td></tr>
-    <tr><td><strong>Masked (2-share TI)</strong></td><td>~6,000+</td><td>~4.0</td><td class="tag-green" style="color:var(--accent)">Resistant</td><td>Threshold implementation, 1st-order DPA safe</td></tr>
-    <tr><td><strong>Redundant GF + Offset</strong></td><td>~200</td><td>~2.8</td><td>Moderate</td><td>Polynomial ring representation; CHES 2024</td></tr>
+    <tr><td><strong>Masked (TI, 3+ shares)</strong></td><td>~2,200–4,200</td><td>~4.0</td><td class="tag-green" style="color:var(--accent)">Resistant</td><td>Threshold implementation, 1st-order DPA safe (pipelined over several cycles)</td></tr>
+    <tr><td><strong>Redundant GF + Offset</strong></td><td>~200</td><td>~2.8</td><td>Moderate</td><td>Polynomial ring representation; recent research, figures approximate</td></tr>
   </table>
 
   <div class="highlight-box">
@@ -329,7 +329,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div class="card">
       <div class="metric">
         <div class="value" style="color:var(--accent2);">~7k</div>
-        <div class="label">Slices (compact)</div>
+        <div class="label">Slices (approx.)</div>
       </div>
       <p class="small" style="text-align:center;">Single-round iterative<br>for IoT/embedded</p>
     </div>
@@ -338,7 +338,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <div class="value" style="color:var(--accent3);">24→6</div>
         <div class="label">Rounds via unrolling</div>
       </div>
-      <p class="small" style="text-align:center;">4× unroll: 4 rounds/cycle<br>6 cycles per hash</p>
+      <p class="small" style="text-align:center;">4× unroll: 4 rounds/cycle<br>6 cycles per Keccak-f permutation</p>
     </div>
   </div>
 
@@ -361,7 +361,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <!-- ============================================================ -->
 <section>
   <h2>RSA Hardware Architecture</h2>
-  <p class="small">RSA's core operation is modular exponentiation: C = M<sup>e</sup> mod n. This reduces to hundreds of modular multiplications over 2048–4096 bit operands.</p>
+  <p class="small">RSA's core operation is modular exponentiation: C = M<sup>e</sup> mod n. With a 2048-bit private exponent this is ~3,000 modular multiplications (2,048 squarings + ~1,000 multiplies) over 2048–4096-bit operands.</p>
 
   <div class="card">
     <h3>Montgomery Multiplication — The Workhorse</h3>
@@ -446,18 +446,18 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <!-- ============================================================ -->
 <section>
   <h2>NIST PQC Standards &amp; Hardware</h2>
-  <p class="small">NIST finalized three lattice-based standards in 2024. All share a common computational bottleneck: polynomial multiplication, accelerated via the Number Theoretic Transform (NTT).</p>
+  <p class="small">NIST finalized three PQC standards in August 2024: two lattice-based (ML-KEM, ML-DSA) and one hash-based (SLH-DSA). The lattice schemes, and Falcon (FN-DSA, pending as FIPS 206), share a common bottleneck: polynomial multiplication, accelerated via the Number Theoretic Transform (NTT).</p>
 
   <table class="comparison-table">
     <tr><th>Standard</th><th>Algorithm</th><th>Type</th><th>Key Operation</th><th>Hardware Bottleneck</th></tr>
     <tr><td><strong>FIPS 203</strong></td><td>ML-KEM (Kyber)</td><td>KEM</td><td>Polynomial mul (mod q=3329)</td><td>NTT + SHA-3/SHAKE</td></tr>
     <tr><td><strong>FIPS 204</strong></td><td>ML-DSA (Dilithium)</td><td>Signature</td><td>Polynomial mul (mod q=8380417)</td><td>NTT + SHA-3/SHAKE</td></tr>
     <tr><td><strong>FIPS 205</strong></td><td>SLH-DSA (SPHINCS+)</td><td>Signature</td><td>Hash tree traversal</td><td>SHA-2/SHAKE throughput</td></tr>
-    <tr><td><em>Draft 206</em></td><td>FALCON</td><td>Signature</td><td>FFT Sampling (floating-pt)</td><td>Fast Fourier Sampling + NTT</td></tr>
+    <tr><td><em>FIPS 206 (pending)</em></td><td>FN-DSA (Falcon)</td><td>Signature</td><td>FFT Sampling (floating-pt)</td><td>Fast Fourier Sampling + NTT</td></tr>
   </table>
 
   <div class="highlight-box yellow">
-    <strong>Unified hardware opportunity:</strong> ML-KEM and ML-DSA both require NTT butterfly units and Keccak cores. A unified accelerator supporting both schemes shares ~70% of the datapath — the NTT butterfly, modular reduction, and SHAKE engines are common building blocks.
+    <strong>Unified hardware opportunity:</strong> ML-KEM and ML-DSA both require NTT butterfly units and Keccak cores. A unified accelerator supporting both schemes shares much of its datapath — the NTT butterfly, modular reduction, and SHAKE engines are common building blocks.
   </div>
 </section>
 
@@ -505,7 +505,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div class="card">
       <h3>Iterative (In-Place)</h3>
       <p class="small">Single butterfly unit processes coefficients sequentially from RAM. Reuses one BF across all stages.</p>
-      <p class="small"><strong>Area:</strong> Minimal (~800 LUTs)<br><strong>Cycles:</strong> n·log₂n<br><strong>Use:</strong> Compact IoT</p>
+      <p class="small"><strong>Area:</strong> Minimal (~800 LUTs)<br><strong>Cycles:</strong> (n/2)·log₂n<br><strong>Use:</strong> Compact IoT</p>
     </div>
     <div class="card">
       <h3>Multi-Delay Commutator (MDC)</h3>
@@ -525,7 +525,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box">
-    <strong>State of the art (2024):</strong> Pipelined SDF-NTT with multiplier-less Montgomery reduction achieves <em>49.6% better</em> area-time product than prior designs. Unified architectures support both Kyber (q=3329) and Dilithium (q=8380417) via configurable butterfly width.
+    <strong>State of the art:</strong> recent pipelined SDF-NTT designs with multiplier-less modular reduction report sizeable area-time-product gains over earlier designs (see the benchmark slide). Unified architectures support both Kyber (q=3329) and Dilithium (q=8380417) via configurable butterfly width.
   </div>
 </section>
 
@@ -636,7 +636,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </table>
 
   <div class="highlight-box">
-    <strong>Masking in practice:</strong> Rambus DPA-resistant cores validate with TVLA (Test Vector Leakage Assessment) methodology — no detectable leakage beyond <em>100 million traces</em>, protecting against first and second-order attacks beyond 1 billion operations.
+    <strong>Masking in practice:</strong> commercial DPA-resistant cores are validated with TVLA (Test Vector Leakage Assessment): no first- or second-order leakage detected after tens to hundreds of millions of traces.
   </div>
 </section>
 
@@ -645,7 +645,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <!-- ============================================================ -->
 <section>
   <h2>Threshold Implementation (TI)</h2>
-  <p class="small">TI splits every sensitive variable into d+1 shares that are processed independently. Even if an attacker observes glitch-induced transient leakage, no single share reveals information.</p>
+  <p class="small">TI splits every sensitive variable into shares — at least t·d+1 of them for a degree-t function at order d (3 shares for a quadratic function at first order) — that are processed separately. Even if an attacker observes glitch-induced transient leakage, no single share reveals information.</p>
 
   <div class="card">
     <h3>TI Properties</h3>
@@ -662,7 +662,8 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </div>
   </div>
 
-  <pre><code class="language-verilog">// 2-share TI for AES S-Box (simplified concept)
+  <pre><code class="language-verilog">// Masked AES S-box, 2 shares, DOM-style (concept only, body omitted).
+// A true TI needs 3+ shares; DOM gets by with d+1 by adding fresh randomness.
 // Each share never sees the complete unmasked value
 
 module ti_sbox (
@@ -672,7 +673,7 @@ module ti_sbox (
 );
   // Non-linear layer uses cross-domain terms with fresh masks
   // Linear layers (affine transform) applied to each share independently
-  // Area: ~6,000 GE vs ~350 GE unmasked — ~17× overhead
+  // Area: a few kGE vs ~250–350 GE unmasked — roughly 10× overhead
 endmodule</code></pre>
 </section>
 
@@ -717,7 +718,7 @@ endmodule</code></pre>
     </div>
     <div class="card">
       <h3>RISC-V Crypto (Zkn/Zks)</h3>
-      <p class="small"><code>aes32esi</code> / <code>aes64es</code> — AES encrypt step<br><code>sha256sig0</code> — SHA-256 sigma<br><code>sm4ed</code> — SM4 encrypt/decrypt<br><code>clmul</code> — Carryless multiply<br>Custom: <code>RANTT</code> — NTT for PQC</p>
+      <p class="small"><code>aes32esi</code> / <code>aes64es</code> — AES encrypt step<br><code>sha256sig0</code> — SHA-256 sigma<br><code>sm4ed</code> — SM4 encrypt/decrypt<br><code>clmul</code> — Carryless multiply<br>Custom (research): NTT-butterfly ISEs for PQC</p>
     </div>
   </div>
 
@@ -874,8 +875,8 @@ module aes_sbox_cf (
   assign prod     = gf16_mul(sum_hl, lo);             // (hi⊕lo) · lo
   assign t        = sq_scale ^ prod;                  // Norm: hi²λ ⊕ (hi⊕lo)·lo
   assign inv_d    = gf16_inv(t);                      // Inversion in GF(2^4)
-  assign inv_hi   = gf16_mul(sum_hl, inv_d);          // (hi⊕lo) · inv_d
-  assign inv_lo   = gf16_mul(hi, inv_d);              // hi · inv_d
+  assign inv_hi   = gf16_mul(hi, inv_d);              // hi · inv_d
+  assign inv_lo   = gf16_mul(sum_hl, inv_d);          // (hi⊕lo) · inv_d
 
   // Step 3: Inverse map + affine transformation
   assign inv_mapped = inv_iso_map({inv_hi, inv_lo});
@@ -930,31 +931,31 @@ endmodule</code></pre>
 <section>
   <h2>SystemVerilog: Montgomery Reduction</h2>
   <pre><code class="language-systemverilog">// Multiplier-less Montgomery reduction for Kyber (q = 3329)
-// Exploits q = 13·256 + 1 structure for efficient constant multiply
+// Returns product · 2^(-16) mod q. Constants are shift-add friendly:
+// q = 13·2^8 + 1 and -q^(-1) mod 2^16 = 3327 = 13·2^8 - 1
 module montgomery_reduce #(
-  parameter Q     = 3329,
-  parameter Q_INV = 62209,  // q^(-1) mod 2^16
-  parameter W     = 12
+  parameter Q         = 3329,
+  parameter NEG_Q_INV = 3327,   // -q^(-1) mod 2^16
+  parameter W         = 12
 )(
-  input  logic [2*W-1:0]  product,   // 24-bit input (a × b)
+  input  logic [2*W-1:0]  product,   // 24-bit input (a × b), < q·2^16
   output logic [W-1:0]    result     // Reduced to [0, q)
 );
   logic [15:0] t;
   logic [31:0] u;
-  logic signed [W:0] r;
+  logic [W:0]  r;
 
-  // Step 1: t = (product mod R) × Q_INV mod R
-  //   where R = 2^16
-  assign t = product[15:0] * Q_INV[15:0];  // Low 16 bits only
+  // Step 1: t = (product mod R) × (-q^(-1)) mod R,  R = 2^16
+  assign t = product[15:0] * NEG_Q_INV[15:0];  // Low 16 bits only
 
-  // Step 2: u = (product + t × Q) >> 16
+  // Step 2: u = product + t × Q is divisible by R; r = u / R < 2q
   assign u = product + (t * Q);
-  
+
   // Step 3: Conditional subtraction
-  assign r = u[31:16];
+  assign r = u[28:16];
   assign result = (r >= Q) ? (r - Q) : r[W-1:0];
 endmodule</code></pre>
-  <p class="small"><strong>Key optimization:</strong> For Kyber's q=3329, the constant multiply by Q_INV can be decomposed into shifts and adds, eliminating the need for a hardware multiplier entirely — reducing the butterfly to pure shift-XOR-add logic.</p>
+  <p class="small"><strong>Key optimization:</strong> For Kyber's q=3329, the constant multiplies by 3327 and by q are each one shift and one add or subtract (13 = 8+4+1), so the reduction needs no hardware multiplier — only the ω·b product does. Because the result carries a factor 2<sup>−16</sup>, twiddles are stored in Montgomery form (ω·2<sup>16</sup> mod q).</p>
 </section>
 
 <!-- ============================================================ -->
@@ -974,12 +975,12 @@ endmodule</code></pre>
 
   <table class="comparison-table">
     <tr><th>Implementation</th><th>Platform</th><th>Throughput</th><th>Area</th><th>Efficiency</th></tr>
-    <tr><td>OpenSSL (SW, Xeon)</td><td>x86 + AES-NI</td><td>~6 Gbps</td><td>—</td><td>CPU-bound</td></tr>
+    <tr><td>OpenSSL (SW, Xeon)</td><td>x86 + AES-NI</td><td>~25–50 Gbps / core</td><td>—</td><td>CPU-bound</td></tr>
     <tr><td>8-bit iterative</td><td>90 nm ASIC</td><td>94 Mbps</td><td>2,645 GE</td><td>35.6 Kbps/GE</td></tr>
     <tr><td>Composite field 128b</td><td>45 nm ASIC</td><td><em>53 Gbps</em></td><td>~100K GE</td><td>530 Kbps/GE</td></tr>
     <tr><td>Fully pipelined</td><td>Artix-7 FPGA</td><td>72 Gbps</td><td>~4K Slices</td><td>18 Mbps/Slice</td></tr>
     <tr><td>Multi-core (x4)</td><td>KU+ FPGA</td><td><em>742 Gbps</em></td><td>~16K Slices</td><td>46 Mbps/Slice</td></tr>
-    <tr><td>TI masked (2-share)</td><td>180 nm ASIC</td><td>~1 Gbps</td><td>~40K GE</td><td>DPA resistant</td></tr>
+    <tr><td>Masked (1st-order)</td><td>180 nm ASIC</td><td>~1 Gbps</td><td>~40K GE</td><td>DPA resistant</td></tr>
     <tr><td>AES-GCM SoC</td><td>Virtex-5 FPGA</td><td>25.6 Gbps</td><td>69% of SoC</td><td>4-parallel engine</td></tr>
   </table>
 
@@ -1004,7 +1005,7 @@ endmodule</code></pre>
     <tr><td>HLS batch accelerator</td><td>Alveo FPGA</td><td>ML-KEM + ML-DSA</td><td>batch</td><td>~50K</td><td>High-volume server</td></tr>
   </table>
 
-  <p class="small">Post-quantum hardware is rapidly maturing. Unified Kyber+Dilithium accelerators sharing NTT/Keccak datapaths will become the standard building block for PQC-ready SoCs.</p>
+  <p class="small">Figures as reported by each design's authors; ATP = area-time product. Post-quantum hardware is rapidly maturing. Unified Kyber+Dilithium accelerators sharing NTT/Keccak datapaths will become the standard building block for PQC-ready SoCs.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -1051,7 +1052,7 @@ endmodule</code></pre>
   </div>
 
   <div class="highlight-box" style="margin-top:14px;">
-    <strong>Certification matters:</strong> FIPS 140-3 Level 3+ requires physical tamper resistance and environmental failure testing. Common Criteria EAL5+ demands formal security proofs. These requirements fundamentally shape hardware architecture decisions.
+    <strong>Certification matters:</strong> FIPS 140-3 Level 3+ requires physical tamper resistance and environmental failure protection or testing. Smart-card evaluations at Common Criteria EAL5+ (augmented with AVA_VAN.5) require semiformal design evidence and testing against high-attack-potential adversaries. These requirements fundamentally shape hardware architecture decisions.
   </div>
 </section>
 
@@ -1077,11 +1078,11 @@ endmodule</code></pre>
     </div>
     <div class="card">
       <h3>🔐 Fully Homomorphic Encryption</h3>
-      <p class="small">FHE demands NTT operations on polynomials with millions of coefficients and 100+ bit moduli. FPGA accelerators (FAB) achieve 456× speedup over CPU. Custom ASIC designs target practical bootstrapping times.</p>
+      <p class="small">FHE demands NTTs on polynomials of 2<sup>13</sup>–2<sup>17</sup> coefficients whose moduli run to hundreds or over a thousand bits (split into ~30–60-bit RNS limbs). FPGA accelerators (FAB, HPCA 2023) report large speed-ups over CPUs; ASIC designs (F1, CraterLake, BTS, ARK) target bootstrapping in milliseconds.</p>
     </div>
     <div class="card">
       <h3>🧊 Post-Quantum Signatures</h3>
-      <p class="small">FALCON requires floating-point discrete Gaussian sampling — unusual for crypto hardware. ASIC implementations at 28 nm achieve 5.2K signatures/sec with dedicated FFT sampling engines.</p>
+      <p class="small">FALCON requires floating-point discrete Gaussian sampling — unusual for crypto hardware. A reported 28 nm ASIC reaches ~5K signatures/s with dedicated FFT sampling engines.</p>
     </div>
     <div class="card">
       <h3>📐 Zero-Knowledge Hardware</h3>
@@ -1109,6 +1110,7 @@ endmodule</code></pre>
         FIPS 203 — ML-KEM (Kyber) — Aug 2024<br>
         FIPS 204 — ML-DSA (Dilithium) — Aug 2024<br>
         FIPS 205 — SLH-DSA (SPHINCS+) — Aug 2024<br>
+        FIPS 206 — FN-DSA (Falcon) — pending<br>
         FIPS 140-3 — Security Requirements for Crypto Modules<br>
         SP 800-186 — Elliptic Curve Recommendations
       </p>
@@ -1124,7 +1126,7 @@ endmodule</code></pre>
     <div>
       <h3 style="font-size:0.9em;">Hardware References</h3>
       <p class="tiny">
-        Hasan, "53 Gbps Composite-Field AES" (JSSC 2011, 45 nm)<br>
+        Mathew et al., "53 Gbps Native GF((2<sup>4</sup>)<sup>2</sup>) Composite-Field AES" (JSSC 2011, 45 nm)<br>
         Ouyang et al., "FalconSign" (TCHES 2025, 28 nm)<br>
         FAB: FPGA Accelerator for Bootstrappable FHE (HPCA 2023)<br>
         EMINEM: Mixed-Radix NTT for PQC (ACM TRETS 2025)<br>
@@ -1132,7 +1134,7 @@ endmodule</code></pre>
       </p>
       <h3 style="font-size:0.9em;">Side-Channel</h3>
       <p class="tiny">
-        Rambus DPA Countermeasures &amp; TVLA Methodology<br>
+        Goodwill et al., "A Testing Methodology for Side-Channel Resistance Validation" (TVLA, 2011)<br>
         Nikova, Rechberger &amp; Rijmen, "Threshold Implementations" (2006)<br>
         Mangard, Oswald &amp; Popp, "Power Analysis Attacks" (Springer)<br>
         ChipWhisperer Open-Source SCA Platform
@@ -1163,7 +1165,7 @@ endmodule</code></pre>
       <em>Implementation</em> — ASIC vs. FPGA trade-offs, ISE extensions (AES-NI, RISC-V Zkn), protocol offload engines, certification requirements.
     </p>
   </div>
-  <div class="series-tag" style="margin-top:1em;">Modern Cryptography Series · Presentation 10 of 10</div>
+  <div class="series-tag" style="margin-top:1em;">Modern Cryptography Series · Presentation 10 of 13</div>
 </section>
 
 </div><!-- /slides -->
