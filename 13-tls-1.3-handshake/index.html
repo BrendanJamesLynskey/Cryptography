@@ -187,7 +187,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box">
-    <strong>TLS is the integration point:</strong> It combines <em>key exchange</em> (Module 02), <em>symmetric encryption</em> (Module 03/04), <em>hash functions</em> (Module 05), and <em>digital signatures</em> (Module 06) into a single coherent protocol.
+    <strong>TLS is the integration point:</strong> It combines <em>key exchange</em> (Modules 02 and 05), <em>symmetric encryption</em> (Module 03), <em>hash functions and MACs</em> (Module 04), and <em>digital signatures</em> (Module 06) into a single coherent protocol.
   </div>
 </section>
 
@@ -208,7 +208,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </table>
 
   <div class="highlight-box">
-    <strong>28 drafts over 4 years:</strong> TLS 1.3 went through extensive review. The IETF process eliminated features that had caused vulnerabilities &mdash; the result is a radically simplified protocol compared to TLS 1.2's 37 cipher suites and negotiable options.
+    <strong>28 drafts over 4 years:</strong> TLS 1.3 went through extensive review. The IETF process eliminated features that had caused vulnerabilities &mdash; the result is a radically simplified protocol compared to TLS 1.2's hundreds of registered cipher suites and negotiable options.
   </div>
 </section>
 
@@ -245,7 +245,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box pink">
-    <strong>Forward secrecy is mandatory:</strong> By removing RSA key exchange entirely, TLS 1.3 guarantees that a compromised server private key cannot decrypt past sessions. Every connection uses ephemeral ECDHE.
+    <strong>Forward secrecy is mandatory:</strong> By removing RSA key exchange entirely, TLS 1.3 guarantees that a compromised server private key cannot decrypt past sessions. Every full handshake uses ephemeral (EC)DHE.
   </div>
 </section>
 
@@ -254,7 +254,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <!-- ============================================================ -->
 <section>
   <h2>TLS 1.3 Cipher Suites</h2>
-  <p class="small">TLS 1.2 had 37+ cipher suites with complex negotiation. TLS 1.3 has exactly <em>5</em>, all AEAD-only. Key exchange and authentication are negotiated separately.</p>
+  <p class="small">TLS 1.2 had hundreds of registered cipher suites with complex negotiation. TLS 1.3 has exactly <em>5</em>, all AEAD-only. Key exchange and authentication are negotiated separately.</p>
 
   <table class="comparison-table">
     <tr><th>Cipher Suite</th><th>AEAD</th><th>HKDF Hash</th><th>Key Size</th><th>Notes</th></tr>
@@ -266,7 +266,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </table>
 
   <div class="highlight-box">
-    <strong>Separation of concerns:</strong> In TLS 1.3, the cipher suite specifies <em>only</em> the AEAD algorithm and hash. Key exchange (ECDHE group) and signature algorithm are negotiated via extensions &mdash; a cleaner, more modular design from Module 03 (AES) and Module 04 (ChaCha20).
+    <strong>Separation of concerns:</strong> In TLS 1.3, the cipher suite specifies <em>only</em> the AEAD algorithm and hash. Key exchange (ECDHE group) and signature algorithm are negotiated via extensions &mdash; a cleaner, more modular design. AES-GCM is covered in Module 03, Poly1305 in Module 04.
   </div>
 </section>
 
@@ -356,6 +356,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     legacy_compression:       [0x00]        // Null only
     extensions: {
         supported_versions:   [0x0304]      // TLS 1.3
+        supported_groups:     [x25519, secp256r1, ...]
         key_share:            X25519 pubkey (32 bytes)
                               P-256 pubkey  (65 bytes)
         signature_algorithms: [ed25519, ecdsa_secp256r1_sha256,
@@ -367,7 +368,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box">
-    <strong>Speculative key shares:</strong> The client sends public keys for its preferred groups (often both X25519 and P-256). If the server supports neither, it responds with <em>HelloRetryRequest</em> &mdash; adding one extra round trip.
+    <strong>Speculative key shares:</strong> The client sends public keys for its preferred groups (today browsers typically send X25519MLKEM768 plus X25519). If the server supports none of them but does support another group in <code>supported_groups</code>, it responds with <em>HelloRetryRequest</em> &mdash; adding one extra round trip.
   </div>
 </section>
 
@@ -452,7 +453,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <!-- ============================================================ -->
 <section>
   <h2>Key Schedule &mdash; HKDF Derivation</h2>
-  <p class="small">TLS 1.3 derives all keys through a structured HKDF pipeline. Two primitives from Module 05 (Hashing): <em>HKDF-Extract</em> (combine entropy) and <em>HKDF-Expand</em> (derive keys).</p>
+  <p class="small">TLS 1.3 derives all keys through a structured HKDF pipeline. Two primitives from Module 04 (Hash Functions &amp; MACs): <em>HKDF-Extract</em> (combine entropy) and <em>HKDF-Expand</em> (derive keys).</p>
 
   <svg viewBox="0 0 800 420" style="width:100%; margin:8px 0;">
     <defs>
@@ -556,7 +557,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box">
-    <strong>Transcript binding:</strong> CertificateVerify signs <code>Hash(Handshake Context || messages)</code>. This binds the server's identity to the specific key exchange that occurred &mdash; preventing mismatch attacks where an attacker substitutes a different server's response.
+    <strong>Transcript binding:</strong> CertificateVerify signs <code>0x20&times;64 || "TLS 1.3, server CertificateVerify" || 0x00 || Transcript-Hash(ClientHello &hellip; Certificate)</code>. This binds the server's identity to the specific key exchange that occurred &mdash; preventing mismatch attacks where an attacker substitutes a different server's response.
   </div>
 </section>
 
@@ -624,7 +625,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <text x="400" y="45" text-anchor="middle" fill="#013225" font-size="12" font-weight="700">ClientHello + PSK identity + key_share</text>
     <line x1="130" y1="100" x2="670" y2="120" stroke="#886dfc" stroke-width="2" marker-end="url(#a0p)"/>
     <text x="400" y="95" text-anchor="middle" fill="#886dfc" font-size="12" font-weight="700">[0-RTT Application Data]</text>
-    <text x="400" y="112" text-anchor="middle" fill="#94948d" font-size="10" class="mono">Encrypted with early_traffic_secret</text>
+    <text x="400" y="112" text-anchor="middle" fill="#94948d" font-size="10" class="mono">Encrypted with client_early_traffic_secret</text>
 
     <!-- 0-RTT bracket -->
     <rect x="30" y="40" width="6" height="90" rx="2" fill="var(--accent3)"/>
@@ -729,7 +730,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </div>
     <div class="card">
       <h3>OCSP Stapling</h3>
-      <p class="small">Server includes a signed OCSP response in the <code>CertificateEntry</code> extension. Client verifies revocation status without contacting the CA &mdash; reduces latency and improves privacy.</p>
+      <p class="small">Server includes a signed OCSP response in the <code>CertificateEntry</code> extension. Client verifies revocation status without contacting the CA &mdash; reduces latency and improves privacy. OCSP is now being retired in favour of CRLs (Let's Encrypt ended its OCSP service in 2025).</p>
       <p><span class="tag tag-yellow">Revocation</span></p>
     </div>
     <div class="card">
@@ -763,7 +764,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </table>
 
   <div class="highlight-box">
-    <strong>No PKCS#1 v1.5 for handshake:</strong> TLS 1.3 requires RSA-PSS for CertificateVerify signatures. PKCS#1 v1.5 is only allowed in certificate chain signatures (for compatibility with existing CA infrastructure). This eliminates Bleichenbacher-style padding oracle attacks.
+    <strong>No PKCS#1 v1.5 for handshake:</strong> TLS 1.3 requires RSA-PSS for CertificateVerify signatures. PKCS#1 v1.5 is only allowed in certificate chain signatures (for compatibility with existing CA infrastructure). Bleichenbacher-style padding oracles (ROBOT) disappear because RSA key transport is gone; PSS also retires PKCS#1 v1.5 signature padding in the handshake.
   </div>
 </section>
 
@@ -833,7 +834,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box yellow">
-    <strong>Lesson for protocol design:</strong> The internet ossifies around deployed behavior. Even a clean, well-designed protocol must accommodate broken implementations. TLS 1.3's compatibility mode adds ~100 bytes of waste per handshake but saved the protocol from deployment failure.
+    <strong>Lesson for protocol design:</strong> The internet ossifies around deployed behavior. Even a clean, well-designed protocol must accommodate broken implementations. TLS 1.3's compatibility mode adds roughly 80 bytes per handshake (two 32-byte session IDs plus dummy ChangeCipherSpec records) but saved the protocol from deployment failure.
   </div>
 </section>
 
@@ -892,7 +893,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <text x="45" y="114" fill="#1c1c1b" font-size="11">Key exchange: RSA, DHE, ECDHE (optional)</text>
 
     <rect x="30" y="130" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
-    <text x="45" y="149" fill="#1c1c1b" font-size="11">Cipher suites: <tspan fill="#c6145f">37+</tspan> (CBC, RC4, AEAD mixed)</text>
+    <text x="45" y="149" fill="#1c1c1b" font-size="11">Cipher suites: <tspan fill="#c6145f">hundreds</tspan> (CBC, RC4, AEAD mixed)</text>
 
     <rect x="30" y="165" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
     <text x="45" y="184" fill="#1c1c1b" font-size="11">Handshake encryption: <tspan fill="#c6145f">None</tspan> (all plaintext)</text>
@@ -920,7 +921,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <text x="435" y="79" fill="#1c1c1b" font-size="11">Handshake: <tspan fill="#013225" font-weight="700">1-RTT</tspan> (0-RTT resumption)</text>
 
     <rect x="420" y="95" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
-    <text x="435" y="114" fill="#1c1c1b" font-size="11">Key exchange: <tspan fill="#013225">ECDHE only</tspan> (mandatory)</text>
+    <text x="435" y="114" fill="#1c1c1b" font-size="11">Key exchange: <tspan fill="#013225">(EC)DHE only</tspan> (ephemeral)</text>
 
     <rect x="420" y="130" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
     <text x="435" y="149" fill="#1c1c1b" font-size="11">Cipher suites: <tspan fill="#013225">5</tspan> (AEAD-only)</text>
@@ -929,7 +930,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <text x="435" y="184" fill="#1c1c1b" font-size="11">Handshake encryption: <tspan fill="#013225">After ServerHello</tspan></text>
 
     <rect x="420" y="200" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
-    <text x="435" y="219" fill="#1c1c1b" font-size="11">Forward secrecy: <tspan fill="#013225">Always</tspan> (ephemeral ECDHE)</text>
+    <text x="435" y="219" fill="#1c1c1b" font-size="11">Forward secrecy: <tspan fill="#013225">Always</tspan> (except psk_ke)</text>
 
     <rect x="420" y="235" width="350" height="28" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1"/>
     <text x="435" y="254" fill="#1c1c1b" font-size="11">Resumption: PSK + (EC)DHE tickets</text>
@@ -957,22 +958,22 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h3>Hybrid Key Exchange</h3>
       <p class="small">
         Combines classical ECDHE with a PQ KEM in a single key_share. The shared secret is derived from <em>both</em> &mdash; secure even if one scheme is broken.<br><br>
-        <code>shared_secret = HKDF(ECDHE_secret || ML-KEM_secret)</code>
+        <code>(EC)DHE input = ML-KEM_secret || X25519_secret</code>
       </p>
-      <p><span class="tag tag-green">Chrome since M131</span></p>
+      <p><span class="tag tag-green">Chrome since M131</span> <span class="tag tag-green">codepoint 0x11EC</span></p>
     </div>
     <div class="card">
       <h3>ML-KEM (Kyber) Integration</h3>
       <p class="small">
         <strong>X25519MLKEM768</strong> &mdash; X25519 + ML-KEM-768 hybrid. Now the most common PQ key exchange on the web.<br><br>
-        <strong>ClientHello size:</strong> Grows from ~300 bytes to ~1100 bytes (ML-KEM public key is 1184 bytes for level 3).
+        <strong>ClientHello size:</strong> Grows by about 1.2 KB, to roughly 1.5&ndash;1.8 KB: the X25519MLKEM768 key share is 1184 (ML-KEM-768 encapsulation key) + 32 = 1216 bytes.
       </p>
       <p><span class="tag tag-purple">FIPS 203</span></p>
     </div>
   </div>
 
   <div class="highlight-box">
-    <strong>Deployment reality (2026):</strong> Cloudflare and Google report that >30% of TLS connections now use hybrid PQ key exchange. The main challenge is not cryptography but <em>packet size</em> &mdash; ML-KEM key shares can cause ClientHello fragmentation, triggering middlebox failures similar to the early TLS 1.3 deployment.
+    <strong>Deployment reality (2026):</strong> Hybrid X25519MLKEM768 is on by default in Chrome, Edge, Firefox and Safari, and Cloudflare reported roughly half of the human HTTPS traffic it serves using it by late 2025. The main challenge is not cryptography but <em>packet size</em> &mdash; ML-KEM key shares can cause ClientHello fragmentation, triggering middlebox failures similar to the early TLS 1.3 deployment.
   </div>
 </section>
 
@@ -983,27 +984,31 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <h2>On the Wire &mdash; What Wireshark Sees</h2>
   <p class="small">A TLS 1.3 handshake as captured in a packet trace. Note how everything after ServerHello appears as opaque <code>Application Data</code>.</p>
 
-  <pre><code class="language-plaintext">Frame 1: ClientHello (227 bytes)
-  16 03 01 00 e0        # Record: Handshake, TLS 1.0 (compat!)
-  01 00 00 dc           # ClientHello, length 220
+  <pre><code class="language-plaintext">Frame 1: ClientHello (195-byte TLS record)
+  16 03 01 00 be        # Record: Handshake, TLS 1.0 (compat!)
+  01 00 00 ba           # ClientHello, length 186
   03 03                 # legacy_version: TLS 1.2
   [32 bytes random]
   20 [32 bytes session_id]     # Compatibility mode
   00 06 13 01 13 02 13 03      # 3 cipher suites
   01 00                        # Compression: null
-  00 91                        # Extensions length
+  00 6b                        # Extensions length (107)
     00 2b 00 03 02 03 04       # supported_versions: TLS 1.3
-    00 33 00 47 00 45          # key_share: X25519
+    00 0a 00 04 00 02 00 1d    # supported_groups: x25519
+    00 33 00 26 00 24          # key_share: X25519
       00 1d 00 20 [32 bytes pubkey]
-    00 0d 00 14 ...            # signature_algorithms
-    00 00 00 0f ...            # server_name: example.com
+    00 0d 00 14 ...            # signature_algorithms (9)
+    00 00 00 10 ...            # server_name: example.com
+    00 2d 00 02 01 01          # psk_key_exchange_modes
 
-Frame 2: ServerHello (155 bytes)
-  16 03 03 00 97        # Record: Handshake, TLS 1.2 (compat!)
-  02 00 00 93           # ServerHello
+Frame 2: ServerHello (127-byte TLS record)
+  16 03 03 00 7a        # Record: Handshake, TLS 1.2 (compat!)
+  02 00 00 76           # ServerHello, length 118
   03 03 [32 bytes random]
   20 [32 bytes session_id]     # Echo client's session_id
   13 01                        # Selected: TLS_AES_128_GCM_SHA256
+  00                           # Compression: null
+  00 2e                        # Extensions length (46)
     00 2b 00 02 03 04          # supported_versions: TLS 1.3
     00 33 00 24 00 1d 00 20    # key_share: X25519
       [32 bytes server pubkey]
@@ -1029,16 +1034,16 @@ Frame 4-7: Application Data (opaque)   # All encrypted from here
     <tr><th>Library</th><th>Language</th><th>0-RTT</th><th>PQ Hybrid</th><th>Notes</th></tr>
     <tr><td><strong>OpenSSL 3.x</strong></td><td>C</td><td>Yes</td><td>Yes (3.5+)</td><td>Most widely deployed; provider architecture</td></tr>
     <tr><td><strong>BoringSSL</strong></td><td>C++</td><td>Yes</td><td>Yes</td><td>Google's fork; Chrome, Android; first PQ deploy</td></tr>
-    <tr><td><strong>rustls</strong></td><td>Rust</td><td>Yes</td><td>Yes</td><td>Memory-safe; no C code; ~10K LoC</td></tr>
+    <tr><td><strong>rustls</strong></td><td>Rust</td><td>Yes</td><td>Yes</td><td>Memory-safe protocol code; default crypto from aws-lc-rs</td></tr>
     <tr><td><strong>Go crypto/tls</strong></td><td>Go</td><td>Yes</td><td>Yes</td><td>Standard library; simple API</td></tr>
-    <tr><td><strong>mbedTLS</strong></td><td>C</td><td>Yes</td><td>Partial</td><td>Embedded/IoT focus; ARM-maintained</td></tr>
+    <tr><td><strong>mbedTLS</strong></td><td>C</td><td>Yes</td><td>Partial</td><td>Embedded/IoT focus; TrustedFirmware.org</td></tr>
     <tr><td><strong>wolfSSL</strong></td><td>C</td><td>Yes</td><td>Yes</td><td>Embedded + FIPS 140-3 certified</td></tr>
     <tr><td><strong>NSS</strong></td><td>C</td><td>Yes</td><td>Yes</td><td>Mozilla/Firefox; PKCS#11 based</td></tr>
     <tr><td><strong>s2n-tls</strong></td><td>C</td><td>Yes</td><td>Yes</td><td>AWS; minimal code footprint</td></tr>
   </table>
 
   <div class="highlight-box">
-    <strong>rustls momentum:</strong> Memory-safe TLS is gaining traction. rustls is now used by Cloudflare (Pingora), the curl project, and the Apache httpd mod_tls module. Its ~10K lines of Rust replace ~500K lines of OpenSSL C, eliminating entire classes of vulnerabilities (buffer overflows, use-after-free).
+    <strong>rustls momentum:</strong> Memory-safe TLS is gaining traction. rustls is now used by Cloudflare (Pingora), the curl project, and the Apache httpd mod_tls module. Writing the protocol and certificate handling in Rust removes entire classes of vulnerabilities (buffer overflows, use-after-free); the cryptographic primitives still come from a provider such as aws-lc-rs.
   </div>
 </section>
 
@@ -1075,9 +1080,11 @@ Frame 4-7: Application Data (opaque)   # All encrypted from here
 = HKDF-Expand(Secret,
     HkdfLabel, Length)
 
-HkdfLabel = Length ||
-  "tls13 " || Label ||
-  Hash(Context)</code></pre>
+HkdfLabel = uint16 Length ||
+  len || "tls13 " || Label ||
+  len || Context
+// Derive-Secret passes the
+// transcript hash as Context</code></pre>
     </div>
   </div>
 
@@ -1120,7 +1127,7 @@ verify_data = HMAC(finished_key, Transcript-Hash(
 // New write key and IV derived from new secret
 // Triggered via KeyUpdate message (encrypted)
 // Provides key rotation without new handshake</code></pre>
-    <p class="small">Key update allows rekeying application traffic keys without a new handshake. This limits the amount of data encrypted under a single key, mitigating potential nonce-reuse issues.</p>
+    <p class="small">Key update allows rekeying application traffic keys without a new handshake. This keeps each key within its AEAD usage limits (RFC 8446 &sect;5.5, e.g. about 2<sup>24.5</sup> full-size records for AES-GCM).</p>
   </div>
 </section>
 
@@ -1145,6 +1152,7 @@ verify_data = HMAC(finished_key, Transcript-Hash(
       <h3 style="font-size:0.9em;">Post-Quantum</h3>
       <p class="tiny">
         draft-ietf-tls-hybrid-design &mdash; Hybrid Key Exchange<br>
+        draft-ietf-tls-ecdhe-mlkem &mdash; X25519MLKEM768 (0x11EC)<br>
         FIPS 203 &mdash; ML-KEM (Kyber)<br>
         Chrome: X25519MLKEM768 deployment<br>
         Cloudflare: PQ key exchange telemetry
@@ -1154,9 +1162,9 @@ verify_data = HMAC(finished_key, Transcript-Hash(
       <h3 style="font-size:0.9em;">Formal Analysis</h3>
       <p class="tiny">
         Cremers et al., "A Comprehensive Symbolic Analysis of TLS 1.3" (CCS 2017)<br>
-        Bhargavan et al., "miTLS: Verified Reference Implementation" (S&amp;P 2017)<br>
-        Dowling &amp; Paterson, "A Cryptographic Analysis of TLS 1.3" (JoC 2021)<br>
-        Delignat-Lavaud et al., "Implementing TLS with Verified Cryptographic Security" (S&amp;P 2014)
+        Bhargavan et al., "Verified Models and Reference Implementations for the TLS 1.3 Standard Candidate" (S&amp;P 2017)<br>
+        Dowling, Fischlin, G&uuml;nther &amp; Stebila, "A Cryptographic Analysis of the TLS 1.3 Handshake Protocol" (JoC 2021)<br>
+        Bhargavan et al., "Implementing TLS with Verified Cryptographic Security" (S&amp;P 2013)
       </p>
       <h3 style="font-size:0.9em;">Implementations</h3>
       <p class="tiny">
@@ -1180,13 +1188,13 @@ verify_data = HMAC(finished_key, Transcript-Hash(
       <em>Protocol design</em> &mdash; TLS 1.3 achieves 1-RTT handshakes by removing legacy features, mandating ECDHE forward secrecy, and encrypting the handshake after ServerHello. Only 5 AEAD-only cipher suites remain.
     </p>
     <p class="small">
-      <em>Key exchange (Module 02)</em> &mdash; Ephemeral ECDHE with X25519 or P-256 provides the shared secret. Post-quantum hybrid key exchange with ML-KEM is actively deploying.
+      <em>Key exchange (Modules 02, 05)</em> &mdash; Ephemeral ECDHE with X25519 or P-256 provides the shared secret. Post-quantum hybrid key exchange with ML-KEM is actively deploying.
     </p>
     <p class="small">
       <em>Symmetric encryption (Modules 03/04)</em> &mdash; AES-128-GCM, AES-256-GCM, and ChaCha20-Poly1305 protect all application data via AEAD. Content type hiding prevents traffic analysis.
     </p>
     <p class="small">
-      <em>Hash functions (Module 05)</em> &mdash; HKDF-Extract and HKDF-Expand (built on HMAC-SHA256/384) drive the three-stage key schedule from Early Secret through Master Secret.
+      <em>Hash functions (Module 04)</em> &mdash; HKDF-Extract and HKDF-Expand (built on HMAC-SHA256/384) drive the three-stage key schedule from Early Secret through Master Secret.
     </p>
     <p class="small">
       <em>Digital signatures (Module 06)</em> &mdash; RSA-PSS, Ed25519, and ECDSA authenticate servers in CertificateVerify. PKCS#1 v1.5 is banned for handshake signatures.

@@ -188,7 +188,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </svg>
 
   <div class="highlight-box">
-    <strong>Key insight:</strong> Yao showed this is solvable using <em>garbled circuits</em> and <em>oblivious transfer</em>. The result generalizes: <em>any function</em> computable by a Boolean circuit can be securely evaluated by two parties. This became the foundation of all MPC.
+    <strong>Key insight:</strong> Yao's <em>garbled circuits</em> (1986), combined with <em>oblivious transfer</em>, solve it in general. The result generalizes: <em>any function</em> computable by a Boolean circuit can be securely evaluated by two parties. This became the foundation of all MPC.
   </div>
 </section>
 
@@ -356,7 +356,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <!-- ============================================================ -->
 <section>
   <h2>Beaver Triples</h2>
-  <p class="small">Donald Beaver (1991): Precompute random multiplication triples (a, b, c) where c = a&middot;b in an offline phase. Use them to multiply shared values in the online phase with only 2 rounds of communication.</p>
+  <p class="small">Donald Beaver (1991): Precompute random multiplication triples (a, b, c) where c = a&middot;b in an offline phase. Use them to multiply shared values in the online phase with a single round of communication.</p>
 
   <div class="card">
     <h3>Beaver's Multiplication Protocol</h3>
@@ -377,8 +377,8 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="card-row">
     <div class="card">
       <div class="metric">
-        <div class="value">2</div>
-        <div class="label">Rounds per multiply</div>
+        <div class="value">1</div>
+        <div class="label">Round per multiply</div>
       </div>
       <p class="small" style="text-align:center;">Open d and e simultaneously<br>then compute locally</p>
     </div>
@@ -474,7 +474,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="card-row">
     <div class="card">
       <h3>Base OT</h3>
-      <p class="small">Uses public-key crypto (RSA, ECC, or lattice-based). Costly: ~milliseconds per OT. Naor-Pinkas protocol is standard.</p>
+      <p class="small">Uses public-key crypto (RSA, ECC, or lattice-based). Costly: ~milliseconds per OT. Naor-Pinkas and Chou-Orlandi (&ldquo;simplest OT&rdquo;) are common choices.</p>
       <p><span class="tag tag-pink">Expensive</span> <span class="tag tag-dim">~128 base OTs</span></p>
     </div>
     <div class="card">
@@ -573,7 +573,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <text x="135" y="45" text-anchor="middle" fill="#013225" font-size="13" font-weight="700">Phase 1: Joint Garbling</text>
     <text x="135" y="65" text-anchor="middle" fill="#1c1c1b" font-size="10">Each party contributes</text>
     <text x="135" y="80" text-anchor="middle" fill="#1c1c1b" font-size="10">partial labels k^b_{w,i}</text>
-    <text x="135" y="95" text-anchor="middle" fill="#94948d" font-size="10">Interactive (O(depth) rounds)</text>
+    <text x="135" y="95" text-anchor="middle" fill="#94948d" font-size="10">Interactive, constant rounds</text>
     <line x1="250" y1="60" x2="290" y2="60" stroke="#013225" stroke-width="2" marker-end="url(#arr4)"/>
     <rect x="290" y="20" width="230" height="80" rx="8" fill="none" stroke="#c6145f" stroke-width="2"/>
     <text x="405" y="45" text-anchor="middle" fill="#c6145f" font-size="13" font-weight="700">Phase 2: Input Sharing</text>
@@ -731,7 +731,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="card-row">
     <div class="card">
       <h3>Scale</h3>
-      <p class="small">Modern OT-based PSI handles <em>2<sup>28</sup> elements</em> (268M) in under 100 seconds. Communication: ~1 byte per element with cuckoo hashing.</p>
+      <p class="small">Modern OT/VOLE-based PSI with cuckoo hashing intersects a million items in about a second on a LAN and scales to sets of <em>hundreds of millions</em>.</p>
     </div>
     <div class="card">
       <h3>Variants</h3>
@@ -739,7 +739,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </div>
     <div class="card">
       <h3>Deployments</h3>
-      <p class="small"><em>Google:</em> Private ad measurement<br><em>Apple:</em> CSAM detection (NeuralHash + PSI)<br><em>Meta:</em> Private ad attribution</p>
+      <p class="small"><em>Google:</em> Private ad measurement<br><em>Apple:</em> CSAM detection (NeuralHash + PSI; announced 2021, abandoned)<br><em>Meta:</em> Private ad attribution</p>
     </div>
   </div>
 </section>
@@ -764,7 +764,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h3>Inference (2PC/3PC)</h3>
       <p class="small">Server holds model weights, client holds data. Evaluate neural network using mixed protocols:</p>
       <p class="small"><em>Linear layers:</em> Arithmetic SS (Beaver triples)<br><em>ReLU/comparisons:</em> Garbled circuits or OT<br><em>Softmax:</em> Approximation via polynomials</p>
-      <p class="small">CrypTFlow2: ResNet-50 inference in <em>4.1 seconds</em> (LAN)</p>
+      <p class="small">CrypTFlow2 (2020): first 2PC inference of ImageNet-scale <em>ResNet-50</em>, in minutes per image</p>
     </div>
     <div class="card">
       <h3>Training</h3>
@@ -795,13 +795,13 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div class="card">
       <h3>E-Voting</h3>
       <p class="small">Voters submit encrypted ballots. MPC tallies votes without revealing individual choices. Enables <em>universal verifiability</em>.</p>
-      <p class="small"><em>Helios &amp; Estonia:</em> Threshold decryption of homomorphic ballots. <em>ADDER:</em> Secret-shared tallying protocol. Protects ballot secrecy even if some servers are compromised.</p>
+      <p class="small"><em>Helios:</em> Threshold decryption of homomorphically tallied ballots. <em>ADDER:</em> Secret-shared tallying protocol. Protects ballot secrecy even if some servers are compromised.</p>
       <p><span class="tag tag-purple">Critical</span></p>
     </div>
     <div class="card">
       <h3>Key Management</h3>
       <p class="small">Threshold signatures: t-of-n parties must collaborate to sign. No single point of compromise for private keys.</p>
-      <p class="small"><em>Fireblocks:</em> MPC-based custody for $6T+ in digital assets. <em>Threshold ECDSA:</em> GG18/GG20 protocols for Bitcoin/Ethereum. Eliminates single key storage risk.</p>
+      <p class="small"><em>Fireblocks:</em> MPC-based custody; reports $6T+ of digital-asset transfers secured. <em>Threshold ECDSA:</em> GG18/GG20 protocols for Bitcoin/Ethereum. Eliminates single key storage risk.</p>
       <p><span class="tag tag-pink">Production</span></p>
     </div>
   </div>
@@ -821,8 +821,8 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="card-row">
     <div class="card">
       <h3>FHE for Offline Phase</h3>
-      <p class="small">SPDZ originally used <em>Somewhat HE</em> (Brakerski-Fan-Vercauteren) to generate Beaver triples. Each party encrypts random values under FHE, then jointly compute c = a&middot;b homomorphically.</p>
-      <p class="small">Advantage: fewer rounds than OT-based triple generation. Modern SPDZ variants (Overdrive, MASCOT) offer OT-based alternatives.</p>
+      <p class="small">SPDZ originally used <em>Somewhat HE</em> (BGV, Brakerski-Gentry-Vaikuntanathan) to generate Beaver triples. Each party encrypts random values under FHE, then jointly compute c = a&middot;b homomorphically.</p>
+      <p class="small">Advantage: fewer rounds than OT-based triple generation. MASCOT (2016) is the OT-based alternative; Overdrive (2018) speeds up the HE-based route.</p>
     </div>
     <div class="card">
       <h3>MPC for FHE Bootstrapping</h3>
@@ -902,12 +902,12 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 
   <div class="card">
     <h3>MP-SPDZ Example: Millionaires' Problem</h3>
-    <pre><code class="language-python">  # MP-SPDZ program — each party inputs their wealth privately
-  wealth_alice = sint.get_input_from(0)    # Party 0's private input
-  wealth_bob = sint.get_input_from(1)      # Party 1's private input
+    <pre><code class="language-python"># MP-SPDZ program — each party inputs their wealth privately
+wealth_alice = sint.get_input_from(0)    # Party 0's private input
+wealth_bob = sint.get_input_from(1)      # Party 1's private input
 
-  result = (wealth_alice > wealth_bob)      # Secure comparison
-  print_ln("Alice is richer: %s", result.reveal())  # Open result only</code></pre>
+result = (wealth_alice > wealth_bob)      # Secure comparison
+print_ln("Alice is richer: %s", result.reveal())  # Open result only</code></pre>
   </div>
 </section>
 
@@ -921,22 +921,22 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="arch-grid cols-2">
     <div class="card">
       <h3>Google: Private Ad Measurement</h3>
-      <p class="small">Google's <em>Privacy Sandbox</em> uses MPC (attribution reporting API) for measuring ad effectiveness without tracking individual users. Two non-colluding servers compute aggregate reports via secret sharing.</p>
-      <p><span class="tag tag-green">Production</span> <span class="tag tag-dim">Billions of events</span></p>
+      <p class="small">Google's <em>Private Join and Compute</em> (PSI with sum) measures ad conversions across two companies' data without exchanging user-level records.</p>
+      <p><span class="tag tag-green">Production</span> <span class="tag tag-dim">PSI-Sum</span></p>
     </div>
     <div class="card">
-      <h3>Apple: Private Relay &amp; CSAM</h3>
-      <p class="small">iCloud Private Relay: Two-server architecture where neither server sees both user identity and destination. Threshold PSI used for CSAM detection (later paused).</p>
-      <p><span class="tag tag-pink">Production</span> <span class="tag tag-dim">Millions of users</span></p>
+      <h3>Apple: Threshold PSI</h3>
+      <p class="small">Threshold PSI was designed for on-device CSAM matching (announced 2021, abandoned 2022). iCloud Private Relay splits trust between two relays &mdash; the same non-collusion idea, though not MPC.</p>
+      <p><span class="tag tag-pink">Withdrawn</span> <span class="tag tag-dim">Non-collusion</span></p>
     </div>
     <div class="card">
       <h3>Signal: Private Contact Discovery</h3>
-      <p class="small">Signal uses SGX-based PIR/PSI to discover which contacts are on Signal without revealing the user's full contact list to Signal's servers. SGX + cryptographic protocol for defense-in-depth.</p>
+      <p class="small">Signal discovers which contacts are on Signal inside SGX enclaves, so its servers never see the user's contact list. This relies on trusted hardware rather than MPC &mdash; a common practical alternative.</p>
       <p><span class="tag tag-purple">Production</span> <span class="tag tag-dim">100M+ users</span></p>
     </div>
     <div class="card">
       <h3>Financial: Inter-Bank Analytics</h3>
-      <p class="small"><em>Boston Fed + MIT:</em> MPC for cross-bank regulatory reporting. <em>Unbound/Sepior (Coinbase):</em> Threshold ECDSA for custody. <em>ING:</em> MPC-based money laundering detection across banks.</p>
+      <p class="small"><em>Boston Women's Workforce Council:</em> MPC pay-gap study across employers (since 2015). <em>Unbound (now Coinbase), Sepior (now Blockdaemon):</em> threshold ECDSA for custody.</p>
       <p><span class="tag tag-yellow">Production</span> <span class="tag tag-dim">Regulatory</span></p>
     </div>
   </div>
@@ -947,7 +947,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <!-- ============================================================ -->
 <section>
   <h2>Performance Benchmarks</h2>
-  <p class="small">Practical performance of MPC protocols on representative computations. All numbers assume 128-bit security.</p>
+  <p class="small">Indicative orders of magnitude for representative computations at 128-bit security; published figures vary widely with hardware, network and implementation.</p>
 
   <table class="comparison-table">
     <tr><th>Computation</th><th>Protocol</th><th>Parties</th><th>LAN Time</th><th>WAN Time</th><th>Comm.</th></tr>
@@ -957,7 +957,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <tr><td><strong>PSI (2<sup>20</sup> items)</strong></td><td>KKRT + OT ext.</td><td>2</td><td>2.8 s</td><td>12 s</td><td>42 MB</td></tr>
     <tr><td><strong>PSI (2<sup>24</sup> items)</strong></td><td>KKRT + OT ext.</td><td>2</td><td>38 s</td><td>145 s</td><td>672 MB</td></tr>
     <tr><td><strong>Logistic Reg. (MNIST)</strong></td><td>ABY (mixed)</td><td>2</td><td>0.3 s/epoch</td><td>8 s/epoch</td><td>~50 MB</td></tr>
-    <tr><td><strong>ResNet-50 Inference</strong></td><td>CrypTFlow2</td><td>2</td><td>4.1 s</td><td>~60 s</td><td>~600 MB</td></tr>
+    <tr><td><strong>ResNet-50 Inference</strong></td><td>CrypTFlow2</td><td>2</td><td>minutes</td><td>tens of min</td><td>tens of GB</td></tr>
     <tr><td><strong>Sorting (10<sup>6</sup>)</strong></td><td>3PC Shamir</td><td>3</td><td>12 s</td><td>~90 s</td><td>~2 GB</td></tr>
   </table>
 
@@ -974,39 +974,39 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <p class="small">A complete implementation of Shamir's (t, n)-threshold secret sharing over a prime field.</p>
 
   <div class="card">
-    <pre><code class="language-python">  import secrets
+    <pre><code class="language-python">import secrets
 
-  def shamir_share(secret: int, t: int, n: int, p: int) -> list:
-      """Split secret into n shares with threshold t+1."""
-      # Random polynomial: f(x) = secret + a1*x + a2*x^2 + ... + at*x^t
-      coeffs = [secret] + [secrets.randbelow(p) for _ in range(t)]
+def shamir_share(secret: int, t: int, n: int, p: int) -> list:
+    """Split secret into n shares with threshold t+1."""
+    # Random polynomial: f(x) = secret + a1*x + a2*x^2 + ... + at*x^t
+    coeffs = [secret] + [secrets.randbelow(p) for _ in range(t)]
 
-      def eval_poly(x):
-          return sum(c * pow(x, i, p) for i, c in enumerate(coeffs)) % p
+    def eval_poly(x):
+        return sum(c * pow(x, i, p) for i, c in enumerate(coeffs)) % p
 
-      return [(i, eval_poly(i)) for i in range(1, n + 1)]
+    return [(i, eval_poly(i)) for i in range(1, n + 1)]
 
-  def lagrange_interpolate(shares: list, p: int) -> int:
-      """Reconstruct secret from t+1 shares using Lagrange interpolation."""
-      secret = 0
-      for i, (xi, yi) in enumerate(shares):
-          num, den = 1, 1
-          for j, (xj, _) in enumerate(shares):
-              if i != j:
-                  num = (num * (-xj)) % p
-                  den = (den * (xi - xj)) % p
-          secret = (secret + yi * num * pow(den, -1, p)) % p
-      return secret
+def lagrange_interpolate(shares: list, p: int) -> int:
+    """Reconstruct secret from t+1 shares using Lagrange interpolation."""
+    secret = 0
+    for i, (xi, yi) in enumerate(shares):
+        num, den = 1, 1
+        for j, (xj, _) in enumerate(shares):
+            if i != j:
+                num = (num * (-xj)) % p
+                den = (den * (xi - xj)) % p
+        secret = (secret + yi * num * pow(den, -1, p)) % p
+    return secret
 
-  # Example: (2, 5)-threshold sharing — need 3 of 5 shares
-  p = 2**127 - 1  # Mersenne prime
-  shares = shamir_share(42, t=2, n=5, p=p)
-  assert lagrange_interpolate(shares[:3], p) == 42   # Any 3 suffice
-  assert lagrange_interpolate(shares[2:5], p) == 42   # Any 3 suffice</code></pre>
+# Example: (2, 5)-threshold sharing — need 3 of 5 shares
+p = 2**127 - 1  # Mersenne prime
+shares = shamir_share(42, t=2, n=5, p=p)
+assert lagrange_interpolate(shares[:3], p) == 42   # Any 3 suffice
+assert lagrange_interpolate(shares[2:5], p) == 42   # Any 3 suffice</code></pre>
   </div>
 
   <div class="highlight-box">
-    <strong>Production considerations:</strong> Use constant-time modular arithmetic. The prime p must be larger than the secret space. For MPC, use a field compatible with the computation (e.g., F<sub>2<sup>61</sup>-1</sub> for 64-bit arithmetic). Secret sharing alone does not provide integrity — combine with MACs for malicious security.
+    <strong>Production considerations:</strong> Use constant-time modular arithmetic. The prime p must be larger than the secret space. For MPC, use a field compatible with the computation (e.g., the Mersenne prime 2<sup>61</sup>&minus;1 for fast reduction, or the ring Z<sub>2<sup>64</sup></sub> with SPDZ<sub>2<sup>k</sup></sub>). Secret sharing alone does not provide integrity — combine with MACs for malicious security.
   </div>
 </section>
 
@@ -1018,34 +1018,34 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <p class="small">Two-party secure multiplication using precomputed Beaver triples over additive secret sharing.</p>
 
   <div class="card">
-    <pre><code class="language-python">  class Party:
-      def __init__(self, x_share, a_share, b_share, c_share, p):
-          self.x = x_share; self.a = a_share
-          self.b = b_share; self.c = c_share; self.p = p
+    <pre><code class="language-python">class Party:
+    def __init__(self, x_share, a_share, b_share, c_share, p):
+        self.x = x_share; self.a = a_share
+        self.b = b_share; self.c = c_share; self.p = p
 
-      def compute_masked(self, y_share):
-          """Step 1: Compute and broadcast masked values."""
-          self.d_share = (self.x - self.a) % self.p   # [d] = [x] - [a]
-          self.e_share = (y_share - self.b) % self.p   # [e] = [y] - [b]
-          return self.d_share, self.e_share
+    def compute_masked(self, y_share):
+        """Step 1: Compute and broadcast masked values."""
+        self.d_share = (self.x - self.a) % self.p   # [d] = [x] - [a]
+        self.e_share = (y_share - self.b) % self.p   # [e] = [y] - [b]
+        return self.d_share, self.e_share
 
-      def compute_product(self, d, e, is_party_1=False):
-          """Step 2: Compute share of x*y from opened d, e."""
-          # [x*y] = d*e + d*[b] + e*[a] + [c]
-          result = (d * self.b + e * self.a + self.c) % self.p
-          if is_party_1:
-              result = (result + d * e) % self.p  # Only P1 adds d*e
-          return result
+    def compute_product(self, d, e, is_party_1=False):
+        """Step 2: Compute share of x*y from opened d, e."""
+        # [x*y] = d*e + d*[b] + e*[a] + [c]
+        result = (d * self.b + e * self.a + self.c) % self.p
+        if is_party_1:
+            result = (result + d * e) % self.p  # Only P1 adds d*e
+        return result
 
-  # Simulation: x=7, y=13, a=3, b=5, c=15 (c = a*b), p=97
-  p = 97
-  # Additive shares: x=7 → (2, 5), y=13 → (8, 5), etc.
-  p1 = Party(2, 1, 3, 10, p)   # Party 1 shares
-  p2 = Party(5, 2, 2, 5,  p)   # Party 2 shares
-  d1, e1 = p1.compute_masked(8); d2, e2 = p2.compute_masked(5)
-  d, e = (d1 + d2) % p, (e1 + e2) % p     # Open d=4, e=6
-  z1 = p1.compute_product(d, e, True); z2 = p2.compute_product(d, e)
-  assert (z1 + z2) % p == (7 * 13) % p     # 91 mod 97 = 91 ✓</code></pre>
+# Simulation: x=7, y=13, a=3, b=5, c=15 (c = a*b), p=97
+p = 97
+# Additive shares: x=7 → (2, 5), y=13 → (8, 5), etc.
+p1 = Party(2, 1, 3, 10, p)   # Party 1 shares
+p2 = Party(5, 2, 2, 5,  p)   # Party 2 shares
+d1, e1 = p1.compute_masked(8); d2, e2 = p2.compute_masked(5)
+d, e = (d1 + d2) % p, (e1 + e2) % p     # Open d=4, e=8
+z1 = p1.compute_product(d, e, True); z2 = p2.compute_product(d, e)
+assert (z1 + z2) % p == (7 * 13) % p     # 91 mod 97 = 91 ✓</code></pre>
   </div>
 </section>
 
@@ -1077,13 +1077,13 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </div>
     <div class="card">
       <h3>MPC-in-the-Head</h3>
-      <p class="small">Simulate an MPC protocol "in your head" to construct zero-knowledge proofs. IKOS paradigm (2007) → BBQ, Limbo, SDitH. Foundation of the <em>NIST PQC signature candidate SDitH</em> (based on MPC-in-the-Head of syndrome decoding).</p>
+      <p class="small">Simulate an MPC protocol "in your head" to construct zero-knowledge proofs. IKOS paradigm (2007) → BBQ, Limbo, SDitH. Foundation of several <em>NIST additional-signature round-2 candidates</em> (SDitH, Mirath, MQOM, PERK, RYDE).</p>
       <p><span class="tag tag-pink">Cross-domain</span></p>
     </div>
   </div>
 
   <div class="highlight-box">
-    <strong>Pseudorandom Correlation Generators (PCG):</strong> The most impactful recent development. Generate Beaver triples, OT correlations, and other precomputation from <em>sublinear-size seeds</em>. Reduces offline communication from O(|C|&middot;k) to O(|C|) with only local computation. Based on LPN/Ring-LPN assumptions.
+    <strong>Pseudorandom Correlation Generators (PCG):</strong> The most impactful recent development. Generate Beaver triples, OT correlations, and other precomputation from <em>sublinear-size seeds</em>. Offline communication drops from O(|C|&middot;k) to sublinear in |C|: short seeds are exchanged, then expanded locally. Based on LPN/Ring-LPN assumptions.
   </div>
 </section>
 
@@ -1106,7 +1106,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <em>Multi-party protocols</em> — BMR for constant-round n-party garbled circuits, BGW for Shamir-based honest majority, SPDZ for malicious security with information-theoretic MACs.
     </p>
     <p class="small">
-      <em>Applications</em> — Private set intersection at scale (268M elements), privacy-preserving ML (ResNet-50 in 4.1s), secure auctions, threshold key management, ad measurement.
+      <em>Applications</em> — Private set intersection at scale (hundreds of millions of items), privacy-preserving ML (ImageNet-scale ResNet-50 inference), secure auctions, threshold key management, ad measurement.
     </p>
     <p class="small">
       <em>Frontiers</em> — Pseudorandom correlation generators, silent OT, constant-overhead MPC, fluid MPC for dynamic participants, MPC-in-the-Head for zero-knowledge proofs.

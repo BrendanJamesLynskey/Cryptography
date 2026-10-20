@@ -181,7 +181,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box">
-    <strong>Soundness variants:</strong> <em>Statistical soundness</em> &mdash; no unbounded prover can cheat. <em>Computational soundness</em> (argument) &mdash; no PPT prover can cheat. ZK-SNARKs achieve computational soundness; ZK-STARKs achieve information-theoretic soundness.
+    <strong>Soundness variants:</strong> <em>Statistical soundness</em> &mdash; no unbounded prover can cheat. <em>Computational soundness</em> (argument) &mdash; no PPT prover can cheat. SNARKs, STARKs and Bulletproofs are all <em>arguments</em>: SNARKs rest on pairing / knowledge assumptions, STARKs only on the hash function (modelled as a random oracle).
   </div>
 </section>
 
@@ -348,7 +348,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <tr><th>Sigma Protocol</th><th>Relation Proved</th><th>Witness</th><th>Applications</th></tr>
     <tr><td><strong>Schnorr</strong></td><td>h = g<sup>x</sup></td><td>x (discrete log)</td><td>Digital signatures, authentication</td></tr>
     <tr><td><strong>Guillou-Quisquater</strong></td><td>y = x<sup>e</sup> mod n</td><td>x (e-th root)</td><td>RSA-based identification</td></tr>
-    <tr><td><strong>Pedersen OR</strong></td><td>DL(h₁) OR DL(h₂)</td><td>One of x₁, x₂</td><td>Ring signatures, deniability</td></tr>
+    <tr><td><strong>CDS OR-proof</strong></td><td>DL(h₁) OR DL(h₂)</td><td>One of x₁, x₂</td><td>Ring signatures, deniability</td></tr>
     <tr><td><strong>Chaum-Pedersen</strong></td><td>DL equality</td><td>x: g<sup>x</sup>=h, f<sup>x</sup>=v</td><td>VRFs, re-encryption proofs</td></tr>
   </table>
 </section>
@@ -495,7 +495,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box">
-    <strong>Constraint count matters:</strong> SNARK prover time scales roughly <em>linearly</em> with the number of R1CS constraints. A SHA-256 hash requires ~25,000 constraints; an ECDSA verification ~300,000. Circuit optimization is critical.
+    <strong>Constraint count matters:</strong> SNARK prover time scales roughly <em>linearly</em> with the number of R1CS constraints. A SHA-256 compression requires ~25,000&ndash;30,000 constraints; an ECDSA (secp256k1) verification ~1.5 million, because its field is not the SNARK's field. Circuit optimization is critical.
   </div>
 </section>
 
@@ -566,7 +566,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <!-- Bottom note -->
     <text x="400" y="115" text-anchor="middle" fill="#1c1c1b" font-size="12">&tau; = &tau;_1 &middot; &tau;_2 &middot; ... &middot; &tau;_n &mdash; secure if <tspan fill="#013225" font-weight="700">at least one</tspan> participant is honest</text>
     <text x="400" y="140" text-anchor="middle" fill="#c6145f" font-size="11">Each participant must destroy their &tau;_i &mdash; the <tspan fill="#c6145f" font-weight="700">"toxic waste"</tspan></text>
-    <text x="400" y="162" text-anchor="middle" fill="#94948d" font-size="10">Zcash Sprout (6 participants) &rarr; Zcash Sapling (87) &rarr; Perpetual Powers of Tau (thousands)</text>
+    <text x="400" y="162" text-anchor="middle" fill="#94948d" font-size="10">Zcash Sprout (6 participants) &rarr; Zcash Sapling (87) &rarr; Ethereum KZG ceremony (~141,000 contributions, 2023)</text>
   </svg>
 
   <div class="card-row">
@@ -594,7 +594,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <div class="value">3</div>
         <div class="label">Group elements in proof</div>
       </div>
-      <p class="small" style="text-align:center;"><code>&pi; = (A &isin; G₁, B &isin; G₂, C &isin; G₁)</code><br>~192 bytes on BN254, ~288 bytes on BLS12-381</p>
+      <p class="small" style="text-align:center;"><code>&pi; = (A &isin; G₁, B &isin; G₂, C &isin; G₁)</code><br>128 bytes on BN254, 192 bytes on BLS12-381 (compressed points)</p>
     </div>
     <div class="card">
       <div class="metric">
@@ -613,7 +613,8 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
              A = [&alpha; + A(&tau;) + r&middot;&delta;]₁
              B = [&beta; + B(&tau;) + s&middot;&delta;]₂
              C = [H(&tau;)&middot;Z(&tau;)/&delta; + witness terms + ...]₁
-          3. Dominant cost: two MSMs of size |witness|</code></pre>
+          3. Dominant cost: MSMs of size |witness| (G₁ and G₂)
+             plus NTTs to compute H(x)</code></pre>
   </div>
 
   <div class="highlight-box pink">
@@ -722,7 +723,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <text x="630" y="52" text-anchor="middle" fill="#573e05" font-size="11" font-weight="700">f_k = constant</text>
       <text x="630" y="72" text-anchor="middle" fill="#94948d" font-size="9">degree 0</text>
       <!-- Bottom explanation -->
-      <text x="80" y="115" fill="#1c1c1b" font-size="11">Each round: f_i(x) = g(x²) + &alpha;_i &middot; h(x²), where f_i(x) = g(x²) + x&middot;h(x²)</text>
+      <text x="80" y="115" fill="#1c1c1b" font-size="11">Each round: write f_i(x) = g(x²) + x&middot;h(x²), then fold: f_{i+1}(y) = g(y) + &alpha;_i &middot; h(y)</text>
       <text x="80" y="135" fill="#94948d" font-size="10">Verifier challenge &alpha;_i folds the polynomial, halving its degree</text>
       <text x="80" y="155" fill="#94948d" font-size="10">After log(d) rounds, the polynomial is constant &mdash; verifier checks consistency via Merkle proofs</text>
     </svg>
@@ -735,7 +736,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </div>
     <div class="card">
       <h3 style="color:var(--accent2);">Soundness</h3>
-      <p class="small">FRI achieves soundness error <em>(d/|D|)<sup>r</sup></em> where d is the claimed degree, |D| is the domain size, and r is the number of query rounds. Typically 30-80 queries for 128-bit security.</p>
+      <p class="small">FRI's soundness error is roughly <em>&rho;<sup>r</sup></em>, where &rho; = d/|D| is the code rate (claimed degree over domain size) and r is the number of queries (a conjectured bound; the proven ones are weaker). Typically 30-80 queries for 128-bit security.</p>
     </div>
   </div>
 </section>
@@ -764,8 +765,8 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <pre><code class="language-plaintext">  Z(x) = &Pi; (f_i + &beta;&middot;&sigma;(i) + &gamma;)
           / (f_i + &beta;&middot;i + &gamma;)
 
-  Check Z(&omega;^0) = 1 and Z(&omega;^n) = 1
-  (grand product is identity permutation)</code></pre>
+  Check Z(&omega;^0) = 1, and that the running product
+  over all n rows returns to 1 (wires equal under &sigma;)</code></pre>
     </div>
   </div>
 
@@ -815,7 +816,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   5. Recurse on half-size vectors until n = 1</code></pre>
   </div>
 
-  <p class="small">Used in: <em>Monero</em> (confidential transactions), <em>Mimblewimble/Grin</em>, <em>Halo</em> (without trusted setup). Bulletproofs+ reduces proof size by ~16%.</p>
+  <p class="small">Used in: <em>Monero</em> (confidential transactions), <em>Mimblewimble/Grin</em>, <em>Halo</em> (without trusted setup). Bulletproofs+ cuts a 64-bit range proof from 672 to 576 bytes.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -837,7 +838,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="arch-grid cols-3">
     <div class="card">
       <h3>Zcash</h3>
-      <p class="small">First production deployment of ZK-SNARKs. Shielded transactions hide sender, receiver, and amount. <em>Sprout</em> (2016, Groth16) &rarr; <em>Sapling</em> (2018, optimized) &rarr; <em>Orchard</em> (2022, Halo 2, no trusted setup).</p>
+      <p class="small">First production deployment of ZK-SNARKs. Shielded transactions hide sender, receiver, and amount. <em>Sprout</em> (2016, BCTV14) &rarr; <em>Sapling</em> (2018, Groth16) &rarr; <em>Orchard</em> (2022, Halo 2, no trusted setup).</p>
       <p><span class="tag tag-green">Privacy</span> <span class="tag tag-dim">Groth16 &rarr; Halo 2</span></p>
     </div>
     <div class="card">
@@ -853,7 +854,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   </div>
 
   <div class="highlight-box">
-    <strong>ZK-Rollup economics:</strong> A single Groth16 proof costs ~300K gas to verify on Ethereum. If it attests to 10,000 transactions, the amortized cost is ~30 gas per transaction vs ~21,000 for a native transfer. <em>700x compression</em>.
+    <strong>ZK-Rollup economics:</strong> A single Groth16 proof costs ~300K gas to verify on Ethereum. If it attests to 10,000 transactions, the amortized verification cost is ~30 gas per transaction vs ~21,000 for a native transfer (each transaction's calldata still costs extra).
   </div>
 </section>
 
@@ -994,7 +995,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 
   <table class="comparison-table">
     <tr><th>System</th><th>Proof Size</th><th>Prove Time</th><th>Verify Time</th><th>Setup</th><th>Assumption</th></tr>
-    <tr><td><strong>Groth16</strong></td><td><span style="color:var(--accent);">192 B</span></td><td>~1.5 s</td><td><span style="color:var(--accent);">~3 ms</span></td><td>Circuit-specific</td><td>Pairings</td></tr>
+    <tr><td><strong>Groth16</strong></td><td><span style="color:var(--accent);">128&ndash;192 B</span></td><td>~1.5 s</td><td><span style="color:var(--accent);">~3 ms</span></td><td>Circuit-specific</td><td>Pairings</td></tr>
     <tr><td><strong>PLONK</strong></td><td>~600 B</td><td>~3 s</td><td>~5 ms</td><td>Universal</td><td>Pairings (KZG)</td></tr>
     <tr><td><strong>Halo 2</strong></td><td>~5 KB</td><td>~4 s</td><td>~15 ms</td><td>None</td><td>DLOG</td></tr>
     <tr><td><strong>STARK</strong></td><td><span style="color:var(--accent2);">~100 KB</span></td><td>~2 s</td><td>~20 ms</td><td>None</td><td>Hash (PQ-safe)</td></tr>
@@ -1069,7 +1070,7 @@ template Multiply() {
     signal output c;  // public
 
     // R1CS constraint: a * b === c
-    c <== a * b;
+    c &lt;== a * b;
 }
 
 // Range proof (a is n bits)
@@ -1077,10 +1078,10 @@ template RangeProof(n) {
     signal input a;
     signal bits[n];
     var sum = 0;
-    for (var i = 0; i < n; i++) {
-        bits[i] <-- (a >> i) & 1;
+    for (var i = 0; i &lt; n; i++) {
+        bits[i] &lt;-- (a &gt;&gt; i) &amp; 1;
         bits[i] * (1 - bits[i]) === 0;
-        sum += bits[i] * (1 << i);
+        sum += bits[i] * (1 &lt;&lt; i);
     }
     sum === a;
 }</code></pre>
@@ -1097,14 +1098,15 @@ fn main(
     assert(a * b == c);
 }
 
-// SHA-256 membership proof
-fn verify_membership(
+// A second circuit: Merkle membership
+fn main(
     leaf: Field,
+    index: Field,
     path: [Field; 32],
     root: pub Field
 ) {
     let computed = merkle_root(
-        leaf, path
+        leaf, index, path
     );
     assert(computed == root);
 }</code></pre>
@@ -1159,7 +1161,7 @@ fn verify_membership(
       <em>Foundations</em> &mdash; Zero-knowledge proofs satisfy completeness, soundness, and zero-knowledge. Sigma protocols provide the three-move (commit, challenge, response) interactive framework. Fiat-Shamir heuristic converts interactive proofs to non-interactive via hashing.
     </p>
     <p class="small">
-      <em>SNARKs</em> &mdash; Arithmetic circuits compiled to R1CS, encoded as QAP polynomials, committed via KZG pairings. Groth16 achieves 192-byte proofs with 3ms verification. Requires circuit-specific trusted setup (toxic waste, Powers of Tau ceremonies).
+      <em>SNARKs</em> &mdash; Arithmetic circuits compiled to R1CS, encoded as QAP polynomials, committed via KZG pairings. Groth16 achieves 128&ndash;192-byte proofs with 3ms verification. Requires circuit-specific trusted setup (toxic waste, Powers of Tau ceremonies).
     </p>
     <p class="small">
       <em>STARKs &amp; alternatives</em> &mdash; Hash-based, transparent, post-quantum. FRI protocol for polynomial commitment. Larger proofs (~100KB) but no trust assumptions. PLONK provides universal setup. Bulletproofs offer logarithmic proof size without setup.
