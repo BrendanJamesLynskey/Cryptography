@@ -359,7 +359,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
       <h3>Security</h3>
-      <p>Reducible from <span class="hl-amber">GapSVP</span> and <span class="hl-amber">SIVP</span> — hard even for quantum computers.</p>
+      <p>Worst-case <span class="hl-amber">GapSVP</span> and <span class="hl-amber">SIVP</span> reduce to LWE (a quantum reduction, Regev 2005) — believed hard even for quantum computers.</p>
     </div>
   </div>
 </div>
@@ -468,7 +468,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div class="panel panel-purple">
       <h3>The Breakthrough</h3>
       <p>Craig Gentry (Stanford / IBM) proved the first FHE construction. Key insight: <span class="hl-purple">self-referential bootstrapping</span> — use the scheme to evaluate its own decryption circuit.</p>
-      <div class="formula">FHE = SHE with depth(Cdec + 1) ≤ L</div>
+      <div class="formula">Bootstrappable: depth(C<sub>dec</sub>) + 1 ≤ L</div>
     </div>
     <div class="panel panel-amber" style="margin-top:0.6em;">
       <h3>Squashing trick</h3>
@@ -548,7 +548,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <div class="formula">Dec(ct) ≈ m (error small relative to Δ)</div>
       <ul>
         <li>Encode real vector <strong>m</strong> via SIMD slots using CRT/FFT</li>
-        <li>Scaling factor Δ = 2³⁰ or 2⁶⁰ encodes the fractional precision</li>
+        <li>Scaling factor Δ (typically 2⁴⁰–2⁵⁰) sets the fractional precision</li>
         <li>Rescaling after × absorbs noise into least-significant precision bits</li>
       </ul>
     </div>
@@ -1054,7 +1054,7 @@ print(f"Plaintext reference   = {sum(x*y for x,y in zip(a,b)):.4f}")
 module ntt_butterfly #(
   parameter int N     = 4096,
   parameter int Q     = 32'd1073479681,   // NTT-friendly prime: Q-1 divisible by 2N
-  parameter int W     = 30               // Barrett k-factor log2
+  parameter int K     = 62               // Barrett shift: k ≥ 2·log2(Q)
 )(
   input  logic        clk, rst_n,
   input  logic        valid_in,
@@ -1079,7 +1079,7 @@ module ntt_butterfly #(
   end
 
   // Stage 2: Barrett reduction (128→64-bit mod Q)
-  barrett_reduce #(.Q(Q), .K(W)) u_bar (
+  barrett_reduce #(.Q(Q), .K(K)) u_bar (
     .clk(clk), .in(wb_full), .out(wb_red), .valid_in(v1), .valid_out(v2)
   );
 
@@ -1203,7 +1203,7 @@ endmodule
     <div class="panel panel-blue" style="margin-top:0.6em;">
       <h3>Threshold FHE</h3>
       <ul>
-        <li>Split secret key sk among N parties: sk = sk₁ + sk₂ + … + skₙ</li>
+        <li>Split secret key sk among n parties: sk = sk₁ + sk₂ + … + skₙ</li>
         <li>An additive split needs all n parties to decrypt; Shamir sharing allows t-of-n</li>
         <li>Used in: Lattigo multiparty, OpenFHE multiparty extension</li>
         <li>Applications: privacy-preserving ML training across hospitals with no central authority</li>
@@ -1339,7 +1339,7 @@ endmodule
     { id:'perf', label:'Priority', opts:['Throughput (batch)', 'Low latency (single)', 'Power efficiency'] },
   ];
   const rules = [
-    { when:{type:'Real / float', depth:'Shallow (≤10 mults)'}, scheme:'CKKS (levelled)', note:'No bootstrapping needed. Use n=8192, L=4 levels. Fast & simple.' },
+    { when:{type:'Real / float', depth:'Shallow (≤10 mults)'}, scheme:'CKKS (levelled)', note:'No bootstrapping needed. Pick N from the depth L (q ≈ 60 + 40·L + 60 bits, HE-Std 128-bit): N = 2¹³ → L ≈ 2, N = 2¹⁴ → L ≈ 7, N = 2¹⁵ → L ≈ 19.' },
     { when:{type:'Real / float', depth:'Deep (100+ mults)'}, scheme:'CKKS + Bootstrapping', note:'Use n≥2¹⁵, amortise boot cost across slots. GPU strongly recommended.' },
     { when:{type:'Real / float', depth:'Arbitrary / control flow'}, scheme:'CKKS + TFHE hybrid', note:'Evaluate linear layers in CKKS, branch/comparison in TFHE. Scheme switch at boundaries.' },
     { when:{type:'Integer (exact)', depth:'Shallow (≤10 mults)'}, scheme:'BFV', note:'Simple single-modulus setup. Great for encrypted SQL/lookup tables up to L≈8.' },
@@ -1399,7 +1399,7 @@ endmodule
       <h3>Trend: closing fast</h3>
       <ul>
         <li>2009 (Gentry): theoretical only</li>
-        <li>2012: hours per AES block</li>
+        <li>2012: AES-128 in 36 hours (≈ 40 min per block, batched; Gentry–Halevi–Smart)</li>
         <li>2018: minutes per NN inference</li>
         <li>2021–22: simulated ASICs (F1, BTS) — ResNet-20 in ~2 s</li>
         <li>Goal: real-time encrypted ML</li>
@@ -1421,8 +1421,8 @@ endmodule
       <ul>
         <li><span class="hl-red">No native comparison</span> — equality/order tests require expensive bit-decomposition or polynomial approximation in CKKS</li>
         <li><span class="hl-red">No native branching</span> — FHE circuits must be branch-free (TFHE mitigates via bit-level gates)</li>
-        <li><span class="hl-red">Large ciphertext expansion</span> — a CKKS ciphertext is ~50–200 KB, amortised only when its n/2 slots are well packed</li>
-        <li><span class="hl-red">Key material size</span> — evaluation keys (relin + galois) can be tens of GB for large n</li>
+        <li><span class="hl-red">Large ciphertext expansion</span> — a CKKS ciphertext is ~0.45 MB at N = 2¹³ (218-bit q) and ~47 MB at N = 2¹⁶, L = 44; amortised only when its n/2 slots are well packed</li>
+        <li><span class="hl-red">Key material size</span> — one key-switching key at N = 2¹⁶ is ~0.2–2 GB depending on dnum, so a full set of rotation keys can reach tens of GB</li>
         <li><span class="hl-red">Parameter tuning complexity</span> — non-expert users struggle; compilers help but don't solve all cases</li>
       </ul>
     </div>
@@ -1535,7 +1535,7 @@ endmodule
         <li>Gentry, "A Fully Homomorphic Encryption Scheme," Stanford PhD thesis (2009)</li>
         <li>Regev, "On Lattices, LWE, Random Linear Codes…" STOC (2005)</li>
         <li>Lyubashevsky, Peikert, Regev, "On Ideal Lattices and RLWE" EUROCRYPT (2010)</li>
-        <li>Brakerski, Gentry, Vaikuntanathan (BGV), "Fully Homomorphic without Bootstrapping" ITCS (2012)</li>
+        <li>Brakerski, Gentry, Vaikuntanathan (BGV), "(Leveled) Fully Homomorphic Encryption without Bootstrapping" ITCS (2012)</li>
         <li>Brakerski, "Fully Homomorphic Encryption without Modulus Switching from Classical GapSVP" CRYPTO (2012)</li>
         <li>Fan, Vercauteren (BFV), "Somewhat Practical Fully Homomorphic Encryption" ePrint 2012/144</li>
         <li>Bajard, Eynard, Hasan, Zucca, "A Full RNS Variant of FV-like SHE Schemes" SAC (2016); Halevi, Polyakov, Shoup, "An Improved RNS Variant of BFV" CT-RSA (2019)</li>

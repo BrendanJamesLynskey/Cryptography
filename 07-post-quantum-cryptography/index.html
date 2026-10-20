@@ -171,7 +171,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
 <section data-background-color="#f7f7f5">
   <h2>Why Post-Quantum?</h2>
   <p>Every public-key cryptosystem in wide deployment today — RSA, Diffie-Hellman, ECDSA, ECDH, EdDSA — derives security from one of two problems: <span class="warn">integer factorisation</span> or the <span class="warn">discrete logarithm problem</span>.</p>
-  <p>Shor's algorithm (1994) solves both in <span class="accent">polynomial time</span> on a quantum computer, reducing exponential-class problems to O(n³) in qubit-circuit depth.</p>
+  <p>Shor's algorithm (1994) solves both in <span class="accent">polynomial time</span> on a quantum computer, turning attacks that are sub-exponential classically into polynomial ones (roughly O(n³) gates for an n-bit modulus).</p>
   <div class="card-grid cols-2" style="margin-top:0.6em;">
     <div class="card warn-card">
       <h4>⚠ Broken by Shor's Algorithm</h4>
@@ -186,7 +186,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h4>✓ Quantum-Resistant</h4>
       <ul>
         <li>AES-256 (Grover halves key strength → 128-bit)</li>
-        <li>SHA-3, SHAKE (output doubling suffices)</li>
+        <li>SHA-2 / SHA-3 with ≥ 256-bit output</li>
         <li>Lattice-based: ML-KEM, ML-DSA</li>
         <li>Hash-based: SLH-DSA, LMS/XMSS</li>
       </ul>
@@ -206,11 +206,11 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <div class="timeline-item"><span class="year">1994</span><br><span class="desc">Shor publishes factoring algorithm</span></div>
         <div class="timeline-item"><span class="year">1996</span><br><span class="desc">Grover's search algorithm — quadratic speedup</span></div>
         <div class="timeline-item"><span class="year">2016</span><br><span class="desc">NIST calls for PQC submissions (82 received)</span></div>
-        <div class="timeline-item"><span class="year">2022</span><br><span class="desc">NIST selects Kyber, Dilithium, SPHINCS+ as finalists</span></div>
+        <div class="timeline-item"><span class="year">2022</span><br><span class="desc">NIST selects Kyber, Dilithium, Falcon and SPHINCS+ for standardisation (end of round 3)</span></div>
         <div class="timeline-item"><span class="year">Aug 2024</span><br><span class="desc">FIPS 203, 204, 205 finalised — ML-KEM, ML-DSA, SLH-DSA</span></div>
         <div class="timeline-item"><span class="year">Mar 2025</span><br><span class="desc">HQC selected as backup KEM (code-based)</span></div>
-        <div class="timeline-item"><span class="year">2027</span><br><span class="desc">CNSA 2.0 — new NSS acquisitions must be PQC-compliant</span></div>
-        <div class="timeline-item"><span class="year">2035</span><br><span class="desc">NIST deprecates all quantum-vulnerable algorithms</span></div>
+        <div class="timeline-item"><span class="year">2027</span><br><span class="desc">CNSA 2.0 — new National Security System acquisitions must be CNSA 2.0-compliant</span></div>
+        <div class="timeline-item"><span class="year">2035</span><br><span class="desc">NIST IR 8547 (draft): RSA/ECC deprecated after 2030, disallowed after 2035</span></div>
       </div>
     </div>
     <div>
@@ -220,7 +220,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       </div>
       <div class="card" style="margin-top:12px;">
         <h4>Qubit Estimates to Break RSA-2048</h4>
-        <p>~4,000 error-corrected <em>logical</em> qubits, which translates to millions of physical qubits with current error rates. Estimates for CRQC arrival: <span class="amber">2030s–2040s</span>.</p>
+        <p>Gidney–Ekerå (2019): ~20 million noisy physical qubits for 8 hours. Gidney (2025): under 1 million noisy qubits, under a week (~1,400 <em>logical</em> qubits). Estimates for CRQC arrival: <span class="amber">2030s–2040s</span>.</p>
       </div>
       <div class="card" style="margin-top:12px;">
         <h4>Symmetric Impact</h4>
@@ -240,7 +240,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div class="card">
       <h4>🔷 Lattice-Based</h4>
       <p><strong>Hard problem:</strong> Learning With Errors (LWE), Module-LWE, Ring-LWE<br>
-      <strong>Standards:</strong> ML-KEM (FIPS 203), ML-DSA (FIPS 204), FN-DSA (draft FIPS 206)<br>
+      <strong>Standards:</strong> ML-KEM (FIPS 203), ML-DSA (FIPS 204), FN-DSA (FIPS 206, pending)<br>
       <strong>Pros:</strong> Small keys, fast operations, versatile<br>
       <strong>Cons:</strong> Relatively newer hardness assumptions</p>
     </div>
@@ -254,7 +254,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
     <div class="card">
       <h4>🔵 Code-Based</h4>
       <p><strong>Hard problem:</strong> Decoding random linear codes<br>
-      <strong>Standards:</strong> HQC (selected March 2025, draft ~2026)<br>
+      <strong>Standards:</strong> HQC (selected March 2025; draft standard expected ~2026)<br>
       <strong>Pros:</strong> Decades of study (McEliece, 1978), diverse math basis<br>
       <strong>Cons:</strong> Very large public keys (Classic McEliece)</p>
     </div>
@@ -262,7 +262,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <h4>🟣 Multivariate / Isogeny</h4>
       <p><strong>Hard problems:</strong> MQ problem, supersingular isogeny<br>
       <strong>Status:</strong> SIKE broken (2022); Rainbow broken (2022); research continues<br>
-      <strong>Notes:</strong> Some multivariate signatures still in NIST additional round</p>
+      <strong>Notes:</strong> Multivariate (MAYO, UOV, SNOVA, QR-UOV) and isogeny (SQIsign) signatures are in NIST's additional signature round</p>
     </div>
   </div>
 </section>
@@ -289,7 +289,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
         <li><strong>SIVP</strong> — Shortest Independent Vectors: find n shortest linearly independent vectors</li>
         <li><strong>GapSVP</strong> — Decision variant: is λ₁(ℒ) ≤ d or > γ·d?</li>
       </ul>
-      <p style="font-size:0.62em; margin-top:0.6em;">Best known classical algorithms (BKZ/LLL) run in <span class="accent">2<sup>O(n)</sup></span> time. No known quantum algorithm provides more than polynomial improvement over classical lattice algorithms.</p>
+      <p style="font-size:0.62em; margin-top:0.6em;">Exact or small-factor SVP: best known algorithms (sieving, enumeration, BKZ) take <span class="accent">2<sup>Θ(n)</sup></span> time; LLL is polynomial-time but only finds vectors within an exponential factor. Quantum algorithms only shave the exponent (e.g. sieving 2<sup>0.292n</sup> → ~2<sup>0.257n</sup>).</p>
     </div>
   </div>
 </section>
@@ -310,13 +310,13 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <p>where <strong>e</strong> is a "small" error vector sampled from a discrete Gaussian χ.</p>
       <p style="margin-top:0.5em;">The <span class="accent">search problem</span>: given (A, b), recover <strong>s</strong>.<br>
       The <span class="accent">decision problem</span>: distinguish (A, b) from uniform random.</p>
-      <p style="margin-top:0.5em; font-size:0.65em;">Without noise: trivial Gaussian elimination — O(n³). <em>With</em> noise: as hard as worst-case lattice problems (GapSVP, SIVP).</p>
+      <p style="margin-top:0.5em; font-size:0.65em;">Without noise: trivial Gaussian elimination — O(n³). <em>With</em> noise: as hard as worst-case lattice problems (GapSVP, SIVP) — via a quantum reduction.</p>
     </div>
     <div>
       <h3>Variants</h3>
       <div class="card" style="margin-bottom:8px;">
         <h4>Ring-LWE (RLWE)</h4>
-        <p>Work in R<sub>q</sub> = ℤ<sub>q</sub>[x]/(x<sup>n</sup>+1). Structured — O(n log n) operations via NTT. Basis for Kyber/ML-KEM.</p>
+        <p>Work in R<sub>q</sub> = ℤ<sub>q</sub>[x]/(x<sup>n</sup>+1). Structured — O(n log n) operations via NTT. Basis of the FHE schemes BGV, BFV and CKKS (deck 08).</p>
       </div>
       <div class="card" style="margin-bottom:8px;">
         <h4>Module-LWE (MLWE)</h4>
@@ -324,7 +324,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       </div>
       <div class="card">
         <h4>Worst-Case to Average-Case</h4>
-        <p>Regev's reduction: solving <em>random</em> LWE instances is at least as hard as solving <em>worst-case</em> GapSVP — a unique guarantee among cryptographic assumptions.</p>
+        <p>Regev's (quantum) reduction: solving <em>random</em> LWE instances is at least as hard as solving <em>worst-case</em> GapSVP/SIVP; Peikert (2009) gave a classical reduction for GapSVP. Few assumptions have a worst-case guarantee like this.</p>
       </div>
     </div>
   </div>
@@ -374,7 +374,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
   <div class="card-grid cols-3" style="margin-top:0.6em;">
     <div class="card">
       <h4>Coming: FIPS 206 — FN-DSA</h4>
-      <p>Based on FALCON. FFT over NTRU lattices. Compact signatures (~690 B at 128-bit security). Draft expected 2025.</p>
+      <p>Based on FALCON. FFT over NTRU lattices. Compact signatures (666 B for FN-DSA-512, NIST Category 1). Draft FIPS 206 pending.</p>
     </div>
     <div class="card">
       <h4>Coming: HQC</h4>
@@ -385,7 +385,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <p>Stateful hash-based signature schemes. Already approved. Require strict state management — suitable for firmware signing, not TLS.</p>
     </div>
   </div>
-  <p class="small" style="margin-top:0.4em;">NIST IR 8547: transition timeline — deprecate quantum-vulnerable algorithms by 2035, with high-risk systems transitioning much earlier.</p>
+  <p class="small" style="margin-top:0.4em;">NIST IR 8547 (initial public draft, Nov 2024): quantum-vulnerable algorithms deprecated after 2030 and disallowed after 2035, with high-risk systems transitioning much earlier.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -402,7 +402,7 @@ html.phone-mode .reveal .slides section [style*="position:absolute"] { max-width
       <p style="font-size:0.62em;"><strong>2. KEM transform</strong> — a modified Fujisaki-Okamoto (FO) transform applied to K-PKE, yielding IND-CCA2 security.</p>
       <div class="math-block" style="font-size:0.58em;">
 KeyGen: (A, t = As + e) where A ∈ R<sub>q</sub><sup>k×k</sup>, s,e ← CBD(η)<br>
-Encaps: c = Compress(Au + e₁, t<sup>T</sup>u + e₂ + ⌈q/2⌋·m)<br>
+Encaps: c = Compress(A<sup>T</sup>y + e₁, t<sup>T</sup>y + e₂ + ⌈q/2⌋·m)<br>
 Decaps: m' = Decompress(c₂ − s<sup>T</sup>c₁), re-encrypt, check
       </div>
       <p style="font-size:0.58em; margin-top:0.3em;">The ring R<sub>q</sub> = ℤ<sub>q</sub>[x]/(x<sup>256</sup>+1) with q = 3329. Polynomial multiplication via <span class="accent">Number Theoretic Transform (NTT)</span>.</p>
@@ -439,13 +439,13 @@ Decaps: m' = Decompress(c₂ − s<sup>T</sup>c₁), re-encrypt, check
           <strong style="color:var(--q-cyan);">KeyGen():</strong><br>
           1. Sample A ← ℤ<sub>q</sub>[x]/(x²⁵⁶+1) via SHAKE-128<br>
           2. Sample s, e ← CBD(η₁)<br>
-          3. t = NTT(A)·NTT(s) + NTT(e)<br>
+          3. t̂ = Â∘NTT(s) + NTT(e)  (Â sampled in NTT form)<br>
           4. pk = (t̂, ρ), sk = (s, pk, H(pk), z)<br><br>
           <strong style="color:var(--q-amber);">Decaps(sk, ct):</strong><br>
           5. Decrypt ct → m'<br>
           6. Re-encrypt m' → ct'<br>
-          7. If ct' = ct: K = KDF(m', H(ct))<br>
-          &nbsp;&nbsp; Else: K = KDF(z, H(ct))
+          7. (K', r') = G(m' ‖ H(pk)); if ct' = ct: K = K'<br>
+          &nbsp;&nbsp; Else: K = J(z ‖ ct)  (implicit rejection)
         </div>
       </div>
       <div style="display:flex; flex-direction:column; justify-content:center; gap:30px; padding-top:40px;">
@@ -458,11 +458,11 @@ Decaps: m' = Decompress(c₂ − s<sup>T</sup>c₁), re-encrypt, check
           <strong style="color:var(--q-green);">Encaps(pk):</strong><br>
           1. m ← random 32 bytes<br>
           2. (K̂, r) = G(m ‖ H(pk))<br>
-          3. Sample r₁, r₂, e₁ ← CBD(η) using r<br>
-          4. u = NTT⁻¹(Â<sup>T</sup>·NTT(r₁)) + e₁<br>
-          5. v = NTT⁻¹(t̂<sup>T</sup>·NTT(r₁)) + e₂ + Compress(m)<br>
+          3. Sample y ← CBD(η₁), e₁, e₂ ← CBD(η₂) using r<br>
+          4. u = NTT⁻¹(Â<sup>T</sup>·NTT(y)) + e₁<br>
+          5. v = NTT⁻¹(t̂<sup>T</sup>·NTT(y)) + e₂ + Decompress₁(m)<br>
           6. ct = (Compress(u), Compress(v))<br>
-          7. K = KDF(K̂, H(ct))
+          7. K = K̂  (FIPS 203 drops Kyber's final KDF)
         </div>
       </div>
     </div>
@@ -484,10 +484,10 @@ Decaps: m' = Decompress(c₂ − s<sup>T</sup>c₁), re-encrypt, check
 Given f(x), g(x) ∈ R<sub>q</sub> = ℤ<sub>q</sub>[x]/(x<sup>256</sup>+1), q = 3329:<br><br>
 1. f̂ = NTT(f)&nbsp;&nbsp;&nbsp;— 7 layers of butterfly operations<br>
 2. ĝ = NTT(g)<br>
-3. ĥ = f̂ ⊙ ĝ&nbsp;&nbsp;&nbsp;— pointwise multiply (128 pairs)<br>
+3. ĥ = f̂ ⊙ ĝ&nbsp;&nbsp;&nbsp;— 128 products of degree-1 polys mod (X² − γ<sub>i</sub>)<br>
 4. h = NTT⁻¹(ĥ)&nbsp;— inverse transform<br><br>
-Root of unity: ζ = 17 (ζ²⁵⁶ ≡ −1 mod 3329)<br>
-Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
+Root of unity: ζ = 17 (ζ¹²⁸ ≡ −1, ζ²⁵⁶ ≡ 1 mod 3329)<br>
+Why q = 3329? Prime, q = 13·256 + 1 ≡ 1 (mod 256) but not (mod 512): no 512th root, so the NTT stops after 7 layers ("incomplete" NTT). Fits in 12 bits.
       </div>
     </div>
     <div>
@@ -507,7 +507,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
         </svg>
       </div>
       <p style="font-size:0.55em; margin-top:0.3em;">ML-KEM uses 7 layers of 128 butterflies. Each butterfly: 1 multiply + 1 add + 1 subtract in ℤ<sub>3329</sub>. Total: 128 × 7 = 896 butterflies per NTT.</p>
-      <p style="font-size:0.55em;">Hardware: can be parallelised into systolic arrays. FPGA implementations achieve NTT in <span class="accent">&lt;1 μs</span> at modest clock rates.</p>
+      <p style="font-size:0.55em;">Hardware: one butterfly unit at 200 MHz does an NTT in ~4.5 μs (896 cycles); 4–8 parallel butterflies bring it to <span class="accent">~1 μs or below</span>.</p>
     </div>
   </div>
 </section>
@@ -524,18 +524,18 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
       <p style="font-size:0.62em;">ML-DSA uses the "Fiat-Shamir with Aborts" paradigm (Lyubashevsky, 2009):</p>
       <div class="math-block" style="font-size:0.52em;">
 <strong>KeyGen:</strong> A ← R<sub>q</sub><sup>k×ℓ</sup>, (s₁,s₂) ← small, t = As₁ + s₂<br>
-&nbsp;&nbsp;pk = (A, t), sk = (A, t, s₁, s₂)<br><br>
+&nbsp;&nbsp;pk = (ρ, t₁), sk = (ρ, K, tr, s₁, s₂, t₀)  — A re-expanded from seed ρ<br><br>
 <strong>Sign(sk, M):</strong><br>
 &nbsp;&nbsp;repeat:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;y ← uniform with ‖y‖∞ < γ₁<br>
+&nbsp;&nbsp;&nbsp;&nbsp;y ← uniform with ‖y‖∞ &lt; γ₁<br>
 &nbsp;&nbsp;&nbsp;&nbsp;w = Ay<br>
-&nbsp;&nbsp;&nbsp;&nbsp;c̃ = H(HighBits(w) ‖ M)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;c̃ = H(μ ‖ HighBits(w)),  μ = H(tr ‖ M)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;c = SampleInBall(c̃)  — sparse polynomial, τ nonzero coeffs<br>
 &nbsp;&nbsp;&nbsp;&nbsp;z = y + c·s₁<br>
-&nbsp;&nbsp;until ‖z‖∞ < γ₁−β <strong>and</strong> ‖LowBits(w − c·s₂)‖∞ < γ₂−β<br>
+&nbsp;&nbsp;until ‖z‖∞ &lt; γ₁−β <strong>and</strong> ‖LowBits(w − c·s₂)‖∞ &lt; γ₂−β<br>
 &nbsp;&nbsp;σ = (c̃, z, hints)<br><br>
 <strong>Verify(pk, M, σ):</strong><br>
-&nbsp;&nbsp;w' = Az − c·t, check HighBits match c̃
+&nbsp;&nbsp;w' = UseHint(h, Az − c·t₁·2<sup>d</sup>), check H(μ ‖ w') = c̃
       </div>
     </div>
     <div>
@@ -543,14 +543,14 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
       <table style="font-size:0.54em;">
         <thead><tr><th>Set</th><th>(k,ℓ)</th><th>PK (B)</th><th>SK (B)</th><th>Sig (B)</th><th>Cat</th></tr></thead>
         <tbody>
-          <tr><td>ML-DSA-44</td><td>(4,4)</td><td>1,312</td><td>2,528</td><td>2,420</td><td>2</td></tr>
-          <tr><td>ML-DSA-65</td><td>(6,5)</td><td>1,952</td><td>4,000</td><td>3,293</td><td>3</td></tr>
-          <tr><td>ML-DSA-87</td><td>(8,7)</td><td>2,592</td><td>4,864</td><td>4,595</td><td>5</td></tr>
+          <tr><td>ML-DSA-44</td><td>(4,4)</td><td>1,312</td><td>2,560</td><td>2,420</td><td>2</td></tr>
+          <tr><td>ML-DSA-65</td><td>(6,5)</td><td>1,952</td><td>4,032</td><td>3,309</td><td>3</td></tr>
+          <tr><td>ML-DSA-87</td><td>(8,7)</td><td>2,592</td><td>4,896</td><td>4,627</td><td>5</td></tr>
         </tbody>
       </table>
       <div class="card" style="margin-top:10px;">
         <h4>Why "Aborts"?</h4>
-        <p>The masking vector y hides s₁ in z = y + c·s₁. If z leaks information about s₁ (by being too large or having suspicious low bits), the signature is <em>rejected</em> and the signer tries again. Average ~4–7 iterations per signature.</p>
+        <p>The masking vector y hides s₁ in z = y + c·s₁. If z leaks information about s₁ (by being too large or having suspicious low bits), the signature is <em>rejected</em> and the signer tries again. Expected iterations: 4.25 / 5.1 / 3.85 for ML-DSA-44/65/87 (FIPS 204 Table 1).</p>
       </div>
       <div class="card" style="margin-top:8px;">
         <h4>Security Basis</h4>
@@ -599,7 +599,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
           <tr><td>SLH-DSA-*-256f</td><td>64</td><td>128</td><td>49,856</td><td>5</td></tr>
         </tbody>
       </table>
-      <p style="font-size:0.54em; margin-top:0.3em;">Hash choice: SHA-256 or SHAKE-256. Suffix <strong>s</strong> = smaller sig / slower; <strong>f</strong> = fast sign / larger sig.</p>
+      <p style="font-size:0.54em; margin-top:0.3em;">Hash choice: SHA-2 or SHAKE256 family. Suffix <strong>s</strong> = smaller sig / slower; <strong>f</strong> = fast sign / larger sig.</p>
       <div class="card" style="margin-top:8px;">
         <h4>Trade-off: Keys vs Signatures</h4>
         <p>SLH-DSA has the <em>smallest keys</em> of any PQC signature (32–64 B public key!) but the <em>largest signatures</em> (7–50 KB). Ideal for code signing, firmware verification — not TLS handshakes.</p>
@@ -636,9 +636,9 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
       <tr><th>Operation</th><th>ML-KEM-768</th><th>ECDH (X25519)</th><th>RSA-2048</th></tr>
     </thead>
     <tbody>
-      <tr><td>KeyGen</td><td class="safe">~30 μs</td><td>~60 μs</td><td>~200 ms</td></tr>
-      <tr><td>Encaps / Encrypt</td><td class="safe">~40 μs</td><td>~60 μs</td><td>~10 μs</td></tr>
-      <tr><td>Decaps / Decrypt</td><td class="safe">~35 μs</td><td>~60 μs</td><td>~5 ms</td></tr>
+      <tr><td>KeyGen</td><td class="safe">~30 μs</td><td>~50 μs</td><td>~200 ms</td></tr>
+      <tr><td>Encaps / Encrypt</td><td class="safe">~40 μs</td><td>~50 μs</td><td>~30 μs</td></tr>
+      <tr><td>Decaps / Decrypt</td><td class="safe">~35 μs</td><td>~50 μs</td><td>~1 ms</td></tr>
     </tbody>
   </table>
   <table style="margin-top:0.5em;">
@@ -647,18 +647,19 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
     </thead>
     <tbody>
       <tr><td>KeyGen</td><td class="safe">~80 μs</td><td>~30 μs</td><td>~200 ms</td></tr>
-      <tr><td>Sign</td><td>~250 μs (avg)</td><td>~50 μs</td><td>~5 ms</td></tr>
-      <tr><td>Verify</td><td>~90 μs</td><td>~70 μs</td><td>~10 μs</td></tr>
+      <tr><td>Sign</td><td>~250 μs (avg)</td><td>~50 μs</td><td>~1 ms</td></tr>
+      <tr><td>Verify</td><td>~90 μs</td><td>~130 μs</td><td>~30 μs</td></tr>
     </tbody>
   </table>
+  <p class="small" style="margin-top:0.2em;">One x86-64 core. Classical columns: <code>openssl speed</code> (OpenSSL 3.0); PQC columns: indicative portable-C figures (AVX2 code is 2–4× faster). Treat all as orders of magnitude.</p>
   <div class="card-grid cols-2" style="margin-top:0.4em;">
     <div class="card safe-card">
       <h4 style="color:var(--q-green);">✓ PQC Advantage</h4>
-      <p>ML-KEM key generation is ~6000× faster than RSA-2048. Total KEM round-trip is comparable to ECDH. NTT-based arithmetic is highly parallelisable.</p>
+      <p>ML-KEM key generation is thousands of times faster than RSA-2048. Total KEM round-trip is comparable to ECDH. NTT-based arithmetic is highly parallelisable.</p>
     </div>
     <div class="card amber-card">
       <h4 style="color:var(--q-amber);">⚠ PQC Trade-off</h4>
-      <p>Larger key/signature sizes increase bandwidth. ML-DSA signing requires retry loops (~4–7 iterations). SLH-DSA signing is 100–1000× slower than ML-DSA.</p>
+      <p>Larger key/signature sizes increase bandwidth. ML-DSA signing requires retry loops (~4–5 iterations on average). SLH-DSA signing is 100–1000× slower than ML-DSA.</p>
     </div>
   </div>
 </section>
@@ -695,7 +696,7 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
     <div>
       <h3>Implementation Results</h3>
       <table style="font-size:0.52em;">
-        <thead><tr><th>Platform</th><th>Algorithm</th><th>KeyGen</th><th>Encaps</th><th>Area</th></tr></thead>
+        <thead><tr><th>Platform</th><th>Algorithm</th><th>KeyGen</th><th>Encaps / Sign</th><th>Area</th></tr></thead>
         <tbody>
           <tr><td>Cortex-M4</td><td>ML-KEM-768</td><td>~500K cyc</td><td>~600K cyc</td><td>—</td></tr>
           <tr><td>Artix-7 FPGA</td><td>ML-KEM-768</td><td>~3 μs</td><td>~4 μs</td><td>~5K LUTs</td></tr>
@@ -703,12 +704,13 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
           <tr><td>Cortex-M4</td><td>ML-DSA-65</td><td>~1.5M cyc</td><td>~5M cyc</td><td>—</td></tr>
         </tbody>
       </table>
+      <p class="small" style="margin-top:2px;">Indicative figures from published designs; they vary several-fold with architecture and clock.</p>
       <div class="card" style="margin-top:10px;">
         <h4>Design Considerations for SoC Integration</h4>
         <ul>
           <li>Shared NTT engine between KEM and signature operations</li>
-          <li>SHAKE-256/Keccak permutation block — also used in SHA-3</li>
-          <li>CBD (Centered Binomial Distribution) sampler — simple XOR + popcount</li>
+          <li>Keccak-f[1600] permutation block — serves SHA3-256/512, SHAKE128 (matrix A) and SHAKE256 (sampling)</li>
+          <li>CBD (Centered Binomial Distribution) sampler — two popcounts and a subtract</li>
           <li>Constant-time implementation essential — avoid timing side-channels in Barrett reduction and NTT butterfly</li>
         </ul>
       </div>
@@ -725,23 +727,19 @@ Why q = 3329? Prime, q ≡ 1 (mod 256), fits in 12 bits.
   <pre><code class="language-python" data-trim data-noescape>
 Q = 3329          # ML-KEM modulus
 N = 256           # polynomial degree
-ZETA = 17         # primitive 256th root of unity mod Q
+ZETA = 17         # primitive 256th root of unity mod Q (17^128 = -1)
 
-# Precompute twiddle factors: ζ^(BitRev₇(i)) for NTT layers
-def precompute_zetas():
-    zetas = [0] * 128
-    for i in range(128):
-        br = int(f'{i:07b}'[::-1], 2)        # 7-bit bit-reversal
-        zetas[i] = pow(ZETA, br, Q)
-    return zetas
+def bitrev7(i):
+    return int(f'{i:07b}'[::-1], 2)
 
-ZETAS = precompute_zetas()
+# Twiddle factors ζ^BitRev7(i), as in FIPS 203
+ZETAS = [pow(ZETA, bitrev7(i), Q) for i in range(128)]
 
 def ntt(f):
-    """Number Theoretic Transform: O(n log n) polynomial → NTT domain."""
+    """FIPS 203 Alg. 9: 7 layers, 128 -&gt; 2; output = 128 degree-1 residues."""
     a = list(f)
-    k, length = 0, 128
-    while length >= 1:
+    k, length = 1, 128
+    while length &gt;= 2:
         for start in range(0, N, 2 * length):
             zeta = ZETAS[k]; k += 1
             for j in range(start, start + length):
@@ -751,13 +749,28 @@ def ntt(f):
         length //= 2
     return a
 
-def pointwise_mul(f_hat, g_hat):
-    """Pointwise multiplication in NTT domain (128 degree-1 polynomials)."""
+def intt(a):
+    """FIPS 203 Alg. 10: Gentleman-Sande butterflies, then multiply by 128^-1."""
+    a = list(a)
+    k, length = 127, 2
+    while length &lt;= 128:
+        for start in range(0, N, 2 * length):
+            zeta = ZETAS[k]; k -= 1
+            for j in range(start, start + length):
+                t = a[j]
+                a[j] = (t + a[j + length]) % Q
+                a[j + length] = (zeta * (a[j + length] - t)) % Q
+        length *= 2
+    return [(x * 3303) % Q for x in a]          # 3303 = 128^-1 mod 3329
+
+def multiply_ntts(f_hat, g_hat):
+    """FIPS 203 Alg. 11: 128 products of degree-1 polys mod (X^2 - γ_i)."""
     h = [0] * N
-    for i in range(0, N, 2):
-        z = ZETAS[64 + i // 2]
-        h[i]   = (f_hat[i]*g_hat[i] + f_hat[i+1]*g_hat[i+1]*z) % Q
-        h[i+1] = (f_hat[i]*g_hat[i+1] + f_hat[i+1]*g_hat[i]) % Q
+    for i in range(128):
+        g = pow(ZETA, 2 * bitrev7(i) + 1, Q)     # γ_i = ζ^(2·BitRev7(i)+1)
+        a0, a1, b0, b1 = f_hat[2*i], f_hat[2*i+1], g_hat[2*i], g_hat[2*i+1]
+        h[2*i]   = (a0 * b0 + a1 * b1 * g) % Q
+        h[2*i+1] = (a0 * b1 + a1 * b0) % Q
     return h
   </code></pre>
 </section>
@@ -766,47 +779,50 @@ def pointwise_mul(f_hat, g_hat):
 <!-- SLIDE 18: PYTHON KEYGEN -->
 <!-- ============================================================ -->
 <section data-background-color="#f7f7f5">
-  <h2>Python: Key Generation Sketch</h2>
+  <h2>Python: K-PKE Key Generation (FIPS 203)</h2>
   <pre><code class="language-python" data-trim data-noescape>
 import os, hashlib
 
 def cbd(eta, seed, nonce):
-    """Centered Binomial Distribution — sample small polynomial."""
-    # In production: expand seed with SHAKE-256, extract 64·eta bytes
-    # Here simplified for illustration
-    coeffs = [0] * N
-    data = hashlib.shake_256(seed + bytes([nonce])).digest(64 * eta)
-    for i in range(N):
-        a = sum((data[2*eta*i + j] >> b) & 1
-                for j in range(eta) for b in range(8)) 
-        # ... (simplified — real CBD sums bit-pairs from byte stream)
-        coeffs[i] = (a % (2*eta + 1)) - eta
-    return [c % Q for c in coeffs]
+    """Centred binomial sample (FIPS 203 Alg. 8): coefficient = x - y."""
+    data = hashlib.shake_256(seed + bytes([nonce])).digest(64 * eta)  # PRF
+    bits = [(byte &gt;&gt; b) &amp; 1 for byte in data for b in range(8)]
+    return [(sum(bits[2*eta*i : 2*eta*i + eta])
+             - sum(bits[2*eta*i + eta : 2*eta*(i + 1)])) % Q for i in range(N)]
 
-def ml_kem_keygen(k=3, eta1=2):
-    """ML-KEM-768 key generation (simplified sketch)."""
-    rho = os.urandom(32)            # public seed for matrix A
-    sigma = os.urandom(32)          # private seed for s, e
-    
-    # Generate A ∈ R_q^{k×k} from rho (deterministic via SHAKE-128)
-    A_hat = [[sample_ntt(rho, i, j) for j in range(k)] for i in range(k)]
-    
-    # Sample secret s and error e from CBD(eta1)
-    s = [ntt(cbd(eta1, sigma, n)) for n in range(k)]
-    e = [ntt(cbd(eta1, sigma, n + k)) for n in range(k)]
-    
-    # t = A·s + e  (all in NTT domain)
-    t_hat = [
-        [(A_hat[i][j] @ s[j]) for j in range(k)]  # pseudocode
-        for i in range(k)
-    ]
-    # ... sum columns, add e ...
-    
-    pk = encode(t_hat, rho)         # 1184 bytes for k=3
-    sk = encode(s, pk, H(pk), z)    # 2400 bytes for k=3
-    return pk, sk
+def sample_ntt(rho, j, i):
+    """FIPS 203 Alg. 7: uniform NTT-domain poly by rejection from SHAKE-128."""
+    xof = hashlib.shake_128(rho + bytes([j, i])).digest(840)  # ample bytes
+    a, p = [], 0
+    while len(a) &lt; N:
+        d1 = xof[p] | (xof[p+1] &amp; 15) &lt;&lt; 8
+        d2 = xof[p+1] &gt;&gt; 4 | xof[p+2] &lt;&lt; 4
+        a += [d for d in (d1, d2) if d &lt; Q]; p += 3
+    return a[:N]
+
+def encode12(f):                     # ByteEncode_12: 256 x 12 bits = 384 B
+    return b''.join((f[i] | f[i+1] &lt;&lt; 12).to_bytes(3, 'little')
+                    for i in range(0, N, 2))
+
+def k_pke_keygen(d, k=3, eta1=2):
+    """FIPS 203 Alg. 13 (ML-KEM-768 when k=3)."""
+    g = hashlib.sha3_512(d + bytes([k])).digest()
+    rho, sigma = g[:32], g[32:]      # public seed for A, private seed for s, e
+    A_hat = [[sample_ntt(rho, j, i) for j in range(k)] for i in range(k)]
+    s_hat = [ntt(cbd(eta1, sigma, n)) for n in range(k)]
+    e_hat = [ntt(cbd(eta1, sigma, n + k)) for n in range(k)]
+    t_hat = []                       # t = A·s + e, all in the NTT domain
+    for i in range(k):
+        acc = e_hat[i]
+        for j in range(k):
+            prod = multiply_ntts(A_hat[i][j], s_hat[j])
+            acc = [(x + y) % Q for x, y in zip(acc, prod)]
+        t_hat.append(acc)
+    ek = b''.join(map(encode12, t_hat)) + rho      # 1152 + 32 = 1184 B
+    dk_pke = b''.join(map(encode12, s_hat))        # 1152 B
+    return ek, dk_pke     # ML-KEM dk = dk_pke ‖ ek ‖ H(ek) ‖ z = 2400 B
   </code></pre>
-  <p class="small">Production implementations: use <code>liboqs</code>, <code>pqcrypto</code> (Rust), or OpenSSL 3.5+ with ML-KEM support.</p>
+  <p class="small">Uses <code>ntt</code> and <code>multiply_ntts</code> from the previous slide; for a fixed seed d the output matches the ML-KEM-768 keys of the <code>kyber-py</code> reference byte for byte. Production implementations: use <code>liboqs</code>, <code>pqcrypto</code> (Rust), or OpenSSL 3.5+ with ML-KEM support.</p>
 </section>
 
 <!-- ============================================================ -->
@@ -831,7 +847,7 @@ def ml_kem_keygen(k=3, eta1=2):
           <div class="flow-node safe" style="font-size:0.9em;">‖</div>
           <div class="flow-node amber">SS₂ = ML-KEM.Decaps(ct)</div>
         </div>
-        <p style="margin:8px 0; color:var(--text-dim);">↓ KDF(SS₁ ‖ SS₂) → session keys</p>
+        <p style="margin:8px 0; color:var(--text-dim);">↓ SS₂ ‖ SS₁ → TLS 1.3 key schedule (X25519MLKEM768 puts the ML-KEM secret first)</p>
       </div>
       <p style="font-size:0.58em;">If either algorithm is broken, the other still protects the session. Already deployed by Cloudflare, Google Chrome, AWS.</p>
     </div>
@@ -870,12 +886,12 @@ def ml_kem_keygen(k=3, eta1=2):
     </thead>
     <tbody>
       <tr><td class="accent">ML-KEM-768</td><td>KEM</td><td>1,184 B</td><td>2,400 B</td><td>1,088 B</td><td style="color:var(--q-green);">Very fast</td><td style="color:var(--q-green);">FIPS 203</td><td>TLS, VPN, general KE</td></tr>
-      <tr><td class="accent">ML-DSA-65</td><td>Sig</td><td>1,952 B</td><td>4,000 B</td><td>3,293 B</td><td style="color:var(--q-green);">Fast</td><td style="color:var(--q-green);">FIPS 204</td><td>Code signing, auth, TLS</td></tr>
+      <tr><td class="accent">ML-DSA-65</td><td>Sig</td><td>1,952 B</td><td>4,032 B</td><td>3,309 B</td><td style="color:var(--q-green);">Fast</td><td style="color:var(--q-green);">FIPS 204</td><td>Code signing, auth, TLS</td></tr>
       <tr><td class="accent">SLH-DSA-128f</td><td>Sig</td><td>32 B</td><td>64 B</td><td>17,088 B</td><td style="color:var(--q-amber);">Slow sign</td><td style="color:var(--q-green);">FIPS 205</td><td>Firmware, long-term archive</td></tr>
-      <tr><td>FN-DSA-512</td><td>Sig</td><td>897 B</td><td>1,281 B</td><td>690 B</td><td style="color:var(--q-green);">Fast</td><td style="color:var(--q-amber);">Draft 206</td><td>Bandwidth-constrained</td></tr>
-      <tr><td>HQC-128</td><td>KEM</td><td>~2,249 B</td><td>~2,289 B</td><td>~4,497 B</td><td style="color:var(--q-amber);">Moderate</td><td style="color:var(--q-amber);">Selected 2025</td><td>ML-KEM backup (diversity)</td></tr>
+      <tr><td>FN-DSA-512</td><td>Sig</td><td>897 B</td><td>1,281 B</td><td>666 B</td><td style="color:var(--q-green);">Fast</td><td style="color:var(--q-amber);">FIPS 206 pending</td><td>Bandwidth-constrained</td></tr>
+      <tr><td>HQC-128</td><td>KEM</td><td>~2.2 KB</td><td>~2.3 KB</td><td>~4.4 KB</td><td style="color:var(--q-amber);">Moderate</td><td style="color:var(--q-amber);">Selected 2025</td><td>ML-KEM backup (diversity)</td></tr>
       <tr style="color:var(--text-dim);">
-        <td>RSA-2048</td><td>KE+Sig</td><td>256 B</td><td>256 B</td><td>256 B</td><td style="color:var(--q-red);">Slow KG</td><td style="color:var(--q-red);">Broken by QC</td><td>Legacy (deprecate)</td>
+        <td>RSA-2048</td><td>KE+Sig</td><td>256 B</td><td>~1.2 KB</td><td>256 B</td><td style="color:var(--q-red);">Slow KG</td><td style="color:var(--q-red);">Broken by QC</td><td>Legacy (deprecate)</td>
       </tr>
       <tr style="color:var(--text-dim);">
         <td>ECDSA P-256</td><td>Sig</td><td>64 B</td><td>32 B</td><td>64 B</td><td>Fast</td><td style="color:var(--q-red);">Broken by QC</td><td>Legacy (deprecate)</td>
@@ -1150,7 +1166,7 @@ function lweGenerate(sigma) {
     if (sigma > 0) {
       // Box-Muller for discrete Gaussian approximation
       const u1 = Math.random(), u2 = Math.random();
-      e = Math.round(sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2));
+      e = Math.round(sigma * Math.sqrt(-2 * Math.log(u1 || 1e-9)) * Math.cos(2 * Math.PI * u2));
     }
     errors.push(e);
     return ((dot + e) % q + q) % q;
@@ -1226,14 +1242,14 @@ const sizeData = {
     { label: 'FN-DSA\n512', value: 897, color: 'rgba(91,65,4,0.7)' },
   ],
   sk: [
-    { label: 'RSA-2048', value: 256, color: 'rgba(244,35,19,0.7)' },
+    { label: 'RSA-2048', value: 1190, color: 'rgba(244,35,19,0.7)' },
     { label: 'ECDSA\nP-256', value: 32, color: 'rgba(244,35,19,0.7)' },
     { label: 'ML-KEM\n512', value: 1632, color: 'rgba(2,48,82,0.7)' },
     { label: 'ML-KEM\n768', value: 2400, color: 'rgba(2,48,82,0.9)' },
     { label: 'ML-KEM\n1024', value: 3168, color: 'rgba(2,48,82,0.7)' },
-    { label: 'ML-DSA\n44', value: 2528, color: 'rgba(4,73,49,0.7)' },
-    { label: 'ML-DSA\n65', value: 4000, color: 'rgba(4,73,49,0.9)' },
-    { label: 'ML-DSA\n87', value: 4864, color: 'rgba(4,73,49,0.7)' },
+    { label: 'ML-DSA\n44', value: 2560, color: 'rgba(4,73,49,0.7)' },
+    { label: 'ML-DSA\n65', value: 4032, color: 'rgba(4,73,49,0.9)' },
+    { label: 'ML-DSA\n87', value: 4896, color: 'rgba(4,73,49,0.7)' },
     { label: 'SLH-DSA\n128f', value: 64, color: 'rgba(138,9,207,0.7)' },
     { label: 'FN-DSA\n512', value: 1281, color: 'rgba(91,65,4,0.7)' },
   ],
@@ -1244,10 +1260,10 @@ const sizeData = {
     { label: 'ML-KEM\n768', value: 1088, color: 'rgba(2,48,82,0.9)' },
     { label: 'ML-KEM\n1024', value: 1568, color: 'rgba(2,48,82,0.7)' },
     { label: 'ML-DSA\n44', value: 2420, color: 'rgba(4,73,49,0.7)' },
-    { label: 'ML-DSA\n65', value: 3293, color: 'rgba(4,73,49,0.9)' },
-    { label: 'ML-DSA\n87', value: 4595, color: 'rgba(4,73,49,0.7)' },
+    { label: 'ML-DSA\n65', value: 3309, color: 'rgba(4,73,49,0.9)' },
+    { label: 'ML-DSA\n87', value: 4627, color: 'rgba(4,73,49,0.7)' },
     { label: 'SLH-DSA\n128f', value: 17088, color: 'rgba(138,9,207,0.7)' },
-    { label: 'FN-DSA\n512', value: 690, color: 'rgba(91,65,4,0.7)' },
+    { label: 'FN-DSA\n512', value: 666, color: 'rgba(91,65,4,0.7)' },
   ],
 };
 
